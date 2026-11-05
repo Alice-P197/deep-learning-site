@@ -1,0 +1,354 @@
+<header class="chapter-head">
+  <div class="crumb">第一部分 · 基础</div>
+  <h1>机器学习基础：从任务定义到可信评估</h1>
+  <p class="lede">在写第一行神经网络代码之前，先回答三个问题：要预测什么、用什么损失衡量、
+    怎样验证模型真的有用。这一章建立完整的建模流程，后续所有模型都只是这条流程里可替换的一环。</p>
+  <div class="meta">
+    <span>预计 55 分钟</span><span>前置：第 1 章</span>
+    <span>关键词：经验风险 · 偏差方差 · 交叉验证</span>
+  </div>
+</header>
+
+<section>
+<h2 id="paradigms">2.1 四种学习范式</h2>
+<p>机器学习按“监督信号从哪来”分为四类。深度学习的成功，很大程度来自它能在前三类任务上
+用同一套梯度下降框架训练。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead>
+    <tr><th>范式</th><th>数据形态</th><th>典型任务</th><th>代表模型</th></tr>
+  </thead>
+  <tbody>
+    <tr><td>监督学习</td><td>(x, y) 成对标注</td><td>分类、回归、检测、分割</td><td>ResNet、BERT</td></tr>
+    <tr><td>无监督学习</td><td>只有 x</td><td>聚类、降维、密度估计</td><td>K-Means、PCA、VAE</td></tr>
+    <tr><td>自监督学习</td><td>从 x 自动构造标签</td><td>语言建模、对比学习、掩码重建</td><td>GPT、SimCLR、MAE</td></tr>
+    <tr><td>强化学习</td><td>与环境交互得到奖励</td><td>控制、游戏、对齐</td><td>DQN、PPO</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>实际系统常常混用：先自监督预训练，再监督微调，最后用强化学习对齐偏好。
+<strong>不要把范式当标签，而要把它当“标签从哪来”的问题</strong>。</p>
+</section>
+
+<section>
+<h2 id="erm">2.2 学习就是最小化经验风险</h2>
+<p>真实分布 <span class="v">P</span>(<span class="v">X</span>, <span class="v">Y</span>) 未知，
+我们只有训练集。于是用训练集上的平均损失（经验风险）替代真实风险，再用优化算法求解。</p>
+
+<div class="formula">
+  <span class="label">经验风险最小化</span>
+  <div class="fx"><span class="v">R</span><sub>emp</sub>(<span class="v">θ</span>) =
+    <span class="frac"><span class="num">1</span><span class="den"><span class="v">N</span></span></span>
+    Σ<sub>i=1</sub><sup><span class="v">N</span></sup>
+    <span class="v">ℓ</span>(<span class="v">f</span><sub>θ</sub>(<span class="v">x</span><sub>i</sub>),
+    <span class="v">y</span><sub>i</sub>) + λΩ(<span class="v">θ</span>)</div>
+  <p class="fx-note">第一项要求拟合数据，第二项（正则）限制模型复杂度。
+    两者平衡决定了泛化能力，这就是“欠拟合 / 过拟合”的来源。</p>
+</div>
+
+<h3 id="loss">损失函数怎么选</h3>
+<p>损失必须与任务和输出层的概率假设匹配。用错损失，模型可能仍会下降，但优化目标已经偏了。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>任务</th><th>输出层</th><th>损失</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>回归</td><td>线性（1 维）</td><td>MSE / MAE / Huber</td><td>MSE 对大误差敏感，MAE 更鲁棒</td></tr>
+    <tr><td>二分类</td><td>Sigmoid（1 维）</td><td>BCE</td><td>输出为概率，需 log 稳定实现</td></tr>
+    <tr><td>多分类</td><td>Softmax（C 维）</td><td>交叉熵</td><td>配合 logits，不要先手动 softmax</td></tr>
+    <tr><td>多标签</td><td>C 个独立 Sigmoid</td><td>逐标签 BCE 求和</td><td>标签不互斥时不能用 softmax</td></tr>
+    <tr><td>排序 / 检索</td><td>相似度分数</td><td>Triplet / InfoNCE</td><td>关注正负样本相对关系</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="formula">
+  <span class="label">均方误差与二元交叉熵</span>
+  <div class="fx">MSE = <span class="frac"><span class="num">1</span><span class="den"><span class="v">N</span></span></span>
+    Σ<sub>i</sub>(<span class="v">ŷ</span><sub>i</sub> − <span class="v">y</span><sub>i</sub>)<sup>2</sup>
+    &nbsp;&nbsp; BCE = −<span class="frac"><span class="num">1</span><span class="den"><span class="v">N</span></span></span>
+    Σ<sub>i</sub>[<span class="v">y</span><sub>i</sub> log <span class="v">ŷ</span><sub>i</sub> +
+    (1 − <span class="v">y</span><sub>i</sub>) log(1 − <span class="v">ŷ</span><sub>i</sub>)]</div>
+  <p class="fx-note">MSE 对应高斯噪声假设，BCE 对应伯努利分布。
+    分类任务请直接把 logits 传给 <code>cross_entropy</code>，它内部融合了 log-softmax，
+    比“先 softmax 再取 log”数值稳定得多。</p>
+</div>
+</section>
+
+<section>
+<h2 id="gd">2.3 从线性模型理解训练循环</h2>
+<p>线性回归与逻辑回归是最小的完整闭环：模型 → 损失 → 梯度 → 更新。
+把它们跑通一遍，你之后看到的任何网络都只是把“模型”换成更深的函数。</p>
+
+<div class="formula">
+  <span class="label">线性模型与逻辑回归</span>
+  <div class="fx"><span class="v">ŷ</span> = <span class="v">w</span><sup>T</sup><span class="v">x</span> + <span class="v">b</span>
+    &nbsp;&nbsp; <span class="v">p</span>(<span class="v">y</span>=1|<span class="v">x</span>) =
+    σ(<span class="v">w</span><sup>T</sup><span class="v">x</span> + <span class="v">b</span>)
+    &nbsp;&nbsp; σ(<span class="v">z</span>) = <span class="frac"><span class="num">1</span>
+    <span class="den">1 + e<sup>−<span class="v">z</span></sup></span></span></div>
+  <p class="fx-note">线性回归的梯度是 <span class="v">X</span><sup>T</sup>(<span class="v">ŷ</span> − <span class="v">y</span>)/N；
+    逻辑回归 + BCE 的梯度形式完全一样，只是 <span class="v">ŷ</span> 多过了一层 sigmoid。</p>
+</div>
+
+<div class="code">
+<div class="code-bar"><span>Python · 线性回归与逻辑回归</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn as nn
+
+torch.manual_seed(0)
+
+# ---- 线性回归：y = 3x + 2 + 噪声 ----
+X = torch.randn(200, 1)
+y = 3 * X + 2 + 0.3 * torch.randn(200, 1)
+model = nn.Linear(1, 1)
+opt = torch.optim.SGD(model.parameters(), lr=0.1)
+
+for step in range(100):
+    pred = model(X)
+    loss = nn.functional.mse_loss(pred, y)
+    opt.zero_grad()
+    loss.backward()
+    opt.step()
+print("w,b =", model.weight.item(), model.bias.item())   # 接近 3 和 2
+
+# ---- 逻辑回归：二维二分类 ----
+N = 400
+X = torch.randn(N, 2)
+true_w = torch.tensor([2.0, -1.0])
+y = ((X @ true_w + 0.5) &gt; 0).float().view(-1, 1)
+
+clf = nn.Linear(2, 1)
+opt = torch.optim.SGD(clf.parameters(), lr=0.5)
+for step in range(200):
+    logits = clf(X)
+    loss = nn.functional.binary_cross_entropy_with_logits(logits, y)
+    opt.zero_grad()
+    loss.backward()
+    opt.step()
+
+with torch.no_grad():
+    acc = (((clf(X) &gt; 0).float()) == y).float().mean()
+print("accuracy:", acc.item())</code></pre>
+</div>
+
+<div class="callout">
+  <span class="ct">训练循环的五个固定动作</span>
+  <p>前向计算 → 计算损失 → <code>zero_grad()</code> → <code>backward()</code> →
+    <code>step()</code>。顺序错了就会出现梯度累积或更新失效。第 4 章会把每个动作展开。</p>
+</div>
+</section>
+
+<section>
+<h2 id="split">2.4 数据划分与交叉验证</h2>
+<p>模型在训练集上的表现没有意义，我们需要估计它在未见数据上的表现。标准做法是三层划分：
+<strong>训练集</strong>用于更新参数，<strong>验证集</strong>用于选择超参数与早停，
+<strong>测试集</strong>只在最后用一次。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>方式</th><th>适用场景</th><th>注意点</th></tr></thead>
+  <tbody>
+    <tr><td>留出法（70/15/15）</td><td>数据量大</td><td>划分要分层，保证类别比例</td></tr>
+    <tr><td>K 折交叉验证</td><td>数据较少</td><td>K=5 或 10，训练 K 次成本较高</td></tr>
+    <tr><td>时间序列切分</td><td>时序预测</td><td>不能随机打乱，只能用过去预测未来</td></tr>
+    <tr><td>分组划分</td><td>同一用户/患者多条记录</td><td>同一组不能跨训练与验证</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout warn">
+  <span class="ct">数据泄漏</span>
+  <p>先在全量数据上做标准化、选特征、过采样，再划分数据集，会让验证集信息泄漏到训练中，
+    指标虚高。<strong>所有拟合型预处理只能在训练集上 fit，再 transform 验证集</strong>。</p>
+</div>
+</section>
+
+<section>
+<h2 id="metrics">2.5 评估指标：别只看准确率</h2>
+<p>类别不平衡时准确率会骗人：99 个负样本 1 个正样本，全预测为负就有 99% 准确率。
+此时要看去向分类矩阵（TP / FP / FN / TN）派生的指标。</p>
+
+<div class="formula">
+  <span class="label">精确率、召回率与 F1</span>
+  <div class="fx"><span class="v">P</span> = <span class="frac"><span class="num">TP</span>
+    <span class="den">TP + FP</span></span>
+    &nbsp;&nbsp; <span class="v">R</span> = <span class="frac"><span class="num">TP</span>
+    <span class="den">TP + FN</span></span>
+    &nbsp;&nbsp; <span class="v">F</span><sub>1</sub> = <span class="frac">
+    <span class="num">2<span class="v">P</span><span class="v">R</span></span>
+    <span class="den"><span class="v">P</span> + <span class="v">R</span></span></span></div>
+  <p class="fx-note">精确率回答“报警的里面有多少是真的”，召回率回答“真的里面抓到了多少”。
+    两者通常互相牺牲，阈值就是调节旋钮。</p>
+</div>
+
+<div class="formula">
+  <span class="label">ROC-AUC 的直觉</span>
+  <div class="fx">AUC = <span class="v">P</span>(<span class="v">s</span><sub>正</sub> &gt;
+    <span class="v">s</span><sub>负</sub>)</div>
+  <p class="fx-note">随机抽一个正样本和一个负样本，模型给正样本打分更高的概率。
+    与阈值无关，适合比较模型排序能力；极度不平衡时 PR-AUC 更敏感。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>任务</th><th>主指标</th><th>辅助指标</th></tr></thead>
+  <tbody>
+    <tr><td>分类（均衡）</td><td>Accuracy</td><td>F1、AUC</td></tr>
+    <tr><td>分类（不平衡）</td><td>F1 / PR-AUC</td><td>Recall@固定精确率</td></tr>
+    <tr><td>回归</td><td>RMSE / MAE</td><td>R²、分位数误差</td></tr>
+    <tr><td>检测</td><td>mAP@0.5:0.95</td><td>每类 AP、小目标 AP</td></tr>
+    <tr><td>分割</td><td>mIoU / Dice</td><td>边界 F1</td></tr>
+    <tr><td>生成</td><td>FID / CLIPScore</td><td>人工评测、多样性</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2 id="bias-variance">2.6 偏差—方差：模型为什么不泛化</h2>
+<p>泛化误差可以分解为偏差、方差与不可约噪声。偏差是模型假设太简单带来的系统性错误，
+方差是对训练数据扰动过于敏感带来的波动。</p>
+
+<div class="formula">
+  <span class="label">偏差—方差分解（平方损失）</span>
+  <div class="fx">E[(<span class="v">y</span> − <span class="v">f</span>(<span class="v">x</span>))<sup>2</sup>]
+    = Bias<sup>2</sup> + Var + σ<sup>2</sup></div>
+  <p class="fx-note">Bias = (E[f] − 真实函数)²，Var = E[(f − E[f])²]。
+    模型容量增加通常降低偏差、提高方差；数据量增加主要降低方差。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>症状</th><th>训练误差</th><th>验证误差</th><th>对策</th></tr></thead>
+  <tbody>
+    <tr><td>欠拟合（高偏差）</td><td>高</td><td>高</td><td>更大模型、更多特征、减小正则、训练更久</td></tr>
+    <tr><td>过拟合（高方差）</td><td>低</td><td>高</td><td>更多数据、数据增强、正则、早停、简化模型</td></tr>
+    <tr><td>训练/验证都低</td><td>低</td><td>低</td><td>正常，继续提升数据难度或换指标</td></tr>
+    <tr><td>训练低 / 验证极高</td><td>低</td><td>极高</td><td>检查数据泄漏与分布偏移</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout note">
+  <span class="ct">深度学习的“双下降”现象</span>
+  <p>经典偏差—方差理论预测参数多于样本后必然过拟合，但现代网络在“插值阈值”之后
+    测试误差反而再次下降。这提醒我们：<strong>理论是地图，不是领土</strong>，
+    仍要以实验为准。</p>
+</div>
+</section>
+
+<section>
+<h2 id="regularization">2.7 正则化与模型选择</h2>
+<p>正则化的本质是给假设空间加约束，让模型偏向“简单”的解。常见手段有：</p>
+
+<ul>
+  <li><strong>L2 正则</strong>（weight decay）：在损失中加 λ‖w‖²，抑制大权重。</li>
+  <li><strong>L1 正则</strong>：加 λ‖w‖₁，产生稀疏权重，可做特征选择。</li>
+  <li><strong>早停</strong>：验证损失开始上升就停止，等价于限制参数的有效搜索范围。</li>
+  <li><strong>数据增强</strong>：翻转、裁剪、颜色扰动、Mixup，最有效的“免费数据”。</li>
+  <li><strong>Dropout</strong>：训练时随机置零激活，迫使表示冗余（详见第 4 章）。</li>
+</ul>
+
+<div class="formula">
+  <span class="label">L2 正则的贝叶斯解释</span>
+  <div class="fx"><span class="v">θ</span><sub>MAP</sub> = argmax<sub>θ</sub>
+    [log <span class="v">p</span>(<span class="v">D</span>|<span class="v">θ</span>) +
+    log <span class="v">p</span>(<span class="v">θ</span>)],
+    &nbsp;&nbsp; <span class="v">p</span>(<span class="v">θ</span>) = N(0, σ<sup>2</sup><span class="v">I</span>)</div>
+  <p class="fx-note">高斯先验对应 L2，拉普拉斯先验对应 L1。正则项不是“技巧”，
+    而是把先验知识写进目标函数。</p>
+</div>
+</section>
+
+<section>
+<h2 id="code2">2.8 代码：一个可信的评估流程</h2>
+<p>下面这段代码演示分层划分、训练集内标准化、指标计算。注意 <code>fit</code> 只在训练集上调用。</p>
+
+<div class="code">
+<div class="code-bar"><span>Python · 评估流程</span><button class="copy" type="button">复制</button></div>
+<pre><code>import numpy as np
+import torch
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from sklearn.metrics import classification_report, roc_auc_score
+
+X, y = make_classification(
+    n_samples=2000, n_features=20, n_informative=8,
+    weights=[0.9, 0.1], random_state=42
+)
+X_tr, X_tmp, y_tr, y_tmp = train_test_split(
+    X, y, test_size=0.3, stratify=y, random_state=42
+)
+X_val, X_te, y_val, y_te = train_test_split(
+    X_tmp, y_tmp, test_size=0.5, stratify=y_tmp, random_state=42
+)
+
+scaler = StandardScaler().fit(X_tr)              # 只在训练集 fit
+X_tr, X_val, X_te = [torch.tensor(scaler.transform(a), dtype=torch.float32)
+                     for a in (X_tr, X_val, X_te)]
+y_tr, y_val, y_te = [torch.tensor(b, dtype=torch.float32).view(-1, 1)
+                     for b in (y_tr, y_val, y_te)]
+
+model = torch.nn.Linear(X_tr.shape[1], 1)
+opt = torch.optim.AdamW(model.parameters(), lr=1e-2, weight_decay=1e-4)
+loss_fn = torch.nn.BCEWithLogitsLoss()
+
+best, best_state = 1e9, None
+for epoch in range(200):
+    model.train()
+    opt.zero_grad()
+    loss = loss_fn(model(X_tr), y_tr)
+    loss.backward()
+    opt.step()
+
+    model.eval()
+    with torch.no_grad():
+        val_loss = loss_fn(model(X_val), y_val).item()   # 早停看验证集
+    if val_loss &lt; best:
+        best, best_state = val_loss, {k: v.clone() for k, v in model.state_dict().items()}
+
+model.load_state_dict(best_state)
+model.eval()
+with torch.no_grad():
+    prob = torch.sigmoid(model(X_te)).numpy().ravel()
+print(classification_report(y_te.numpy().ravel(), prob &gt; 0.5, digits=3))
+print("AUC:", roc_auc_score(y_te.numpy().ravel(), prob))</code></pre>
+</div>
+
+<div class="callout warn">
+  <span class="ct">测试集只碰一次</span>
+  <p>如果反复用测试集调超参数，它实际上变成了验证集，最终指标会乐观偏移。
+    正确做法是把测试集封存到项目结束前。</p>
+</div>
+</section>
+
+<section>
+<h2 id="summary">2.9 本章小结</h2>
+<div class="takeaway">
+  <h3>建模流程的七个节点</h3>
+  <ul>
+    <li>定义任务与输出形式，选匹配的损失函数。</li>
+    <li>划分训练/验证/测试，守住时间与分组边界。</li>
+    <li>只在训练集上 fit 预处理，防止数据泄漏。</li>
+    <li>训练看损失曲线，选择看验证指标，汇报看测试指标。</li>
+    <li>类别不平衡时用 F1 / PR-AUC，而不是准确率。</li>
+    <li>用偏差—方差诊断欠拟合与过拟合，再决定加容量还是加正则。</li>
+    <li>记录随机种子、数据版本、超参数，否则结果不可复现。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>用训练集准确率作为最终结论。</li>
+    <li>先标准化全量数据再划分，造成泄漏。</li>
+    <li>多标签任务错误使用 softmax。</li>
+    <li>把 AUC 当成“准确率”，忽略阈值选择。</li>
+    <li>只报告一个数字，不提供置信区间或多次运行结果。</li>
+  </ol>
+</div>
+</section>
