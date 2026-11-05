@@ -1,0 +1,261 @@
+<header class="chapter-head">
+  <div class="crumb">第一部分 · 基础</div>
+  <h1>神经网络与反向传播：把链式法则变成学习能力</h1>
+  <p class="lede">一个神经网络就是“线性变换 + 非线性激活”的反复堆叠；它能学习，靠的是把误差
+    从输出层逐层传回去。这一章会手写一遍前向与反向，再交给 PyTorch 验证，之后你看任何网络
+    都不会再觉得是黑箱。</p>
+  <div class="meta">
+    <span>预计 65 分钟</span><span>前置：第 1、2 章</span>
+    <span>关键词：MLP · 链式法则 · 计算图</span><span>代码：NumPy + PyTorch</span>
+  </div>
+</header>
+
+<section>
+<h2 id="nonlinear">3.1 为什么必须有非线性</h2>
+<p>若把多层线性层直接堆叠，<span class="v">W</span><sub>2</sub>(<span class="v">W</span><sub>1</sub><span class="v">x</span>)
+= (<span class="v">W</span><sub>2</sub><span class="v">W</span><sub>1</sub>)<span class="v">x</span>，
+等价于一个线性层——深度完全浪费。激活函数插入非线性后，网络才能逼近任意连续函数。</p>
+
+<div class="formula">
+  <span class="label">单隐藏层网络的前向传播</span>
+  <div class="fx"><span class="v">h</span> = φ(<span class="v">W</span><sub>1</sub><span class="v">x</span> +
+    <span class="v">b</span><sub>1</sub>)
+    &nbsp;&nbsp; <span class="v">ŷ</span> = <span class="v">W</span><sub>2</sub><span class="v">h</span> +
+    <span class="v">b</span><sub>2</sub></div>
+  <p class="fx-note">φ 是逐元素激活函数。<span class="v">W</span><sub>1</sub> 把输入映射到隐藏表示，
+    <span class="v">W</span><sub>2</sub> 把表示映射到输出。深度网络只是把这个结构重复 L 次。</p>
+</div>
+
+<div class="callout note">
+  <span class="ct">万能逼近定理（直觉版）</span>
+  <p>含足够多隐藏单元的单层网络，可以以任意精度逼近闭区间上的任意连续函数。
+    但它只保证“存在”，不保证“好训练”。深度网络的优势在于<strong>用指数级更少的参数
+    表达某些函数</strong>，而且层次结构更符合数据的组合性。</p>
+</div>
+</section>
+
+<section>
+<h2 id="activations">3.2 激活函数：选择与代价</h2>
+<p>激活函数决定梯度的流动方式。Sigmoid 在两端饱和导致梯度消失，ReLU 计算便宜但可能“死亡”，
+GELU / SiLU 平滑且在 Transformer 中表现更好。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>名称</th><th>表达式</th><th>输出范围</th><th>使用建议</th></tr></thead>
+  <tbody>
+    <tr><td>Sigmoid</td><td>σ(z)=1/(1+e<sup>−z</sup>)</td><td>(0, 1)</td><td>二分类输出层；深层隐藏层不推荐</td></tr>
+    <tr><td>Tanh</td><td>(e<sup>z</sup>−e<sup>−z</sup>)/(e<sup>z</sup>+e<sup>−z</sup>)</td><td>(−1, 1)</td><td>零中心，RNN 常用</td></tr>
+    <tr><td>ReLU</td><td>max(0, z)</td><td>[0, +∞)</td><td>CNN / MLP 默认，便宜</td></tr>
+    <tr><td>LeakyReLU</td><td>max(αz, z)</td><td>(−∞, +∞)</td><td>缓解神经元死亡</td></tr>
+    <tr><td>GELU</td><td>z · Φ(z)</td><td>约 (−0.17, +∞)</td><td>Transformer 主流</td></tr>
+    <tr><td>SiLU / Swish</td><td>z · σ(z)</td><td>约 (−0.28, +∞)</td><td>现代视觉与语言模型</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="formula">
+  <span class="label">ReLU 的导数</span>
+  <div class="fx">ReLU′(<span class="v">z</span>) = 1 if <span class="v">z</span> &gt; 0 else 0</div>
+  <p class="fx-note">在 0 处不可导，框架取 0 作为次梯度。负区间梯度恒为 0，
+    学习率过大时大量神经元永久失活，称为 “dying ReLU”。</p>
+</div>
+
+<div class="code">
+<div class="code-bar"><span>Python · 激活函数与饱和</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+
+z = torch.linspace(-6, 6, 13)
+
+print("sigmoid:", torch.sigmoid(z))
+print("tanh   :", torch.tanh(z))
+print("relu   :", torch.relu(z))
+print("gelu   :", torch.nn.functional.gelu(z))
+print("silu   :", torch.nn.functional.silu(z))
+
+# 饱和现象：输入很大时 sigmoid 梯度趋近 0
+x = torch.tensor([10.0, 20.0], requires_grad=True)
+torch.sigmoid(x).sum().backward()
+print("sigmoid grad at 10/20:", x.grad)   # 极小，深层会梯度消失</code></pre>
+</div>
+</section>
+
+<section>
+<h2 id="backprop">3.3 反向传播：四步推导</h2>
+<p>设第 <span class="v">l</span> 层：<span class="v">z</span><sup>(l)</sup> =
+<span class="v">W</span><sup>(l)</sup><span class="v">a</span><sup>(l−1)</sup> +
+<span class="v">b</span><sup>(l)</sup>，<span class="v">a</span><sup>(l)</sup> =
+φ(<span class="v">z</span><sup>(l)</sup>)。损失对 <span class="v">z</span><sup>(l)</sup>
+的梯度记为 δ<sup>(l)</sup>，则：</p>
+
+<div class="formula">
+  <span class="label">输出层误差</span>
+  <div class="fx">δ<sup>(L)</sup> = ∇<sub>a</sub><span class="v">L</span> ⊙ φ′(
+    <span class="v">z</span><sup>(L)</sup>)</div>
+  <p class="fx-note">⊙ 表示逐元素乘。交叉熵 + softmax 有一个漂亮的性质：
+    δ<sup>(L)</sup> = <span class="v">ŷ</span> − <span class="v">y</span>，省掉了中间的导数计算。</p>
+</div>
+
+<div class="formula">
+  <span class="label">误差逐层回传</span>
+  <div class="fx">δ<sup>(l)</sup> = (<span class="v">W</span><sup>(l+1)T</sup>δ<sup>(l+1)</sup>)
+    ⊙ φ′(<span class="v">z</span><sup>(l)</sup>)</div>
+  <p class="fx-note">先把误差用转置权重映射回上一层，再乘上本层激活的局部导数。
+    这个式子解释了梯度消失：每层都乘一个小于 1 的 φ′，层数一多就连乘到接近 0。</p>
+</div>
+
+<div class="formula">
+  <span class="label">参数梯度</span>
+  <div class="fx"><span class="frac"><span class="num">∂<span class="v">L</span></span>
+    <span class="den">∂<span class="v">W</span><sup>(l)</sup></span></span> =
+    δ<sup>(l)</sup><span class="v">a</span><sup>(l−1)T</sup>
+    &nbsp;&nbsp; <span class="frac"><span class="num">∂<span class="v">L</span></span>
+    <span class="den">∂<span class="v">b</span><sup>(l)</sup></span></span> = δ<sup>(l)</sup></div>
+  <p class="fx-note">权重的梯度等于“本层误差”与“上一层激活”的外积。
+    batch 训练时对 batch 维求平均，得到形状与权重一致的结果。</p>
+</div>
+
+<div class="callout">
+  <span class="ct">为什么反向传播是高效的</span>
+  <p>朴素做法是对每个参数单独做数值差分，参数量 × 前向成本；
+    反向传播复用前向的中间结果，一次反向的计算量约等于一次前向，就能得到全部梯度。</p>
+</div>
+</section>
+
+<section>
+<h2 id="autograd">3.4 计算图与自动微分</h2>
+<p>框架把每个运算记录成有向无环图：节点是张量，边是运算。前向时建图，反向时按拓扑逆序应用链式法则。
+<code>requires_grad=True</code> 的张量会被追踪，<code>backward()</code> 从标量损失出发遍历这张图。</p>
+
+<div class="code">
+<div class="code-bar"><span>Python · NumPy 手写 vs PyTorch 自动微分</span><button class="copy" type="button">复制</button></div>
+<pre><code>import numpy as np
+import torch
+
+# ---------- NumPy 手写两层网络 ----------
+rng = np.random.default_rng(0)
+X = rng.normal(size=(64, 10))
+y = (X[:, 0] + X[:, 1] &gt; 0).astype(np.float32).reshape(-1, 1)
+
+W1 = rng.normal(scale=0.1, size=(10, 16))
+b1 = np.zeros(16)
+W2 = rng.normal(scale=0.1, size=(16, 1))
+b2 = np.zeros(1)
+
+def forward(X):
+    z1 = X @ W1 + b1
+    a1 = np.maximum(z1, 0)          # ReLU
+    z2 = a1 @ W2 + b2
+    p = 1 / (1 + np.exp(-z2))       # sigmoid
+    return z1, a1, z2, p
+
+def backward(X, y, out):
+    z1, a1, z2, p = out
+    n = X.shape[0]
+    dz2 = (p - y) / n               # BCE + sigmoid 的梯度
+    dW2 = a1.T @ dz2
+    db2 = dz2.sum(axis=0)
+    da1 = dz2 @ W2.T
+    dz1 = da1 * (z1 &gt; 0)
+    dW1 = X.T @ dz1
+    db1 = dz1.sum(axis=0)
+    return dW1, db1, dW2, db2
+
+out = forward(X)
+grads = backward(X, y, out)
+loss = -np.mean(y * np.log(out[3] + 1e-8) + (1 - y) * np.log(1 - out[3] + 1e-8))
+print("numpy loss:", loss)
+
+# ---------- PyTorch 对照 ----------
+Xt = torch.tensor(X)
+yt = torch.tensor(y)
+m = torch.nn.Sequential(
+    torch.nn.Linear(10, 16), torch.nn.ReLU(), torch.nn.Linear(16, 1)
+)
+m[0].weight.data = torch.tensor(W1.T, dtype=torch.float32)
+m[0].bias.data = torch.tensor(b1, dtype=torch.float32)
+m[2].weight.data = torch.tensor(W2.T, dtype=torch.float32)
+m[2].bias.data = torch.tensor(b2, dtype=torch.float32)
+
+loss_t = torch.nn.functional.binary_cross_entropy_with_logits(m(Xt), yt)
+loss_t.backward()
+print("torch loss:", loss_t.item())
+print("dW1 max diff:", np.abs(m[0].weight.grad.numpy().T - grads[0]).max())</code></pre>
+</div>
+
+<div class="callout warn">
+  <span class="ct">不要手动 softmax 后再算交叉熵</span>
+  <p>先 softmax 再取 log 会在概率接近 0 时出现 log(0) = −inf。
+    直接用 <code>cross_entropy(logits, y)</code>，内部用 log-sum-exp 保持稳定。</p>
+</div>
+</section>
+
+<section>
+<h2 id="initialization">3.5 初始化与梯度流动</h2>
+<p>初始化决定了训练开始时信号能否穿过几十层。全零初始化会让同一层的所有神经元学到相同的东西；
+过大的初始化会让激活饱和；过小则信号逐层衰减。</p>
+
+<div class="formula">
+  <span class="label">Xavier 与 He 初始化</span>
+  <div class="fx">Xavier: <span class="v">W</span> ~ N(0, 2/(n<sub>in</sub> + n<sub>out</sub>))
+    &nbsp;&nbsp; He: <span class="v">W</span> ~ N(0, 2/n<sub>in</sub>)</div>
+  <p class="fx-note">Xavier 适合 tanh / sigmoid（保持前后方差一致）；
+    He 针对 ReLU 把方差放大一倍，因为 ReLU 把一半激活置零。</p>
+</div>
+
+<div class="formula">
+  <span class="label">梯度消失 / 爆炸的连乘视角</span>
+  <div class="fx"><span class="frac"><span class="num">∂<span class="v">L</span></span>
+    <span class="den">∂<span class="v">h</span><sup>(1)</sup></span></span> =
+    <span class="frac"><span class="num">∂<span class="v">L</span></span>
+    <span class="den">∂<span class="v">h</span><sup>(L)</sup></span></span>
+    ∏<sub>l=2..L</sub> <span class="v">W</span><sup>(l)</sup>φ′(<span class="v">z</span><sup>(l)</sup>)</div>
+  <p class="fx-note">若每层因子谱范数小于 1，梯度指数衰减；大于 1 则指数增长。
+    残差连接（第 5 章）与门控（第 6 章）都是为了打破这个连乘。</p>
+</div>
+</section>
+
+<section>
+<h2 id="depth">3.6 深度为什么有效</h2>
+<p>深度带来<strong>表示的复用与组合</strong>：浅层学习边缘与纹理，中层学习部件，深层学习物体。
+同样的参数量下，深层网络能表达更复杂的函数，且对数据中的层次结构更敏感。</p>
+
+<div class="grid2">
+  <div class="card">
+    <h4>宽度</h4>
+    <p>增加每层神经元数量，提升单层表达能力，容易并行，但参数效率较低。</p>
+  </div>
+  <div class="card">
+    <h4>深度</h4>
+    <p>增加层数，提升组合能力，但带来优化困难：梯度消失、退化、训练不稳定。</p>
+  </div>
+</div>
+
+<p>实践中的顺序通常是：先保证数据与损失正确，再用残差/归一化让深层可训练，
+最后才考虑加宽加长。盲目加深往往只是把训练时间变长。</p>
+</section>
+
+<section>
+<h2 id="summary">3.7 本章小结</h2>
+<div class="takeaway">
+  <h3>必须掌握的六点</h3>
+  <ul>
+    <li>没有非线性，多层网络等价于一层线性变换。</li>
+    <li>激活函数的选择影响梯度流动，深层网络优先 ReLU / GELU。</li>
+    <li>反向传播 = 链式法则 + 复用前向中间结果，成本约等于一次前向。</li>
+    <li>δ<sup>(L)</sup> = ŷ − y 是 softmax + 交叉熵的经典简化。</li>
+    <li>初始化要匹配激活函数，否则训练一开始就梯度异常。</li>
+    <li>深度带来组合能力，也带来优化难度，需要残差与归一化配合。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>忘记 <code>zero_grad()</code>，梯度跨 batch 累加。</li>
+    <li>在需要梯度的张量上调用 <code>.numpy()</code>，要先 <code>.detach()</code>。</li>
+    <li>用 <code>loss.item()</code> 之外的方式取值，导致计算图无法释放、显存上涨。</li>
+    <li>把 <code>model.eval()</code> 当成关闭梯度，实际还需要 <code>torch.no_grad()</code>。</li>
+    <li>ReLU 搭配过大的学习率，造成大量神经元死亡。</li>
+  </ol>
+</div>
+</section>
