@@ -92,9 +92,15 @@
         <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
       </a>
     </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第六部分 · 光学深度学习</span>
+      <a class="nav-item" href="17-optics.html" data-page="17-optics" data-chapter="1">
+        <span class="nav-num">17</span><span class="nav-body"><strong>光学中的深度学习</strong><em>相位恢复 · U-Net · 超表面 · 光子计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
   </nav>
   <div class="side-foot">
-    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 17</span></div>
     <div class="progress-bar"><i id="progress-bar"></i></div>
     <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
   </div>
@@ -382,6 +388,17 @@ print(train_step(torch.randn(4, 3, 32, 32)).item())</code></pre>
 
 <section>
 <h2 id="summary">9.7 本章小结</h2>
+<div class="callout note">
+  <span class="ct">关键论文</span>
+  <p>• <a href="https://arxiv.org/abs/1312.6114" target="_blank">VAE (2013)</a> —
+    变分自编码器，潜变量生成。<br>
+    • <a href="https://arxiv.org/abs/1406.2661" target="_blank">GAN (2014)</a> —
+    生成对抗网络。<br>
+    • <a href="https://arxiv.org/abs/2006.11239" target="_blank">DDPM (2020)</a> —
+    去噪扩散概率模型。<br>
+    • <a href="https://arxiv.org/abs/2112.10752" target="_blank">Latent Diffusion (2021)</a> —
+    潜空间扩散，Stable Diffusion 基础。</p>
+</div>
 <div class="takeaway">
   <h3>生成模型的三条主线</h3>
   <ul>
@@ -415,7 +432,7 @@ print(train_step(torch.randn(4, 3, 32, 32)).item())</code></pre>
     </nav>
   </article>
   <footer class="page-foot">
-    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>深度学习学习站 · 共 17 章，按顺序阅读效果最佳</span>
     <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
   </footer>
 </main>
