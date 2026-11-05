@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>注意力与 Transformer · 深度学习学习站</title>
+<meta name="description" content="Self-Attention · 多头 · 位置编码">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-slug="07-transformer">
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <span class="brand-mark">DL</span>
+      <span class="brand-text">
+        <strong>深度学习学习站</strong>
+        <em>从数学基础到大模型落地</em>
+      </span>
+    </a>
+  </div>
+  <div class="nav-search">
+    <input id="nav-search" type="search" placeholder="筛选章节（按 / 聚焦）" autocomplete="off">
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-group">
+      <span class="nav-group-title">起点</span>
+      <a class="nav-item" href="index.html" data-page="index" data-chapter="0">
+        <span class="nav-num">00</span><span class="nav-body"><strong>学习地图</strong><em>总览 · 路线 · 怎么用</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第一部分 · 基础</span>
+      <a class="nav-item" href="01-foundations.html" data-page="01-foundations" data-chapter="1">
+        <span class="nav-num">01</span><span class="nav-body"><strong>数学基础</strong><em>张量 · 微积分 · 概率与信息论</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="02-ml-basics.html" data-page="02-ml-basics" data-chapter="1">
+        <span class="nav-num">02</span><span class="nav-body"><strong>机器学习基础</strong><em>任务范式 · 损失 · 评估</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="03-neural-nets.html" data-page="03-neural-nets" data-chapter="1">
+        <span class="nav-num">03</span><span class="nav-body"><strong>神经网络与反向传播</strong><em>MLP · 链式法则 · 计算图</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="04-training.html" data-page="04-training" data-chapter="1">
+        <span class="nav-num">04</span><span class="nav-body"><strong>训练与优化</strong><em>优化器 · 正则化 · 归一化</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第二部分 · 核心架构</span>
+      <a class="nav-item" href="05-cnn.html" data-page="05-cnn" data-chapter="1">
+        <span class="nav-num">05</span><span class="nav-body"><strong>卷积神经网络</strong><em>卷积 · 感受野 · ResNet</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="06-sequence.html" data-page="06-sequence" data-chapter="1">
+        <span class="nav-num">06</span><span class="nav-body"><strong>序列模型</strong><em>RNN · LSTM · Seq2Seq</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item active" href="07-transformer.html" data-page="07-transformer" data-chapter="1">
+        <span class="nav-num">07</span><span class="nav-body"><strong>注意力与 Transformer</strong><em>Self-Attention · 多头 · 位置编码</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="08-pretraining.html" data-page="08-pretraining" data-chapter="1">
+        <span class="nav-num">08</span><span class="nav-body"><strong>预训练与自监督</strong><em>语言模型 · 对比学习 · CLIP</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第三部分 · 生成与决策</span>
+      <a class="nav-item" href="09-generative.html" data-page="09-generative" data-chapter="1">
+        <span class="nav-num">09</span><span class="nav-body"><strong>生成模型</strong><em>VAE · GAN · 扩散模型</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="10-reinforcement.html" data-page="10-reinforcement" data-chapter="1">
+        <span class="nav-num">10</span><span class="nav-body"><strong>强化学习</strong><em>MDP · 策略梯度 · PPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="11-gnn.html" data-page="11-gnn" data-chapter="1">
+        <span class="nav-num">11</span><span class="nav-body"><strong>图神经网络</strong><em>消息传递 · GCN · GAT</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第四部分 · 大模型与工程</span>
+      <a class="nav-item" href="12-llm.html" data-page="12-llm" data-chapter="1">
+        <span class="nav-num">12</span><span class="nav-body"><strong>大模型与微调</strong><em>Scaling · LoRA · RLHF/DPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="13-efficient.html" data-page="13-efficient" data-chapter="1">
+        <span class="nav-num">13</span><span class="nav-body"><strong>压缩与部署</strong><em>量化 · 蒸馏 · 推理服务</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="14-engineering.html" data-page="14-engineering" data-chapter="1">
+        <span class="nav-num">14</span><span class="nav-body"><strong>工程实践</strong><em>数据 · 调试 · 复现 · 分布式</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第五部分 · 应用与资源</span>
+      <a class="nav-item" href="15-applications.html" data-page="15-applications" data-chapter="1">
+        <span class="nav-num">15</span><span class="nav-body"><strong>应用领域</strong><em>视觉 · 语言 · 科学计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="16-resources.html" data-page="16-resources" data-chapter="1">
+        <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+  </nav>
+  <div class="side-foot">
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-bar"><i id="progress-bar"></i></div>
+    <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <button class="nav-toggle" id="nav-toggle" type="button">☰ 目录</button>
+    <span class="topbar-chapter">深度学习学习站 · 第 07 章</span>
+    <span class="topbar-line"></span>
+    <span>离线可用 · 无需联网</span>
+  </div>
+  <article class="content">
+<header class="chapter-head">
+  <div class="crumb">第二部分 · 核心架构</div>
+  <h1>注意力与 Transformer：现代深度学习的底座</h1>
+  <p class="lede">Transformer 用一个极其简单的操作——按相关性加权求和——替代了循环与卷积，
+    换来全局感受野与高度并行。今天的大语言模型、视觉骨干、多模态系统几乎都长在这套结构上。</p>
+  <div class="meta">
+    <span>预计 80 分钟</span><span>前置：第 1、3、6 章</span>
+    <span>关键词：QKV · 多头 · 位置编码 · KV Cache</span>
+  </div>
+</header>
+<nav class="outline" id="outline" aria-label="本章目录">
+  <div class="outline-head"><span>本章目录</span><button class="outline-toggle" id="outline-toggle" type="button">收起</button></div>
+  <ol>
+    <li><a href="#intuition">7.1 注意力的直觉：查字典</a></li>
+    <li><a href="#mha">7.2 多头注意力</a></li>
+    <li><a href="#position">7.3 位置编码：注意力本身没有顺序</a></li>
+    <li><a href="#block">7.4 Transformer Block 的解剖</a></li>
+    <li><a href="#efficiency">7.5 复杂度、KV Cache 与架构变体</a></li>
+    <li><a href="#summary">7.6 本章小结</a></li>
+  </ol>
+</nav>
+
+<section>
+<h2 id="intuition">7.1 注意力的直觉：查字典</h2>
+<p>把每个 token 想象成一次查询（Query）。它在序列里寻找与自己相关的键（Key），
+根据匹配程度取回对应的值（Value）。与 RNN 不同，任意两个位置之间只隔一次注意力，
+<strong>路径长度是 O(1)，且所有位置可以同时计算</strong>。</p>
+
+<div class="formula">
+  <span class="label">缩放点积注意力</span>
+  <div class="fx">Attention(<span class="v">Q</span>,<span class="v">K</span>,<span class="v">V</span>)
+    = softmax(<span class="frac"><span class="num"><span class="v">QK</span><sup>T</sup></span>
+    <span class="den">√<span class="v">d</span><sub>k</sub></span></span>)<span class="v">V</span></div>
+  <p class="fx-note">QK<sup>T</sup> 得到相似度矩阵 (T, T)，softmax 归一化成权重，再对 V 加权。
+    除以 √d<sub>k</sub> 是因为点积方差随维度增长，不缩放会让 softmax 饱和、梯度消失。</p>
+</div>
+
+<div class="formula">
+  <span class="label">因果掩码</span>
+  <div class="fx"><span class="v">A</span><sub>ij</sub> = softmax<sub>j</sub>(
+    <span class="v">Q</span><sub>i</sub><span class="v">K</span><sub>j</sub><sup>T</sup>/√<span class="v">d</span> +
+    <span class="v">M</span><sub>ij</sub>),
+    &nbsp;&nbsp; <span class="v">M</span><sub>ij</sub> = −∞ if j &gt; i else 0</div>
+  <p class="fx-note">生成模型不能让位置 i 看到未来，因此在 softmax 前把上三角置为 −∞，
+    归一化后这些位置权重为 0。训练与推理都靠它保证自回归性。</p>
+</div>
+</section>
+
+<section>
+<h2 id="mha">7.2 多头注意力</h2>
+<p>单头注意力只有一种“相关性视角”。多头把表示切成 h 份，每份独立做注意力，
+再拼接投影。不同头可以分别关注语法、指代、位置等不同模式。</p>
+
+<div class="formula">
+  <span class="label">多头注意力</span>
+  <div class="fx">head<sub>i</sub> = Attention(<span class="v">QW</span><sub>i</sub><sup>Q</sup>,
+    <span class="v">KW</span><sub>i</sub><sup>K</sup>, <span class="v">VW</span><sub>i</sub><sup>V</sup>)</div>
+  <div class="fx">MultiHead(<span class="v">Q</span>,<span class="v">K</span>,<span class="v">V</span>)
+    = Concat(head<sub>1</sub>, …, head<sub>h</sub>)<span class="v">W</span><sup>O</sup></div>
+  <p class="fx-note">通常 d<sub>k</sub> = d<sub>model</sub>/h，保证总计算量与单头相当。
+    每个头有自己的 Q/K/V 投影矩阵，输出再经 W<sup>O</sup> 融合。</p>
+</div>
+
+<div class="formula">
+  <span class="label">自注意力、交叉注意力与三种用法</span>
+  <div class="fx">Self-Attn: <span class="v">Q</span>=<span class="v">K</span>=<span class="v">V</span>=<span class="v">X</span>
+    &nbsp;&nbsp; Cross-Attn: <span class="v">Q</span>=<span class="v">X</span><sub>dec</sub>,
+    <span class="v">K</span>=<span class="v">V</span>=<span class="v">X</span><sub>enc</sub></div>
+  <p class="fx-note">编码器用自注意力；解码器先用带掩码的自注意力，再对编码器输出做交叉注意力。
+    这就是原始 Transformer 的 encoder–decoder 结构。</p>
+</div>
+
+<div class="callout">
+  <span class="ct">注意力的成本</span>
+  <p>QK<sup>T</sup> 是 T×T 矩阵，时间与显存都是 O(T²)。序列翻倍，注意力成本变四倍。
+    这是长上下文的核心瓶颈，也是 FlashAttention、稀疏注意力、线性注意力的动机。</p>
+</div>
+</section>
+
+<section>
+<h2 id="position">7.3 位置编码：注意力本身没有顺序</h2>
+<p>注意力对输入顺序是置换不变的：打乱 token 顺序，输出只是跟着打乱。必须显式注入位置信息。</p>
+
+<div class="formula">
+  <span class="label">正弦位置编码</span>
+  <div class="fx"><span class="v">PE</span>(pos, 2i) = sin(pos/10000<sup>2i/d</sup>)
+    &nbsp;&nbsp; <span class="v">PE</span>(pos, 2i+1) = cos(pos/10000<sup>2i/d</sup>)</div>
+  <p class="fx-note">不同频率的正弦波让每个位置有唯一编码，且相对位移可被线性变换表示。
+    优点是无需训练、可外推到更长序列（有限）。</p>
+</div>
+
+<div class="formula">
+  <span class="label">旋转位置编码 RoPE</span>
+  <div class="fx"><span class="v">q</span><sub>m</sub> = <span class="v">R</span><sub>m</sub><span class="v">q</span>,
+    &nbsp;&nbsp; <span class="v">k</span><sub>n</sub> = <span class="v">R</span><sub>n</sub><span class="v">k</span>
+    &nbsp;&nbsp; ⇒ &nbsp; <span class="v">q</span><sub>m</sub><sup>T</sup><span class="v">k</span><sub>n</sub>
+    = <span class="v">q</span><sup>T</sup><span class="v">R</span><sub>n−m</sub><span class="v">k</span></div>
+  <p class="fx-note">把 Q/K 按位置旋转，使内积只依赖相对位置 n−m。RoPE 是现代 LLM
+    （LLaMA、Qwen 等）的主流方案，便于长度外推。</p>
+</div>
+</section>
+
+<section>
+<h2 id="block">7.4 Transformer Block 的解剖</h2>
+<p>一个 block 由两个子层组成：多头注意力 + 前馈网络（FFN）。每个子层都带残差与归一化。
+现代实现几乎都采用 <strong>Pre-LN</strong>：先归一化再进子层，残差直通。</p>
+
+<div class="formula">
+  <span class="label">Pre-LN Block</span>
+  <div class="fx"><span class="v">x</span>′ = <span class="v">x</span> + Attn(LN(<span class="v">x</span>))
+    &nbsp;&nbsp; <span class="v">y</span> = <span class="v">x</span>′ + FFN(LN(<span class="v">x</span>′))</div>
+  <p class="fx-note">Post-LN 在残差后归一化，深层训练需要 warmup 才稳定；Pre-LN 把归一化放在分支内，
+    梯度直通路径更干净，是大模型的标准做法。</p>
+</div>
+
+<div class="formula">
+  <span class="label">前馈网络（逐位置）</span>
+  <div class="fx">FFN(<span class="v">x</span>) = <span class="v">W</span><sub>2</sub>
+    φ(<span class="v">W</span><sub>1</sub><span class="v">x</span> + <span class="v">b</span><sub>1</sub>) +
+    <span class="v">b</span><sub>2</sub></div>
+  <p class="fx-note">隐藏维通常是 d<sub>model</sub> 的 4 倍（LLM 中常用 8/3 倍的 SwiGLU 变体）。
+    FFN 占 block 参数量的约 2/3，是“知识存储”的主要位置。</p>
+</div>
+
+<div class="code">
+<div class="code-bar"><span>Python · 手写多头注意力</span><button class="copy" type="button">复制</button></div>
+<pre><code>import math
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, d_model=256, n_heads=8, dropout=0.1):
+        super().__init__()
+        assert d_model % n_heads == 0
+        self.d_model, self.h = d_model, n_heads
+        self.dk = d_model // n_heads
+        self.qkv = nn.Linear(d_model, 3 * d_model, bias=False)
+        self.out = nn.Linear(d_model, d_model, bias=False)
+        self.drop = nn.Dropout(dropout)
+
+    def forward(self, x, causal=False):
+        B, T, C = x.shape
+        q, k, v = self.qkv(x).chunk(3, dim=-1)
+        # (B, T, C) -> (B, h, T, dk)
+        q, k, v = [t.view(B, T, self.h, self.dk).transpose(1, 2) for t in (q, k, v)]
+
+        scores = q @ k.transpose(-2, -1) / math.sqrt(self.dk)      # (B, h, T, T)
+        if causal:
+            mask = torch.triu(torch.ones(T, T, device=x.device, dtype=torch.bool), 1)
+            scores = scores.masked_fill(mask, float("-inf"))
+        attn = self.drop(F.softmax(scores, dim=-1))
+        out = attn @ v                                             # (B, h, T, dk)
+        out = out.transpose(1, 2).contiguous().view(B, T, C)
+        return self.out(out), attn
+
+class Block(nn.Module):
+    def __init__(self, d_model=256, n_heads=8, mult=4, dropout=0.1):
+        super().__init__()
+        self.ln1 = nn.LayerNorm(d_model)
+        self.attn = MultiHeadAttention(d_model, n_heads, dropout)
+        self.ln2 = nn.LayerNorm(d_model)
+        self.ffn = nn.Sequential(
+            nn.Linear(d_model, mult * d_model), nn.GELU(),
+            nn.Linear(mult * d_model, d_model), nn.Dropout(dropout),
+        )
+
+    def forward(self, x, causal=False):
+        a, _ = self.attn(self.ln1(x), causal=causal)
+        x = x + a
+        return x + self.ffn(self.ln2(x))
+
+block = Block()
+x = torch.randn(2, 16, 256)
+print(block(x, causal=True).shape)      # (2, 16, 256)</code></pre>
+</div>
+</section>
+
+<section>
+<h2 id="efficiency">7.5 复杂度、KV Cache 与架构变体</h2>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>操作</th><th>时间复杂度</th><th>显存</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td>自注意力</td><td>O(T² d)</td><td>O(T²)</td><td>长序列的瓶颈</td></tr>
+    <tr><td>FFN</td><td>O(T d²)</td><td>O(T d)</td><td>短序列时占主导</td></tr>
+    <tr><td>KV Cache</td><td>每步 O(T d)</td><td>O(T d) 每层</td><td>避免重复计算历史 K/V</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>自回归生成时，历史 token 的 K、V 不会改变，可以缓存起来，每步只计算新 token 的 Q，
+把每步复杂度从 O(T²) 降到 O(T)。代价是显存：缓存大小约为
+<code>2 × 层数 × 头数 × 头维 × 序列长度 × batch × 字节数</code>。</p>
+
+<div class="formula">
+  <span class="label">KV Cache 显存估算</span>
+  <div class="fx">mem ≈ 2 · <span class="v">L</span> · <span class="v">H</span> ·
+    <span class="v">d</span><sub>k</sub> · <span class="v">T</span> · <span class="v">B</span> ·
+    bytes</div>
+  <p class="fx-note">例：32 层、32 头、头维 128、序列 4096、batch 8、FP16（2 字节）
+    ≈ 2×32×32×128×4096×8×2 ≈ 16 GB。这还没算权重与激活。</p>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <h4>效率改进</h4>
+    <p>FlashAttention（分块减少显存访问）、GQA/MQA（多个 Query 共享 K/V）、
+      稀疏与滑动窗口注意力、线性注意力。</p>
+  </div>
+  <div class="card">
+    <h4>架构变体</h4>
+    <p>Encoder-only（BERT）、Decoder-only（GPT/LLaMA）、Encoder–Decoder（T5）。
+      今天的主流 LLM 几乎都是 Decoder-only。</p>
+  </div>
+</div>
+</section>
+
+<section>
+<h2 id="summary">7.6 本章小结</h2>
+<div class="takeaway">
+  <h3>Transformer 必记要点</h3>
+  <ul>
+    <li>注意力 = 相似度 + softmax + 加权求和，路径长度 O(1)。</li>
+    <li>缩放因子 √d<sub>k</sub> 防止点积过大导致 softmax 饱和。</li>
+    <li>因果掩码保证生成时看不到未来。</li>
+    <li>多头让模型同时学习多种相关性模式。</li>
+    <li>位置编码必不可少，RoPE 通过旋转实现相对位置。</li>
+    <li>Pre-LN + 残差 + FFN 是现代 block 的标准配置。</li>
+    <li>KV Cache 把生成复杂度从 O(T²) 降到 O(T)，代价是显存。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>忘记缩放 √d<sub>k</sub>，训练初期 loss 卡住不降。</li>
+    <li>因果掩码用 0 而不是 −∞，softmax 后仍会泄漏未来信息。</li>
+    <li>多头切分时维度顺序写错，把 head 维与序列维混淆。</li>
+    <li>以为注意力自带顺序，省略位置编码。</li>
+    <li>训练时用 causal 掩码、推理时忘记，导致训练/推理行为不一致。</li>
+  </ol>
+</div>
+</section>
+    <div class="chapter-actions">
+      <button class="mark-done" id="mark-done" type="button">标记本章已学完</button>
+      <span class="hint">进度保存在本机浏览器，用于跟踪学习路线</span>
+    </div>
+    <nav class="pager" aria-label="章节翻页">
+      <a class="prev" href="06-sequence.html"><span class="dir">← 上一章</span><span class="ttl">序列模型</span></a>
+      <a class="next" href="08-pretraining.html"><span class="dir">下一章 →</span><span class="ttl">预训练与自监督</span></a>
+    </nav>
+  </article>
+  <footer class="page-foot">
+    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
+  </footer>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
