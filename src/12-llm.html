@@ -1,0 +1,262 @@
+<header class="chapter-head">
+  <div class="crumb">第四部分 · 大模型与工程</div>
+  <h1>大模型与微调：从预训练到对齐</h1>
+  <p class="lede">大语言模型不是一个新算法，而是“Transformer + 海量数据 + 规模化训练”的产物。
+    真正让它可用的是三阶段流水线：预训练获得能力，监督微调学会听指令，偏好对齐学会说人话。</p>
+  <div class="meta">
+    <span>预计 80 分钟</span><span>前置：第 7、8 章</span>
+    <span>关键词：Scaling Law · LoRA · RLHF · DPO</span>
+  </div>
+</header>
+
+<section>
+<h2 id="scaling">12.1 规模化：Scaling Law 与能力涌现</h2>
+<p>经验规律是：模型损失随参数量、数据量、计算量按幂律下降。在某个规模之后，
+一些能力（多步推理、代码、指令跟随）会突然出现，称为涌现。</p>
+
+<div class="formula">
+  <span class="label">Chinchilla 式数据—参数配比</span>
+  <div class="fx"><span class="v">N</span><sub>opt</sub> ≈
+    <span class="v">C</span> / 20,
+    &nbsp;&nbsp; <span class="v">D</span><sub>opt</sub> ≈ 20<span class="v">N</span></div>
+  <p class="fx-note">在固定计算预算下，参数量与训练 token 数应大致按 1:20 配比。
+    早期模型普遍“参数过大、数据不足”，后来 LLaMA 等把训练 token 提升到数万亿。</p>
+</div>
+
+<div class="formula">
+  <span class="label">幂律损失曲线</span>
+  <div class="fx"><span class="v">L</span>(<span class="v">N</span>,<span class="v">D</span>) =
+    <span class="v">L</span><sub>∞</sub> + <span class="v">a</span>/<span class="v">N</span><sup>α</sup> +
+    <span class="v">b</span>/<span class="v">D</span><sup>β</sup></div>
+  <p class="fx-note">L<sub>∞</sub> 是不可约损失。α、β 约为 0.3 量级，
+    意味着规模翻倍只能带来有限下降——这正是“数据质量比堆量更重要”的原因。</p>
+</div>
+
+<h3 id="tokenizer">Tokenization：模型的“字母表”</h3>
+<p>BPE / WordPiece / Unigram 把文本切成子词。词表太小导致序列变长，太大导致嵌入矩阵膨胀。
+中文与代码的切分质量会直接影响训练效率与推理成本。</p>
+
+<div class="callout note">
+  <span class="ct">上下文长度</span>
+  <p>训练时的上下文长度决定了位置编码与注意力模式。推理时外推到更长序列，
+    需要 RoPE 插值、NTK 缩放或继续训练，否则效果会显著下降。</p>
+</div>
+</section>
+
+<section>
+<h2 id="pipeline">12.2 三阶段流水线</h2>
+
+<ol class="steps">
+  <li><strong>预训练（Pretraining）：</strong>在数万亿 token 上做下一个词预测，
+    获得语言、知识与推理的基础能力。成本最高，通常只有大机构做。</li>
+  <li><strong>监督微调（SFT）：</strong>用高质量的“指令—回答”对，让模型学会遵循格式与任务指令。
+    数据量从百万到几万不等，质量远比数量重要。</li>
+  <li><strong>偏好对齐（RLHF / DPO）：</strong>用人类偏好数据让模型更有帮助、更安全、更符合风格。
+    这是“会答题”到“答得好”的关键一步。</li>
+</ol>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>阶段</th><th>数据</th><th>目标</th><th>典型规模</th></tr></thead>
+  <tbody>
+    <tr><td>预训练</td><td>网页、书籍、代码</td><td>CLM</td><td>1T+ tokens</td></tr>
+    <tr><td>SFT</td><td>指令—回答对</td><td>CLM（只对回答算损失）</td><td>1K~1M 条</td></tr>
+    <tr><td>RM</td><td>偏好对（chosen / rejected）</td><td>Bradley-Terry 回归</td><td>10K~1M 对</td></tr>
+    <tr><td>RLHF</td><td>提示词 + 奖励模型</td><td>PPO 最大化奖励</td><td>在线采样</td></tr>
+    <tr><td>DPO</td><td>偏好对</td><td>直接优化策略</td><td>10K~100K 对</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout warn">
+  <span class="ct">SFT 的损失掩码</span>
+  <p>计算损失时只对“回答”部分计算，指令部分 label 设为 -100。
+    如果对整段计算，模型会花大量容量去拟合用户提问，指令跟随能力反而下降。</p>
+</div>
+</section>
+
+<section>
+<h2 id="lora">12.3 参数高效微调：LoRA 与 QLoRA</h2>
+<p>全参微调一个 70B 模型需要数百 GB 显存。LoRA 假设权重更新是低秩的，
+只训练两个小矩阵 <span class="v">A</span>、<span class="v">B</span>，冻结原权重。</p>
+
+<div class="formula">
+  <span class="label">LoRA 的低秩分解</span>
+  <div class="fx"><span class="v">W</span>′ = <span class="v">W</span> +
+    Δ<span class="v">W</span> = <span class="v">W</span> +
+    <span class="frac"><span class="num">α</span><span class="den"><span class="v">r</span></span></span>
+    <span class="v">B</span><span class="v">A</span>,
+    &nbsp;&nbsp; <span class="v">A</span> ∈ R<sup>r×d<sub>in</sub></sup>,
+    <span class="v">B</span> ∈ R<sup>d<sub>out</sub>×r</sup></div>
+  <p class="fx-note">r 通常取 4~64，远小于 d。可训练参数从 d<sub>out</sub>×d<sub>in</sub>
+    降到 r×(d<sub>in</sub>+d<sub>out</sub>)。A 随机初始化、B 初始化为零，保证训练开始时
+    更新为零，不破坏原模型。</p>
+</div>
+
+<div class="formula">
+  <span class="label">QLoRA：4-bit 量化 + LoRA</span>
+  <div class="fx"><span class="v">W</span><sub>q</sub> = quantize(<span class="v">W</span>, 4bit),
+    &nbsp;&nbsp; <span class="v">y</span> = <span class="v">x</span><span class="v">W</span><sub>q</sub> +
+    <span class="v">x</span>Δ<span class="v">W</span></div>
+  <p class="fx-note">主干权重以 NF4 4-bit 存储，反量化后参与计算；LoRA 分支保持 16-bit。
+    这让 7B 模型可以在单张 24GB 显卡上微调。代价是训练速度略慢。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>方法</th><th>可训练参数</th><th>显存</th><th>适用</th></tr></thead>
+  <tbody>
+    <tr><td>Full fine-tune</td><td>100%</td><td>极高</td><td>数据充足、追求极限效果</td></tr>
+    <tr><td>LoRA</td><td>0.1%~1%</td><td>低</td><td>多任务切换、快速迭代</td></tr>
+    <tr><td>QLoRA</td><td>0.1%~1%</td><td>很低</td><td>单卡微调大模型</td></tr>
+    <tr><td>Adapter</td><td>1%~5%</td><td>低</td><td>需要插入式模块</td></tr>
+    <tr><td>Prefix / Prompt</td><td>&lt;0.1%</td><td>极低</td><td>少样本、冻结主干</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2 id="align">12.4 对齐：RLHF 与 DPO</h2>
+<p>奖励模型学习人类偏好：给定同一提示的两个回答，预测哪个更好。RLHF 用 PPO 最大化奖励，
+同时用 KL 惩罚防止模型偏离原始分布太远。</p>
+
+<div class="formula">
+  <span class="label">RLHF 目标</span>
+  <div class="fx">max<sub>π</sub> E<sub>x~D, y~π</sub>[
+    <span class="v">r</span><sub>φ</sub>(<span class="v">x</span>,<span class="v">y</span>) −
+    β<span class="v">D</span><sub>KL</sub>(π‖π<sub>ref</sub>)]</div>
+  <p class="fx-note">奖励让回答更好，KL 让模型别为了刷分而输出怪话。
+    β 控制两者的平衡，是 RLHF 最关键的旋钮之一。</p>
+</div>
+
+<div class="formula">
+  <span class="label">DPO：把偏好直接写成分类损失</span>
+  <div class="fx"><span class="v">L</span><sub>DPO</sub> = −log σ(
+    β[log π<sub>θ</sub>(<span class="v">y</span><sub>w</sub>|<span class="v">x</span>) −
+    log π<sub>ref</sub>(<span class="v">y</span><sub>w</sub>|<span class="v">x</span>)] −
+    β[log π<sub>θ</sub>(<span class="v">y</span><sub>l</sub>|<span class="v">x</span>) −
+    log π<sub>ref</sub>(<span class="v">y</span><sub>l</sub>|<span class="v">x</span>)])</div>
+  <p class="fx-note">y<sub>w</sub> 是偏好回答，y<sub>l</sub> 是被拒绝回答。
+    DPO 不需要奖励模型与在线采样，训练更简单稳定，已成为开源模型对齐的主流。</p>
+</div>
+
+<div class="callout note">
+  <span class="ct">对齐税</span>
+  <p>对齐会让模型更安全、更有帮助，但也可能牺牲多样性、创造力与某些基准分数。
+    评测时必须同时看能力、安全与风格三类指标，不能只盯一个榜单。</p>
+</div>
+</section>
+
+<section>
+<h2 id="inference">12.5 推理、RAG 与智能体</h2>
+
+<div class="grid2">
+  <div class="card">
+    <h4>检索增强生成（RAG）</h4>
+    <p>把外部知识切块、向量化、检索后拼进上下文。优点是知识可更新、可溯源；
+      难点是切块策略、召回质量与上下文长度。</p>
+  </div>
+  <div class="card">
+    <h4>工具调用 / 智能体</h4>
+    <p>模型输出结构化动作（搜索、计算、代码执行），环境返回结果后再继续推理。
+      关键在工具描述、错误处理与循环终止条件。</p>
+  </div>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>场景</th><th>推荐方案</th><th>原因</th></tr></thead>
+  <tbody>
+    <tr><td>知识频繁更新</td><td>RAG</td><td>无需重训，可溯源</td></tr>
+    <tr><td>固定领域风格</td><td>SFT / LoRA</td><td>把风格写进权重，推理零额外成本</td></tr>
+    <tr><td>需要多步计算</td><td>工具调用</td><td>把精确计算交给外部程序</td></tr>
+    <tr><td>偏好与安全</td><td>DPO / RLHF</td><td>直接优化人类偏好</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2 id="code">12.6 代码：LoRA 层与 DPO 损失</h2>
+
+<div class="code">
+<div class="code-bar"><span>Python · LoRA 线性层</span><button class="copy" type="button">复制</button></div>
+<pre><code>import math
+import torch
+import torch.nn as nn
+
+class LoRALinear(nn.Module):
+    def __init__(self, base: nn.Linear, r=8, alpha=16, dropout=0.0):
+        super().__init__()
+        self.base = base
+        for p in self.base.parameters():
+            p.requires_grad = False          # 冻结原权重
+
+        self.r, self.scale = r, alpha / r
+        self.A = nn.Parameter(torch.randn(r, base.in_features) / math.sqrt(base.in_features))
+        self.B = nn.Parameter(torch.zeros(base.out_features, r))
+        self.drop = nn.Dropout(dropout)
+
+    def forward(self, x):
+        out = self.base(x)
+        lora = self.drop(x) @ self.A.t() @ self.B.t()
+        return out + lora * self.scale
+
+base = nn.Linear(512, 512)
+layer = LoRALinear(base, r=8)
+x = torch.randn(4, 512)
+print(layer(x).shape)
+print("trainable:", sum(p.numel() for p in layer.parameters() if p.requires_grad))</code></pre>
+</div>
+
+<div class="code">
+<div class="code-bar"><span>Python · DPO 损失</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn.functional as F
+
+def dpo_loss(policy_w, policy_l, ref_w, ref_l, beta=0.1):
+    """四个输入都是序列的 log 概率之和，形状 (B,)。"""
+    margin = (policy_w - ref_w) - (policy_l - ref_l)
+    return -F.logsigmoid(beta * margin).mean()
+
+B = 4
+policy_w, policy_l = torch.randn(B, requires_grad=True), torch.randn(B, requires_grad=True)
+ref_w, ref_l = torch.randn(B), torch.randn(B)
+loss = dpo_loss(policy_w, policy_l, ref_w, ref_l)
+loss.backward()
+print(loss.item())</code></pre>
+</div>
+
+<div class="callout warn">
+  <span class="ct">log 概率要按 token 求和</span>
+  <p>DPO 比较的是整段回答的对数概率。实现时必须把每个 token 的 log-prob 求和，
+    并只统计回答部分，否则长度不同的回答会被系统性偏向。</p>
+</div>
+</section>
+
+<section>
+<h2 id="summary">12.7 本章小结</h2>
+<div class="takeaway">
+  <h3>大模型落地的关键</h3>
+  <ul>
+    <li>预训练决定能力上限，数据质量与配比决定效率。</li>
+    <li>SFT 决定会不会听指令，只对回答算损失。</li>
+    <li>LoRA / QLoRA 让单卡微调成为可能，r 与 alpha 是主要超参。</li>
+    <li>RLHF 用奖励模型 + KL 约束，DPO 用偏好对直接优化。</li>
+    <li>RAG 解决知识更新，工具调用解决精确计算。</li>
+    <li>评测要防止数据污染，并同时看能力、安全与效率。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>SFT 数据只追求数量，忽略多样性与正确性。</li>
+    <li>LoRA 的 B 不初始化为零，训练一开始就破坏原模型输出。</li>
+    <li>DPO 的 beta 设得过大，模型几乎不更新；过小则偏离参考模型太远。</li>
+    <li>用训练集同分布的题目做评测，得到虚高分数。</li>
+    <li>把上下文窗口当成“记忆力”，忽略中间位置的信息丢失问题。</li>
+  </ol>
+</div>
+</section>
