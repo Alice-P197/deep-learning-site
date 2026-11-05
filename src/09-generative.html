@@ -1,0 +1,286 @@
+<header class="chapter-head">
+  <div class="crumb">第三部分 · 生成与决策</div>
+  <h1>生成模型：从自编码器到扩散模型</h1>
+  <p class="lede">判别模型回答“这是什么”，生成模型回答“如何造出一个新的它”。
+    VAE 用概率潜变量、GAN 用对抗博弈、扩散模型用逐步去噪，三条路线最终都指向同一个目标：
+    建模数据分布并从中采样。</p>
+  <div class="meta">
+    <span>预计 75 分钟</span><span>前置：第 1、3、7 章</span>
+    <span>关键词：ELBO · 对抗训练 · DDPM · 引导</span>
+  </div>
+</header>
+
+<section>
+<h2 id="families">9.1 三条技术路线</h2>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>路线</th><th>核心思想</th><th>优点</th><th>缺点</th><th>代表</th></tr></thead>
+  <tbody>
+    <tr><td>似然模型</td><td>直接最大化 p(x) 或下界</td><td>训练稳定、可算密度</td><td>样本常偏模糊</td><td>VAE、Flow</td></tr>
+    <tr><td>对抗模型</td><td>生成器与判别器博弈</td><td>样本锐利、采样快</td><td>训练不稳、模式崩塌</td><td>GAN、StyleGAN</td></tr>
+    <tr><td>得分 / 扩散</td><td>学习去噪或得分函数</td><td>质量高、覆盖好</td><td>采样多步、较慢</td><td>DDPM、Stable Diffusion</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>选择取决于目标：需要可逆编码与潜空间操作选 VAE；需要极致采样速度选 GAN；
+需要高质量多样本生成、且能接受多步采样，选扩散模型。三者也可以组合，例如
+VAE + 扩散（Stable Diffusion 的潜空间扩散）。</p>
+</section>
+
+<section>
+<h2 id="vae">9.2 自编码器与 VAE</h2>
+<p>普通自编码器学习 <span class="v">x</span> → <span class="v">z</span> →
+<span class="v">x̂</span>，但潜空间没有结构，随机采样往往生成乱码。VAE 让编码器输出
+一个分布 <span class="v">q</span>(<span class="v">z</span>|<span class="v">x</span>)，
+再从该分布采样并解码，从而让潜空间连续、可采样。</p>
+
+<div class="formula">
+  <span class="label">ELBO：对数似然的下界</span>
+  <div class="fx">log <span class="v">p</span>(<span class="v">x</span>) ≥
+    E<sub>q</sub>[log <span class="v">p</span>(<span class="v">x</span>|<span class="v">z</span>)]
+    − <span class="v">D</span><sub>KL</sub>(<span class="v">q</span>(<span class="v">z</span>|<span class="v">x</span>)‖
+    <span class="v">p</span>(<span class="v">z</span>))</div>
+  <p class="fx-note">第一项是重建质量，第二项让后验靠近先验。VAE 训练就是最大化 ELBO，
+    等价于最小化“重建损失 + KL 正则”。KL 太强会导致后验坍缩，重建变模糊。</p>
+</div>
+
+<div class="formula">
+  <span class="label">重参数化技巧</span>
+  <div class="fx"><span class="v">z</span> = μ + σ ⊙ ε,
+    &nbsp;&nbsp; ε ~ N(0, <span class="v">I</span>)</div>
+  <p class="fx-note">直接从 N(μ, σ²) 采样无法反传梯度。把随机性转移到 ε 后，
+    z 对 μ、σ 可导，梯度就能穿过采样操作。</p>
+</div>
+
+<div class="formula">
+  <span class="label">高斯先验下的 KL 闭式解</span>
+  <div class="fx"><span class="v">D</span><sub>KL</sub> = −<span class="frac"><span class="num">1</span>
+    <span class="den">2</span></span> Σ<sub>j</sub>(1 + log σ<sub>j</sub><sup>2</sup> −
+    μ<sub>j</sub><sup>2</sup> − σ<sub>j</sub><sup>2</sup>)</div>
+  <p class="fx-note">实现时编码器输出 log σ² 而不是 σ，既保证正值又数值稳定。</p>
+</div>
+</section>
+
+<section>
+<h2 id="gan">9.3 GAN：用对抗代替似然</h2>
+<p>生成器把噪声映射成样本，判别器判断样本真伪。二者博弈的均衡点是生成分布等于真实分布。
+GAN 不显式建模似然，因此能生成非常锐利的样本。</p>
+
+<div class="formula">
+  <span class="label">极小极大目标</span>
+  <div class="fx">min<sub>G</sub> max<sub>D</sub>
+    E<sub>x~p<sub>data</sub></sub>[log <span class="v">D</span>(<span class="v">x</span>)] +
+    E<sub>z~p<sub>z</sub></sub>[log(1 − <span class="v">D</span>(<span class="v">G</span>(<span class="v">z</span>)))]</div>
+  <p class="fx-note">理论上最优判别器给出 D(x) = p<sub>data</sub>(x)/(p<sub>data</sub>(x)+p<sub>g</sub>(x))，
+    此时生成器最小化的是 JS 散度。</p>
+</div>
+
+<div class="formula">
+  <span class="label">实践中的非饱和生成器损失</span>
+  <div class="fx"><span class="v">L</span><sub>G</sub> = −E<sub>z</sub>[log
+    <span class="v">D</span>(<span class="v">G</span>(<span class="v">z</span>))]</div>
+  <p class="fx-note">原始目标在判别器太强时梯度消失，改用“骗过判别器”的等价形式，
+    训练更稳定。WGAN 进一步用 Wasserstein 距离替代 JS 散度，并配合权重裁剪或梯度惩罚。</p>
+</div>
+
+<div class="callout warn">
+  <span class="ct">模式崩塌</span>
+  <p>生成器只产出少数几种能骗过判别器的样本，多样性骤降。
+    对策：小批量判别、WGAN-GP、谱归一化、EMA 生成器、增加噪声。</p>
+</div>
+</section>
+
+<section>
+<h2 id="diffusion">9.4 扩散模型：学会去噪就等于学会生成</h2>
+<p>前向过程逐步向数据加高斯噪声，直到变成纯噪声；反向过程学习每一步的去噪。
+如果每一步的去噪都足够准，从纯噪声出发逐步去噪就能得到清晰样本。</p>
+
+<div class="formula">
+  <span class="label">前向加噪（闭式采样）</span>
+  <div class="fx"><span class="v">x</span><sub>t</sub> = √ᾱ<sub>t</sub>
+    <span class="v">x</span><sub>0</sub> + √(1 − ᾱ<sub>t</sub>) ε,
+    &nbsp;&nbsp; ε ~ N(0, <span class="v">I</span>)</div>
+  <p class="fx-note">ᾱ<sub>t</sub> 是累积噪声系数。有了闭式表达，任意时刻 t 的噪声样本
+    都可以一步采样得到，不必真的迭代 t 次。</p>
+</div>
+
+<div class="formula">
+  <span class="label">DDPM 训练目标（预测噪声）</span>
+  <div class="fx"><span class="v">L</span> = E<sub>t,x<sub>0</sub>,ε</sub>
+    ‖ε − ε<sub>θ</sub>(<span class="v">x</span><sub>t</sub>, t)‖<sup>2</sup></div>
+  <p class="fx-note">网络输入是“加噪后的图 + 时间步”，输出是“加入的噪声”。
+    预测噪声与预测 x<sub>0</sub>、预测得分函数在数学上等价，只是参数化方式不同。</p>
+</div>
+
+<div class="formula">
+  <span class="label">反向采样一步</span>
+  <div class="fx"><span class="v">x</span><sub>t−1</sub> = <span class="frac"><span class="num">1</span>
+    <span class="den">√α<sub>t</sub></span></span>(<span class="v">x</span><sub>t</sub> −
+    <span class="frac"><span class="num">1−α<sub>t</sub></span>
+    <span class="den">√(1−ᾱ<sub>t</sub>)</span></span>ε<sub>θ</sub>) + σ<sub>t</sub>z</div>
+  <p class="fx-note">z 在最后一步为 0，其余步为随机噪声。实际实现常用 DDIM 等加速采样器，
+    把数百步降到 20~50 步。</p>
+</div>
+
+<div class="formula">
+  <span class="label">无分类器引导（CFG）</span>
+  <div class="fx">ε̂ = ε<sub>θ</sub>(<span class="v">x</span><sub>t</sub>, ∅) +
+    <span class="v">s</span> · (ε<sub>θ</sub>(<span class="v">x</span><sub>t</sub>, <span class="v">c</span>) −
+    ε<sub>θ</sub>(<span class="v">x</span><sub>t</sub>, ∅))</div>
+  <p class="fx-note">s 是引导强度。s 越大越贴合提示词，但多样性与真实感下降。
+    训练时随机丢弃条件（约 10%），让模型同时学会有条件与无条件去噪。</p>
+</div>
+
+<div class="callout note">
+  <span class="ct">潜空间扩散</span>
+  <p>Stable Diffusion 先用 VAE 把 512×512 图像压到 64×64 的潜空间，再在潜空间做扩散。
+    计算量降低约 48 倍，是消费级显卡能生成高分辨率图像的关键。</p>
+</div>
+</section>
+
+<section>
+<h2 id="code">9.5 代码：VAE 与简化 DDPM</h2>
+
+<div class="code">
+<div class="code-bar"><span>Python · VAE</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class VAE(nn.Module):
+    def __init__(self, in_dim=784, hidden=256, latent=32):
+        super().__init__()
+        self.enc = nn.Sequential(
+            nn.Linear(in_dim, hidden), nn.ReLU(),
+            nn.Linear(hidden, hidden), nn.ReLU(),
+        )
+        self.mu = nn.Linear(hidden, latent)
+        self.logvar = nn.Linear(hidden, latent)
+        self.dec = nn.Sequential(
+            nn.Linear(latent, hidden), nn.ReLU(),
+            nn.Linear(hidden, hidden), nn.ReLU(),
+            nn.Linear(hidden, in_dim), nn.Sigmoid(),
+        )
+
+    def forward(self, x):
+        h = self.enc(x)
+        mu, logvar = self.mu(h), self.logvar(h)
+        std = torch.exp(0.5 * logvar)
+        eps = torch.randn_like(std)        # 重参数化
+        z = mu + std * eps
+        return self.dec(z), mu, logvar
+
+def vae_loss(x, x_hat, mu, logvar):
+    recon = F.binary_cross_entropy(x_hat, x, reduction="sum")
+    kl = -0.5 * torch.sum(1 + logvar - mu.pow(2) - logvar.exp())
+    return recon + kl, recon.item(), kl.item()
+
+vae = VAE()
+x = torch.rand(16, 784)
+x_hat, mu, logvar = vae(x)
+print(vae_loss(x, x_hat, mu, logvar)[0].item())</code></pre>
+</div>
+
+<div class="code">
+<div class="code-bar"><span>Python · DDPM 训练步与采样骨架</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn as nn
+
+T = 1000
+betas = torch.linspace(1e-4, 0.02, T)
+alphas = 1 - betas
+alpha_bar = torch.cumprod(alphas, dim=0)
+
+class TinyUNet(nn.Module):
+    """仅为示意：真实实现需要下采样、上采样与时间步嵌入。"""
+    def __init__(self, dim=64):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Conv2d(3, dim, 3, padding=1), nn.SiLU(),
+            nn.Conv2d(dim, 3, 3, padding=1),
+        )
+        self.time = nn.Linear(1, dim)
+
+    def forward(self, x, t):
+        # t: (B,) 归一化到 [0,1]，加到每个通道上作为条件
+        cond = self.time(t.float().view(-1, 1)).view(-1, self.time.out_features, 1, 1)
+        return self.net(x + cond)
+
+model = TinyUNet()
+
+def train_step(x0):
+    t = torch.randint(0, T, (x0.size(0),), device=x0.device)
+    eps = torch.randn_like(x0)
+    ab = alpha_bar[t].view(-1, 1, 1, 1)
+    xt = ab.sqrt() * x0 + (1 - ab).sqrt() * eps      # 一步加噪到 t
+    eps_pred = model(xt, t)
+    return nn.functional.mse_loss(eps_pred, eps)     # 预测噪声
+
+@torch.no_grad()
+def sample(n=4, shape=(3, 32, 32)):
+    x = torch.randn(n, *shape)
+    for t in reversed(range(T)):
+        ab = alpha_bar[t]
+        ab_prev = alpha_bar[t - 1] if t &gt; 0 else torch.tensor(1.0)
+        eps = model(x, torch.full((n,), t))
+        x0 = (x - (1 - ab).sqrt() * eps) / ab.sqrt()
+        x = ab_prev.sqrt() * x0 + (1 - ab_prev).sqrt() * eps
+        if t &gt; 0:
+            x = x + torch.randn_like(x) * 0.02
+    return x
+
+print(train_step(torch.randn(4, 3, 32, 32)).item())</code></pre>
+</div>
+
+<div class="callout warn">
+  <span class="ct">采样循环注意</span>
+  <p>上面的反向公式把方差项简化为固定噪声，真实 DDPM 使用后验方差
+    <code>β<sub>t</sub></code> 或 <code>β̂<sub>t</sub></code>。生产环境直接用
+    diffusers 的调度器，避免自己实现细节出错。</p>
+</div>
+</section>
+
+<section>
+<h2 id="eval">9.6 生成模型怎么评估</h2>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>指标</th><th>衡量什么</th><th>局限</th></tr></thead>
+  <tbody>
+    <tr><td>FID</td><td>生成分布与真实分布在特征空间的距离</td><td>依赖特定特征网络，样本少时不稳定</td></tr>
+    <tr><td>IS</td><td>单样本质量与多样性</td><td>不比较真实分布，可被对抗欺骗</td></tr>
+    <tr><td>CLIPScore</td><td>图文一致性</td><td>无法衡量真实感与细节</td></tr>
+    <tr><td>人评</td><td>真实感、一致性、审美</td><td>成本高、主观性强</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>定量指标只能做相对比较，<strong>最终仍要结合人工评测与下游任务表现</strong>。
+报告结果时必须写清采样步数、引导强度、随机种子与评估样本量。</p>
+</section>
+
+<section>
+<h2 id="summary">9.7 本章小结</h2>
+<div class="takeaway">
+  <h3>生成模型的三条主线</h3>
+  <ul>
+    <li>VAE：用 ELBO 训练，重参数化让采样可导，潜空间连续但样本偏模糊。</li>
+    <li>GAN：用对抗训练换取锐利样本，代价是训练不稳定与模式崩塌。</li>
+    <li>扩散：学习去噪，质量与覆盖最好，但需要多步采样。</li>
+    <li>CFG 用条件与无条件预测的差值增强提示词控制力。</li>
+    <li>潜空间扩散把计算量降低一到两个数量级。</li>
+    <li>评估要指标 + 人评 + 下游任务三者结合。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>VAE 的 KL 权重过大，导致后验坍缩、输出模糊。</li>
+    <li>GAN 的判别器过强，生成器梯度消失；或生成器过强，判别器失去信号。</li>
+    <li>扩散训练时时间步编码错误，模型无法区分噪声等级。</li>
+    <li>采样步数与训练调度不匹配，生成结果出现伪影。</li>
+    <li>只用 FID 比较不同数据集或不同样本量的模型。</li>
+  </ol>
+</div>
+</section>
