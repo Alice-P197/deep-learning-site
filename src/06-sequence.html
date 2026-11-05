@@ -1,0 +1,252 @@
+<header class="chapter-head">
+  <div class="crumb">第二部分 · 核心架构</div>
+  <h1>序列模型：从循环网络到注意力</h1>
+  <p class="lede">文本、语音、时间序列都有顺序依赖。RNN 用隐藏状态携带历史信息，
+    却受限于梯度消失与串行计算；LSTM 用门控缓解前者，Transformer 用注意力解决后者。
+    这一章是从 RNN 走向大模型的必经路口。</p>
+  <div class="meta">
+    <span>预计 60 分钟</span><span>前置：第 3、4 章</span>
+    <span>关键词：BPTT · 门控 · Seq2Seq · Beam Search</span>
+  </div>
+</header>
+
+<section>
+<h2 id="task">6.1 序列任务的四种形态</h2>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>形态</th><th>输入 → 输出</th><th>例子</th><th>典型结构</th></tr></thead>
+  <tbody>
+    <tr><td>一对一</td><td>固定 → 固定</td><td>图像分类</td><td>CNN</td></tr>
+    <tr><td>多对一</td><td>序列 → 单个</td><td>情感分类、故障检测</td><td>RNN 取最后状态</td></tr>
+    <tr><td>一对多</td><td>单个 → 序列</td><td>图像描述、音乐生成</td><td>解码器逐步生成</td></tr>
+    <tr><td>多对多</td><td>序列 → 序列</td><td>翻译、摘要、语音识别</td><td>Encoder–Decoder</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>深度学习里序列通常表示为 <code>(B, T, D)</code>：batch、时间步、特征维。
+注意 PyTorch 的 <code>nn.LSTM</code> 默认要求 <code>(T, B, D)</code>，
+除非设置 <code>batch_first=True</code>。<strong>形状约定错位是序列代码最常见的 bug</strong>。</p>
+</section>
+
+<section>
+<h2 id="rnn">6.2 循环神经网络与 BPTT</h2>
+<p>RNN 在每个时间步复用同一组参数，把上一刻的隐藏状态和当前输入一起更新。
+这让它能处理任意长度的序列，但训练时必须沿时间展开计算图。</p>
+
+<div class="formula">
+  <span class="label">RNN 单元</span>
+  <div class="fx"><span class="v">h</span><sub>t</sub> = tanh(<span class="v">W</span><sub>hh</sub>
+    <span class="v">h</span><sub>t−1</sub> + <span class="v">W</span><sub>xh</sub>
+    <span class="v">x</span><sub>t</sub> + <span class="v">b</span><sub>h</sub>)
+    &nbsp;&nbsp; <span class="v">y</span><sub>t</sub> = <span class="v">W</span><sub>hy</sub>
+    <span class="v">h</span><sub>t</sub> + <span class="v">b</span><sub>y</sub></div>
+  <p class="fx-note">同一组 W 在所有时间步共享，因此参数量与序列长度无关。
+    隐藏状态是“记忆”，但它容量固定，长序列会遗忘早期信息。</p>
+</div>
+
+<div class="formula">
+  <span class="label">沿时间反向传播（BPTT）的梯度</span>
+  <div class="fx"><span class="frac"><span class="num">∂<span class="v">L</span></span>
+    <span class="den">∂<span class="v">h</span><sub>1</sub></span></span> =
+    Σ<sub>t</sub> <span class="frac"><span class="num">∂<span class="v">L</span><sub>t</sub></span>
+    <span class="den">∂<span class="v">h</span><sub>t</sub></span></span>
+    ∏<sub>k=2..t</sub> <span class="frac"><span class="num">∂<span class="v">h</span><sub>k</sub></span>
+    <span class="den">∂<span class="v">h</span><sub>k−1</sub></span></span></div>
+  <p class="fx-note">每个因子都含 <span class="v">W</span><sub>hh</sub><sup>T</sup> 与 tanh′。
+    连乘导致梯度指数衰减或爆炸，长依赖学不到。工程上用梯度裁剪 + 门控结构缓解。</p>
+</div>
+
+<div class="callout warn">
+  <span class="ct">截断 BPTT</span>
+  <p>超长序列无法一次展开，常用截断反向传播：只回传最近 k 步，隐藏状态跨 chunk 传递但不回传梯度。
+    这会牺牲极长依赖，但让训练可行。</p>
+</div>
+</section>
+
+<section>
+<h2 id="lstm">6.3 LSTM：用门控控制记忆</h2>
+<p>LSTM 引入细胞状态 <span class="v">c</span><sub>t</sub> 与三个门：遗忘门决定丢弃多少旧信息，
+输入门决定写入多少新信息，输出门决定暴露多少给隐藏状态。细胞状态的更新以加法为主，
+梯度可以沿“传送带”较稳定地流动。</p>
+
+<div class="formula">
+  <span class="label">LSTM 门控方程</span>
+  <div class="fx"><span class="v">f</span><sub>t</sub> = σ(<span class="v">W</span><sub>f</sub>[
+    <span class="v">h</span><sub>t−1</sub>, <span class="v">x</span><sub>t</sub>] +
+    <span class="v">b</span><sub>f</sub>)
+    &nbsp;&nbsp; <span class="v">i</span><sub>t</sub> = σ(<span class="v">W</span><sub>i</sub>[
+    <span class="v">h</span><sub>t−1</sub>, <span class="v">x</span><sub>t</sub>] +
+    <span class="v">b</span><sub>i</sub>)</div>
+  <div class="fx"><span class="v">c</span><sub>t</sub> = <span class="v">f</span><sub>t</sub> ⊙
+    <span class="v">c</span><sub>t−1</sub> + <span class="v">i</span><sub>t</sub> ⊙
+    tanh(<span class="v">W</span><sub>c</sub>[<span class="v">h</span><sub>t−1</sub>,
+    <span class="v">x</span><sub>t</sub>] + <span class="v">b</span><sub>c</sub>)</div>
+  <div class="fx"><span class="v">o</span><sub>t</sub> = σ(<span class="v">W</span><sub>o</sub>[
+    <span class="v">h</span><sub>t−1</sub>, <span class="v">x</span><sub>t</sub>] +
+    <span class="v">b</span><sub>o</sub>)
+    &nbsp;&nbsp; <span class="v">h</span><sub>t</sub> = <span class="v">o</span><sub>t</sub> ⊙
+    tanh(<span class="v">c</span><sub>t</sub>)</div>
+  <p class="fx-note">σ 输出 (0,1)，充当“开合程度”。遗忘门接近 1 表示保留，接近 0 表示清空。
+    细胞状态的加法路径让梯度不必每步都经过矩阵乘法与饱和激活。</p>
+</div>
+
+<h3 id="gru">GRU：更轻量的门控</h3>
+<p>GRU 把遗忘门与输入门合并为更新门 <span class="v">z</span>，并引入重置门
+<span class="v">r</span>，只有两个门、没有独立细胞状态，参数比 LSTM 少约 25%，
+在很多任务上表现相当。</p>
+
+<div class="formula">
+  <span class="label">GRU 更新</span>
+  <div class="fx"><span class="v">z</span><sub>t</sub> = σ(<span class="v">W</span><sub>z</sub>[
+    <span class="v">h</span><sub>t−1</sub>,<span class="v">x</span><sub>t</sub>])
+    &nbsp;&nbsp; <span class="v">r</span><sub>t</sub> = σ(<span class="v">W</span><sub>r</sub>[
+    <span class="v">h</span><sub>t−1</sub>,<span class="v">x</span><sub>t</sub>])</div>
+  <div class="fx"><span class="v">h̃</span><sub>t</sub> = tanh(<span class="v">W</span>[
+    <span class="v">r</span><sub>t</sub> ⊙ <span class="v">h</span><sub>t−1</sub>,
+    <span class="v">x</span><sub>t</sub>])
+    &nbsp;&nbsp; <span class="v">h</span><sub>t</sub> = (1−<span class="v">z</span><sub>t</sub>)⊙
+    <span class="v">h</span><sub>t−1</sub> + <span class="v">z</span><sub>t</sub> ⊙
+    <span class="v">h̃</span><sub>t</sub></div>
+  <p class="fx-note">更新门直接控制“保留旧状态”还是“写入候选状态”，
+    是 LSTM 遗忘/输入门的简化版。</p>
+</div>
+</section>
+
+<section>
+<h2 id="seq2seq">6.4 Seq2Seq 与解码策略</h2>
+<p>Encoder 把输入序列压缩成一个上下文向量，Decoder 从这个向量出发逐步生成输出。
+中间那个固定长度向量是瓶颈，注意力机制（第 7 章）正是为了解决它。</p>
+
+<div class="formula">
+  <span class="label">条件语言模型分解</span>
+  <div class="fx"><span class="v">p</span>(<span class="v">y</span><sub>1..T</sub>|<span class="v">x</span>)
+    = ∏<sub>t</sub> <span class="v">p</span>(<span class="v">y</span><sub>t</sub>|
+    <span class="v">y</span><sub>&lt;t</sub>, <span class="v">x</span>)</div>
+  <p class="fx-note">自回归生成：每步把已生成的 token 作为下一步输入。
+    训练时用 teacher forcing（喂真实前缀），推理时喂模型自己的输出，二者存在分布差异。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>解码策略</th><th>做法</th><th>优点</th><th>缺点</th></tr></thead>
+  <tbody>
+    <tr><td>贪心</td><td>每步取最大概率</td><td>快</td><td>容易陷入局部最优、重复</td></tr>
+    <tr><td>Beam Search</td><td>保留 top-k 条候选路径</td><td>质量更高</td><td>计算量 k 倍、可能过于保守</td></tr>
+    <tr><td>温度采样</td><td>按 p/T 采样</td><td>多样性可控</td><td>T 过高会胡言乱语</td></tr>
+    <tr><td>Top-k / Top-p</td><td>截断低概率词后采样</td><td>质量与多样性平衡</td><td>需要调参</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout note">
+  <span class="ct">曝光偏差</span>
+  <p>训练时模型总看到正确前缀，推理时看到自己的错误输出，误差会逐步累积。
+    缓解方法：计划采样（逐步混入模型输出）、强化学习微调、或直接用大规模预训练。</p>
+</div>
+</section>
+
+<section>
+<h2 id="code">6.5 代码：LSTM 文本分类与逐步生成</h2>
+
+<div class="code">
+<div class="code-bar"><span>Python · LSTM 分类器</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn as nn
+
+class LSTMClassifier(nn.Module):
+    def __init__(self, vocab_size, emb_dim=128, hidden=256, num_classes=2):
+        super().__init__()
+        self.embed = nn.Embedding(vocab_size, emb_dim, padding_idx=0)
+        self.lstm = nn.LSTM(
+            emb_dim, hidden, num_layers=2, batch_first=True,
+            bidirectional=True, dropout=0.2
+        )
+        self.head = nn.Linear(hidden * 2, num_classes)
+
+    def forward(self, ids, lengths):
+        # ids: (B, T)  lengths: (B,) 真实长度，用于忽略 padding
+        emb = self.embed(ids)                         # (B, T, D)
+        packed = nn.utils.rnn.pack_padded_sequence(
+            emb, lengths.cpu(), batch_first=True, enforce_sorted=False
+        )
+        out, (h, c) = self.lstm(packed)
+        out, _ = nn.utils.rnn.pad_packed_sequence(out, batch_first=True)
+        # 取每个样本最后一个有效时间步
+        idx = (lengths - 1).view(-1, 1, 1).expand(-1, 1, out.size(2))
+        last = out.gather(1, idx).squeeze(1)          # (B, 2H)
+        return self.head(last)
+
+model = LSTMClassifier(vocab_size=10000)
+ids = torch.randint(1, 10000, (16, 40))
+lengths = torch.randint(10, 41, (16,))
+logits = model(ids, lengths)
+print(logits.shape)                                    # (16, 2)</code></pre>
+</div>
+
+<div class="callout warn">
+  <span class="ct">必须 pack</span>
+  <p>padding 位置若参与 LSTM 计算，最后状态会被补零污染。使用
+    <code>pack_padded_sequence</code> 才能真正跳过 padding，并保证长度排序正确。</p>
+</div>
+
+<div class="code">
+<div class="code-bar"><span>Python · 手写 RNN 单元（理解状态更新）</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn as nn
+
+class ManualRNN(nn.Module):
+    def __init__(self, input_dim, hidden_dim):
+        super().__init__()
+        self.wx = nn.Linear(input_dim, hidden_dim, bias=False)
+        self.wh = nn.Linear(hidden_dim, hidden_dim, bias=True)
+
+    def forward(self, x, h=None):
+        # x: (B, T, D)
+        B, T, _ = x.shape
+        if h is None:
+            h = torch.zeros(B, self.wh.out_features, device=x.device)
+        outs = []
+        for t in range(T):
+            h = torch.tanh(self.wx(x[:, t]) + self.wh(h))
+            outs.append(h)
+        return torch.stack(outs, dim=1), h
+
+cell = ManualRNN(32, 64)
+x = torch.randn(4, 12, 32)
+out, h = cell(x)
+print(out.shape, h.shape)          # (4, 12, 64) (4, 64)</code></pre>
+</div>
+
+<div class="callout">
+  <span class="ct">实践建议</span>
+  <p>今天的序列建模优先考虑 Transformer（第 7 章）。RNN 仍有价值：
+    流式/低延迟场景、超长序列的线性复杂度变体（如 S4、Mamba），以及理解序列建模的基础概念。</p>
+</div>
+</section>
+
+<section>
+<h2 id="summary">6.6 本章小结</h2>
+<div class="takeaway">
+  <h3>序列建模的关键</h3>
+  <ul>
+    <li>序列张量约定要统一：batch_first 与 (T, B, D) 不能混用。</li>
+    <li>BPTT 是沿时间展开的链式法则，长依赖会梯度消失。</li>
+    <li>LSTM 靠细胞状态的加法路径与门控缓解梯度问题。</li>
+    <li>Seq2Seq 的固定上下文向量是瓶颈，注意力是解决方案。</li>
+    <li>训练用 teacher forcing，推理用自回归，存在曝光偏差。</li>
+    <li>解码策略决定生成质量与多样性，Beam 与采样各有用武之地。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>忘记 <code>batch_first=True</code>，把 batch 与时间步颠倒。</li>
+    <li>padding 不打包，最后状态被补零稀释。</li>
+    <li>初始隐藏状态没有放到正确 device 上。</li>
+    <li>长序列不做梯度裁剪，训练几步后 loss 变 NaN。</li>
+    <li>用贪心解码评估翻译质量，低估模型真实能力。</li>
+  </ol>
+</div>
+</section>
