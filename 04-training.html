@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>训练与优化 · 深度学习学习站</title>
+<meta name="description" content="优化器 · 正则化 · 归一化">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-slug="04-training">
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <span class="brand-mark">DL</span>
+      <span class="brand-text">
+        <strong>深度学习学习站</strong>
+        <em>从数学基础到大模型落地</em>
+      </span>
+    </a>
+  </div>
+  <div class="nav-search">
+    <input id="nav-search" type="search" placeholder="筛选章节（按 / 聚焦）" autocomplete="off">
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-group">
+      <span class="nav-group-title">起点</span>
+      <a class="nav-item" href="index.html" data-page="index" data-chapter="0">
+        <span class="nav-num">00</span><span class="nav-body"><strong>学习地图</strong><em>总览 · 路线 · 怎么用</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第一部分 · 基础</span>
+      <a class="nav-item" href="01-foundations.html" data-page="01-foundations" data-chapter="1">
+        <span class="nav-num">01</span><span class="nav-body"><strong>数学基础</strong><em>张量 · 微积分 · 概率与信息论</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="02-ml-basics.html" data-page="02-ml-basics" data-chapter="1">
+        <span class="nav-num">02</span><span class="nav-body"><strong>机器学习基础</strong><em>任务范式 · 损失 · 评估</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="03-neural-nets.html" data-page="03-neural-nets" data-chapter="1">
+        <span class="nav-num">03</span><span class="nav-body"><strong>神经网络与反向传播</strong><em>MLP · 链式法则 · 计算图</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item active" href="04-training.html" data-page="04-training" data-chapter="1">
+        <span class="nav-num">04</span><span class="nav-body"><strong>训练与优化</strong><em>优化器 · 正则化 · 归一化</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第二部分 · 核心架构</span>
+      <a class="nav-item" href="05-cnn.html" data-page="05-cnn" data-chapter="1">
+        <span class="nav-num">05</span><span class="nav-body"><strong>卷积神经网络</strong><em>卷积 · 感受野 · ResNet</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="06-sequence.html" data-page="06-sequence" data-chapter="1">
+        <span class="nav-num">06</span><span class="nav-body"><strong>序列模型</strong><em>RNN · LSTM · Seq2Seq</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="07-transformer.html" data-page="07-transformer" data-chapter="1">
+        <span class="nav-num">07</span><span class="nav-body"><strong>注意力与 Transformer</strong><em>Self-Attention · 多头 · 位置编码</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="08-pretraining.html" data-page="08-pretraining" data-chapter="1">
+        <span class="nav-num">08</span><span class="nav-body"><strong>预训练与自监督</strong><em>语言模型 · 对比学习 · CLIP</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第三部分 · 生成与决策</span>
+      <a class="nav-item" href="09-generative.html" data-page="09-generative" data-chapter="1">
+        <span class="nav-num">09</span><span class="nav-body"><strong>生成模型</strong><em>VAE · GAN · 扩散模型</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="10-reinforcement.html" data-page="10-reinforcement" data-chapter="1">
+        <span class="nav-num">10</span><span class="nav-body"><strong>强化学习</strong><em>MDP · 策略梯度 · PPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="11-gnn.html" data-page="11-gnn" data-chapter="1">
+        <span class="nav-num">11</span><span class="nav-body"><strong>图神经网络</strong><em>消息传递 · GCN · GAT</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第四部分 · 大模型与工程</span>
+      <a class="nav-item" href="12-llm.html" data-page="12-llm" data-chapter="1">
+        <span class="nav-num">12</span><span class="nav-body"><strong>大模型与微调</strong><em>Scaling · LoRA · RLHF/DPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="13-efficient.html" data-page="13-efficient" data-chapter="1">
+        <span class="nav-num">13</span><span class="nav-body"><strong>压缩与部署</strong><em>量化 · 蒸馏 · 推理服务</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="14-engineering.html" data-page="14-engineering" data-chapter="1">
+        <span class="nav-num">14</span><span class="nav-body"><strong>工程实践</strong><em>数据 · 调试 · 复现 · 分布式</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第五部分 · 应用与资源</span>
+      <a class="nav-item" href="15-applications.html" data-page="15-applications" data-chapter="1">
+        <span class="nav-num">15</span><span class="nav-body"><strong>应用领域</strong><em>视觉 · 语言 · 科学计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="16-resources.html" data-page="16-resources" data-chapter="1">
+        <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+  </nav>
+  <div class="side-foot">
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-bar"><i id="progress-bar"></i></div>
+    <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <button class="nav-toggle" id="nav-toggle" type="button">☰ 目录</button>
+    <span class="topbar-chapter">深度学习学习站 · 第 04 章</span>
+    <span class="topbar-line"></span>
+    <span>离线可用 · 无需联网</span>
+  </div>
+  <article class="content">
+<header class="chapter-head">
+  <div class="crumb">第一部分 · 基础</div>
+  <h1>训练与优化：让网络真正收敛</h1>
+  <p class="lede">能写出模型不等于能训练出来。90% 的“模型不 work”出在优化器、学习率、
+    归一化与数据上。这一章给出可执行的训练配方，以及出现异常时按什么顺序排查。</p>
+  <div class="meta">
+    <span>预计 70 分钟</span><span>前置：第 3 章</span>
+    <span>关键词：AdamW · 学习率 · BatchNorm · 混合精度</span>
+  </div>
+</header>
+<nav class="outline" id="outline" aria-label="本章目录">
+  <div class="outline-head"><span>本章目录</span><button class="outline-toggle" id="outline-toggle" type="button">收起</button></div>
+  <ol>
+    <li><a href="#loop">4.1 训练循环的解剖</a></li>
+    <li><a href="#optimizers">4.2 优化器：从 SGD 到 AdamW</a></li>
+    <li><a href="#lr">4.3 学习率：最重要的超参数</a></li>
+    <li><a href="#normalization">4.4 归一化：让每层输入分布稳定</a></li>
+    <li><a href="#regularization">4.5 正则化与稳定训练技巧</a></li>
+    <li><a href="#amp">4.6 混合精度、显存与吞吐</a></li>
+    <li><a href="#diagnose">4.7 训练异常诊断表</a></li>
+    <li><a href="#code">4.8 代码：一个完整可复用的训练循环</a></li>
+    <li><a href="#summary">4.9 本章小结</a></li>
+  </ol>
+</nav>
+
+<section>
+<h2 id="loop">4.1 训练循环的解剖</h2>
+<p>每个 step 都由五个动作组成，缺一不可。理解每个动作的副作用，比记住 API 更重要。</p>
+
+<ol class="steps">
+  <li><strong>前向：</strong>把 batch 送进模型，得到 logits / 预测。此时会构建计算图（训练模式下）。</li>
+  <li><strong>损失：</strong>把预测与标签比较，得到一个标量。损失必须是标量才能调用 backward。</li>
+  <li><strong>清梯度：</strong><code>optimizer.zero_grad()</code> 把上一步残留的梯度清零。</li>
+  <li><strong>反向：</strong><code>loss.backward()</code> 沿计算图求每个参数的梯度。</li>
+  <li><strong>更新：</strong><code>optimizer.step()</code> 按优化器规则修改参数。</li>
+</ol>
+
+<div class="callout note">
+  <span class="ct">梯度累积</span>
+  <p>显存不足时，把 batch 切成 k 份依次前向/反向，但只在第 k 次调用 <code>step()</code>。
+    注意损失要除以 k，否则梯度会放大 k 倍。这等效于更大的 batch。</p>
+</div>
+</section>
+
+<section>
+<h2 id="optimizers">4.2 优化器：从 SGD 到 AdamW</h2>
+<p>所有优化器都在回答两个问题：<strong>方向怎么定</strong>、<strong>步长怎么定</strong>。
+SGD 用当前梯度，Momentum 用梯度的一阶动量，Adam 同时用一阶与二阶矩。</p>
+
+<div class="formula">
+  <span class="label">SGD 与 Momentum</span>
+  <div class="fx"><span class="v">v</span><sub>t</sub> = β<span class="v">v</span><sub>t−1</sub> +
+    ∇<sub>θ</sub><span class="v">L</span>
+    &nbsp;&nbsp; <span class="v">θ</span><sub>t+1</sub> = <span class="v">θ</span><sub>t</sub> −
+    η<span class="v">v</span><sub>t</sub></div>
+  <p class="fx-note">动量让方向在一致时加速、在震荡时抵消，相当于给优化过程加了惯性。
+    Nesterov 变体先用动量走一步再算梯度，收敛略快。</p>
+</div>
+
+<div class="formula">
+  <span class="label">Adam 的一阶与二阶矩</span>
+  <div class="fx"><span class="v">m</span><sub>t</sub> = β<sub>1</sub><span class="v">m</span><sub>t−1</sub> +
+    (1−β<sub>1</sub>)<span class="v">g</span><sub>t</sub>
+    &nbsp;&nbsp; <span class="v">v</span><sub>t</sub> = β<sub>2</sub><span class="v">v</span><sub>t−1</sub> +
+    (1−β<sub>2</sub>)<span class="v">g</span><sub>t</sub><sup>2</sup></div>
+  <div class="fx"><span class="v">θ</span><sub>t+1</sub> = <span class="v">θ</span><sub>t</sub> −
+    η <span class="frac"><span class="num"><span class="v">m̂</span><sub>t</sub></span>
+    <span class="den">√(<span class="v">v̂</span><sub>t</sub>) + ε</span></span></div>
+  <p class="fx-note">m̂、v̂ 是偏差修正后的矩估计。二阶矩让每个参数拥有自适应步长：
+    梯度一直很大的参数步子变小，稀疏更新的参数步子相对变大。</p>
+</div>
+
+<div class="formula">
+  <span class="label">AdamW 的解耦权重衰减</span>
+  <div class="fx"><span class="v">θ</span><sub>t+1</sub> = <span class="v">θ</span><sub>t</sub> −
+    η(<span class="v">m̂</span><sub>t</sub>/(√<span class="v">v̂</span><sub>t</sub> + ε) +
+    λ<span class="v">θ</span><sub>t</sub>)</div>
+  <p class="fx-note">原版 Adam 把 L2 混进梯度里，会被二阶矩缩放，导致大梯度参数的正则效果变弱。
+    AdamW 把权重衰减独立出来，是现代 Transformer 训练的默认选择。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>优化器</th><th>优点</th><th>缺点</th><th>典型场景</th></tr></thead>
+  <tbody>
+    <tr><td>SGD</td><td>简单、泛化好、显存省</td><td>对学习率敏感、收敛慢</td><td>CNN 大规模训练</td></tr>
+    <tr><td>Momentum</td><td>抑制震荡、加速收敛</td><td>多一个超参</td><td>传统视觉任务</td></tr>
+    <tr><td>Adam</td><td>自适应、易上手</td><td>偶发泛化略差、显存多</td><td>Transformer、小数据</td></tr>
+    <tr><td>AdamW</td><td>正则与自适应解耦</td><td>仍需调 lr / wd</td><td>大模型默认</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2 id="lr">4.3 学习率：最重要的超参数</h2>
+<p>学习率决定每一步走多远。实践中几乎总是配合调度器：先热身（warmup）再衰减，
+避免训练初期因初始化不稳而发散。</p>
+
+<div class="formula">
+  <span class="label">余弦退火 + 线性热身</span>
+  <div class="fx">η<sub>t</sub> = η<sub>min</sub> + <span class="frac">
+    <span class="num">(η<sub>max</sub> − η<sub>min</sub>)</span><span class="den">2</span></span>
+    (1 + cos(<span class="frac"><span class="num">π<span class="v">t</span></span>
+    <span class="den"><span class="v">T</span></span></span>))
+    &nbsp;&nbsp; <span class="v">t</span> &lt; <span class="v">t</span><sub>warm</sub> 时线性升到 η<sub>max</sub></div>
+  <p class="fx-note">热身的目的是让模型先“站稳”，再全速前进；余弦衰减让后期步长平滑减小，
+    有助于收敛到更平坦的极小值。</p>
+</div>
+
+<div class="code">
+<div class="code-bar"><span>Python · 学习率调度</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+from torch.optim.lr_scheduler import CosineAnnealingLR, LinearLR, SequentialLR
+
+model = torch.nn.Linear(10, 2)
+opt = torch.optim.AdamW(model.parameters(), lr=1e-3, weight_decay=0.01)
+
+warmup = LinearLR(opt, start_factor=0.1, total_iters=100)
+cosine = CosineAnnealingLR(opt, T_max=900, eta_min=1e-5)
+sched = SequentialLR(opt, schedulers=[warmup, cosine], milestones=[100])
+
+for step in range(1000):
+    opt.zero_grad()
+    loss = model(torch.randn(8, 10)).pow(2).mean()
+    loss.backward()
+    opt.step()
+    sched.step()                       # 每个 step 更新一次学习率
+    if step % 200 == 0:
+        print(step, opt.param_groups[0]["lr"])</code></pre>
+</div>
+
+<div class="callout warn">
+  <span class="ct">学习率与 batch size</span>
+  <p>Batch 变大 k 倍时，梯度噪声下降，可用更大的学习率（线性缩放规则）。
+    但超过一定 batch 后收益递减，需要配合 warmup 与更长的训练。</p>
+</div>
+</section>
+
+<section>
+<h2 id="normalization">4.4 归一化：让每层输入分布稳定</h2>
+<p>内部协变量偏移会让深层网络难以训练。归一化把每层输入拉回零均值、单位方差，
+再加两个可学习参数恢复表达能力。</p>
+
+<div class="formula">
+  <span class="label">BatchNorm（训练时，按特征维统计）</span>
+  <div class="fx">μ = <span class="frac"><span class="num">1</span><span class="den"><span class="v">N</span></span></span>
+    Σ<sub>i</sub><span class="v">x</span><sub>i</sub>
+    &nbsp;&nbsp; σ<sup>2</sup> = <span class="frac"><span class="num">1</span>
+    <span class="den"><span class="v">N</span></span></span>Σ<sub>i</sub>(<span class="v">x</span><sub>i</sub> − μ)<sup>2</sup></div>
+  <div class="fx"><span class="v">x̂</span> = (<span class="v">x</span> − μ)/√(σ<sup>2</sup> + ε)
+    &nbsp;&nbsp; <span class="v">y</span> = γ<span class="v">x̂</span> + β</div>
+  <p class="fx-note">BN 依赖 batch 统计：batch 太小或序列长度变化时不稳定。
+    LayerNorm 改为对每个样本的所有特征归一化，与 batch 无关，是 Transformer 的标准选择。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>方法</th><th>统计维度</th><th>适用</th><th>注意事项</th></tr></thead>
+  <tbody>
+    <tr><td>BatchNorm</td><td>batch + 空间维</td><td>CNN、大 batch</td><td>小 batch 不稳定；训练/推理行为不同</td></tr>
+    <tr><td>LayerNorm</td><td>单样本特征维</td><td>Transformer、RNN</td><td>与 batch 无关，稳定</td></tr>
+    <tr><td>RMSNorm</td><td>均方根</td><td>LLaMA 等大模型</td><td>省去均值计算，更快</td></tr>
+    <tr><td>GroupNorm</td><td>通道分组</td><td>小 batch 视觉</td><td>检测/分割常用</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout warn">
+  <span class="ct">train / eval 必须切换</span>
+  <p>BN 在训练时用当前 batch 统计并更新滑动均值，推理时用滑动均值。
+    忘记 <code>model.eval()</code> 会让验证结果随机波动。</p>
+</div>
+</section>
+
+<section>
+<h2 id="regularization">4.5 正则化与稳定训练技巧</h2>
+
+<ul>
+  <li><strong>Weight decay</strong>：L2 惩罚，AdamW 中解耦；视觉任务常设 1e-4 ~ 5e-2。</li>
+  <li><strong>Dropout</strong>：训练时以概率 p 置零并用 1/(1−p) 缩放，推理时关闭。</li>
+  <li><strong>Label smoothing</strong>：把 one-hot 标签软化为 (1−ε) 与 ε/(C−1)，抑制过度自信。</li>
+  <li><strong>Mixup / CutMix</strong>：混合样本与标签，提升视觉任务泛化。</li>
+  <li><strong>梯度裁剪</strong>：把梯度范数限制在阈值内，防止个别 batch 炸掉训练。</li>
+  <li><strong>早停</strong>：验证指标连续若干 epoch 不提升就停止，并回滚最佳权重。</li>
+</ul>
+
+<div class="formula">
+  <span class="label">全局梯度裁剪</span>
+  <div class="fx">if ‖<span class="v">g</span>‖ &gt; <span class="v">c</span>:
+    <span class="v">g</span> ← <span class="v">g</span> · <span class="v">c</span>/‖<span class="v">g</span>‖</div>
+  <p class="fx-note"><code>clip_grad_norm_(params, max_norm=1.0)</code> 只改变方向不变的步长缩放，
+    在 RNN、Transformer 与强化学习里几乎是必选项。</p>
+</div>
+
+<div class="formula">
+  <span class="label">Dropout 的期望保持</span>
+  <div class="fx"><span class="v">r</span><sub>j</sub> ~ Bernoulli(1−<span class="v">p</span>)
+    &nbsp;&nbsp; <span class="v">y</span><sub>j</sub> = <span class="frac">
+    <span class="num"><span class="v">r</span><sub>j</sub><span class="v">x</span><sub>j</sub></span>
+    <span class="den">1 − <span class="v">p</span></span></span></div>
+  <p class="fx-note">缩放保证训练与推理的激活期望一致（inverted dropout）。
+    推理时直接使用 <span class="v">x</span>，不需要再乘系数。</p>
+</div>
+</section>
+
+<section>
+<h2 id="amp">4.6 混合精度、显存与吞吐</h2>
+<p>现代 GPU 的 FP16 / BF16 吞吐远高于 FP32。混合精度用低精度做矩阵运算、用 FP32 维护主权重，
+配合损失缩放避免梯度下溢。</p>
+
+<div class="code">
+<div class="code-bar"><span>Python · AMP + 梯度累积 + 裁剪</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+
+model = torch.nn.Linear(64, 10).cuda()
+opt = torch.optim.AdamW(model.parameters(), lr=1e-3)
+scaler = torch.cuda.amp.GradScaler()
+accum_steps = 4
+
+for step, (x, y) in enumerate(loader):
+    with torch.autocast(device_type="cuda", dtype=torch.float16):
+        logits = model(x)
+        loss = torch.nn.functional.cross_entropy(logits, y) / accum_steps
+
+    scaler.scale(loss).backward()                 # 放大损失再反向
+
+    if (step + 1) % accum_steps == 0:
+        scaler.unscale_(opt)                      # 反缩放后才能裁剪
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        scaler.step(opt)
+        scaler.update()
+        opt.zero_grad(set_to_none=True)</code></pre>
+</div>
+
+<div class="callout">
+  <span class="ct">显存都去哪了</span>
+  <p>参数 + 梯度 + 优化器状态（Adam 每个参数额外两份）+ 激活值。前三者与参数量成正比，
+    激活值与 batch、序列长度、层数成正比。省显存优先降 batch、用梯度检查点、换 8-bit 优化器。</p>
+</div>
+</section>
+
+<section>
+<h2 id="diagnose">4.7 训练异常诊断表</h2>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>现象</th><th>可能原因</th><th>先做什么</th></tr></thead>
+  <tbody>
+    <tr><td>loss 变 NaN</td><td>学习率过大、除零、log(0)、混合精度溢出</td><td>降 lr 10 倍，检查损失实现，开梯度裁剪</td></tr>
+    <tr><td>loss 不降</td><td>标签错位、学习率过小、优化器没 step、数据全零</td><td>在 1 个 batch 上过拟合，打印输入与标签</td></tr>
+    <tr><td>训练降 / 验证升</td><td>过拟合或分布偏移</td><td>加数据、加增强、加正则、早停</td></tr>
+    <tr><td>验证远差于训练</td><td>BN 未切换 eval、数据泄漏反向、预处理不一致</td><td>检查 eval 模式与验证管线</td></tr>
+    <tr><td>loss 剧烈震荡</td><td>lr 过大、batch 太小、梯度爆炸</td><td>warmup、降 lr、梯度裁剪</td></tr>
+    <tr><td>显存 OOM</td><td>batch 太大、未 no_grad、缓存未释放</td><td>降 batch、加 no_grad、del 中间变量</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout note">
+  <span class="ct">万能第一步：过拟合一个小 batch</span>
+  <p>取 8~32 个样本，关掉正则，训练到 loss 接近 0。如果做不到，问题一定在模型或数据管道，
+    而不是超参数。这一步能在几分钟内排除一半的可能性。</p>
+</div>
+</section>
+
+<section>
+<h2 id="code">4.8 代码：一个完整可复用的训练循环</h2>
+
+<div class="code">
+<div class="code-bar"><span>Python · 训练模板</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+from torch.utils.data import DataLoader
+
+def train_one_epoch(model, loader, opt, sched, scaler, device, accum=1):
+    model.train()
+    total, correct, loss_sum = 0, 0, 0.0
+    opt.zero_grad(set_to_none=True)
+
+    for step, (x, y) in enumerate(loader):
+        x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
+        with torch.autocast(device_type=device.type, enabled=scaler.is_enabled()):
+            logits = model(x)
+            loss = torch.nn.functional.cross_entropy(logits, y) / accum
+
+        scaler.scale(loss).backward()
+        if (step + 1) % accum == 0:
+            scaler.unscale_(opt)
+            torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+            scaler.step(opt)
+            scaler.update()
+            opt.zero_grad(set_to_none=True)
+            if sched is not None:
+                sched.step()
+
+        loss_sum += loss.item() * accum * y.size(0)
+        correct += (logits.argmax(1) == y).sum().item()
+        total += y.size(0)
+
+    return loss_sum / total, correct / total
+
+@torch.no_grad()
+def evaluate(model, loader, device):
+    model.eval()
+    total, correct, loss_sum = 0, 0, 0.0
+    for x, y in loader:
+        x, y = x.to(device), y.to(device)
+        logits = model(x)
+        loss_sum += torch.nn.functional.cross_entropy(logits, y, reduction="sum").item()
+        correct += (logits.argmax(1) == y).sum().item()
+        total += y.size(0)
+    return loss_sum / total, correct / total</code></pre>
+</div>
+
+<div class="callout warn">
+  <span class="ct">注意 reduction</span>
+  <p>评估时用 <code>reduction="sum"</code> 再除以样本总数，避免最后一个不满 batch
+    被等权平均造成偏差。</p>
+</div>
+</section>
+
+<section>
+<h2 id="summary">4.9 本章小结</h2>
+<div class="takeaway">
+  <h3>训练配方（按优先级）</h3>
+  <ul>
+    <li>先保证数据与损失正确，用一个小 batch 验证可过拟合。</li>
+    <li>默认 AdamW + 余弦退火 + warmup；视觉大任务可试 SGD + Momentum。</li>
+    <li>学习率是最敏感的超参，先粗搜再精调。</li>
+    <li>归一化位置与类型要和架构匹配：CNN 用 BN，Transformer 用 LN/RMSNorm。</li>
+    <li>梯度裁剪、混合精度、梯度累积是工程标配。</li>
+    <li>训练异常先看曲线形状，再按诊断表逐项排除。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>把 weight decay 与 L2 在 Adam 中当成完全等价（应使用 AdamW）。</li>
+    <li>学习率调度按 epoch 更新却按 step 记录，导致实际 lr 错位。</li>
+    <li>验证时忘记 <code>model.eval()</code>，BN 与 Dropout 行为错误。</li>
+    <li>梯度累积时忘记把 loss 除以累积步数。</li>
+    <li>混合精度下未使用 GradScaler，梯度下溢成 0。</li>
+  </ol>
+</div>
+</section>
+    <div class="chapter-actions">
+      <button class="mark-done" id="mark-done" type="button">标记本章已学完</button>
+      <span class="hint">进度保存在本机浏览器，用于跟踪学习路线</span>
+    </div>
+    <nav class="pager" aria-label="章节翻页">
+      <a class="prev" href="03-neural-nets.html"><span class="dir">← 上一章</span><span class="ttl">神经网络与反向传播</span></a>
+      <a class="next" href="05-cnn.html"><span class="dir">下一章 →</span><span class="ttl">卷积神经网络</span></a>
+    </nav>
+  </article>
+  <footer class="page-foot">
+    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
+  </footer>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
