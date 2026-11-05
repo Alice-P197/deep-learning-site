@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>预训练与自监督 · 深度学习学习站</title>
+<meta name="description" content="语言模型 · 对比学习 · CLIP">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-slug="08-pretraining">
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <span class="brand-mark">DL</span>
+      <span class="brand-text">
+        <strong>深度学习学习站</strong>
+        <em>从数学基础到大模型落地</em>
+      </span>
+    </a>
+  </div>
+  <div class="nav-search">
+    <input id="nav-search" type="search" placeholder="筛选章节（按 / 聚焦）" autocomplete="off">
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-group">
+      <span class="nav-group-title">起点</span>
+      <a class="nav-item" href="index.html" data-page="index" data-chapter="0">
+        <span class="nav-num">00</span><span class="nav-body"><strong>学习地图</strong><em>总览 · 路线 · 怎么用</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第一部分 · 基础</span>
+      <a class="nav-item" href="01-foundations.html" data-page="01-foundations" data-chapter="1">
+        <span class="nav-num">01</span><span class="nav-body"><strong>数学基础</strong><em>张量 · 微积分 · 概率与信息论</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="02-ml-basics.html" data-page="02-ml-basics" data-chapter="1">
+        <span class="nav-num">02</span><span class="nav-body"><strong>机器学习基础</strong><em>任务范式 · 损失 · 评估</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="03-neural-nets.html" data-page="03-neural-nets" data-chapter="1">
+        <span class="nav-num">03</span><span class="nav-body"><strong>神经网络与反向传播</strong><em>MLP · 链式法则 · 计算图</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="04-training.html" data-page="04-training" data-chapter="1">
+        <span class="nav-num">04</span><span class="nav-body"><strong>训练与优化</strong><em>优化器 · 正则化 · 归一化</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第二部分 · 核心架构</span>
+      <a class="nav-item" href="05-cnn.html" data-page="05-cnn" data-chapter="1">
+        <span class="nav-num">05</span><span class="nav-body"><strong>卷积神经网络</strong><em>卷积 · 感受野 · ResNet</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="06-sequence.html" data-page="06-sequence" data-chapter="1">
+        <span class="nav-num">06</span><span class="nav-body"><strong>序列模型</strong><em>RNN · LSTM · Seq2Seq</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="07-transformer.html" data-page="07-transformer" data-chapter="1">
+        <span class="nav-num">07</span><span class="nav-body"><strong>注意力与 Transformer</strong><em>Self-Attention · 多头 · 位置编码</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item active" href="08-pretraining.html" data-page="08-pretraining" data-chapter="1">
+        <span class="nav-num">08</span><span class="nav-body"><strong>预训练与自监督</strong><em>语言模型 · 对比学习 · CLIP</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第三部分 · 生成与决策</span>
+      <a class="nav-item" href="09-generative.html" data-page="09-generative" data-chapter="1">
+        <span class="nav-num">09</span><span class="nav-body"><strong>生成模型</strong><em>VAE · GAN · 扩散模型</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="10-reinforcement.html" data-page="10-reinforcement" data-chapter="1">
+        <span class="nav-num">10</span><span class="nav-body"><strong>强化学习</strong><em>MDP · 策略梯度 · PPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="11-gnn.html" data-page="11-gnn" data-chapter="1">
+        <span class="nav-num">11</span><span class="nav-body"><strong>图神经网络</strong><em>消息传递 · GCN · GAT</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第四部分 · 大模型与工程</span>
+      <a class="nav-item" href="12-llm.html" data-page="12-llm" data-chapter="1">
+        <span class="nav-num">12</span><span class="nav-body"><strong>大模型与微调</strong><em>Scaling · LoRA · RLHF/DPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="13-efficient.html" data-page="13-efficient" data-chapter="1">
+        <span class="nav-num">13</span><span class="nav-body"><strong>压缩与部署</strong><em>量化 · 蒸馏 · 推理服务</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="14-engineering.html" data-page="14-engineering" data-chapter="1">
+        <span class="nav-num">14</span><span class="nav-body"><strong>工程实践</strong><em>数据 · 调试 · 复现 · 分布式</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第五部分 · 应用与资源</span>
+      <a class="nav-item" href="15-applications.html" data-page="15-applications" data-chapter="1">
+        <span class="nav-num">15</span><span class="nav-body"><strong>应用领域</strong><em>视觉 · 语言 · 科学计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="16-resources.html" data-page="16-resources" data-chapter="1">
+        <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+  </nav>
+  <div class="side-foot">
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-bar"><i id="progress-bar"></i></div>
+    <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <button class="nav-toggle" id="nav-toggle" type="button">☰ 目录</button>
+    <span class="topbar-chapter">深度学习学习站 · 第 08 章</span>
+    <span class="topbar-line"></span>
+    <span>离线可用 · 无需联网</span>
+  </div>
+  <article class="content">
+<header class="chapter-head">
+  <div class="crumb">第二部分 · 核心架构</div>
+  <h1>预训练与自监督：从无标注数据中学习通用表示</h1>
+  <p class="lede">标注数据昂贵，无标注数据近乎无限。自监督的核心思路是“从数据本身构造监督信号”：
+    预测下一个词、还原被遮住的部分、判断两个视图是否同源。预训练 + 微调，正是当代 AI 的标准配方。</p>
+  <div class="meta">
+    <span>预计 60 分钟</span><span>前置：第 7 章</span>
+    <span>关键词：CLM · MLM · InfoNCE · CLIP</span>
+  </div>
+</header>
+<nav class="outline" id="outline" aria-label="本章目录">
+  <div class="outline-head"><span>本章目录</span><button class="outline-toggle" id="outline-toggle" type="button">收起</button></div>
+  <ol>
+    <li><a href="#why">8.1 预训练解决的是什么问题</a></li>
+    <li><a href="#lm">8.2 语言模型：CLM 与 MLM</a></li>
+    <li><a href="#contrastive">8.3 对比学习：把相似样本拉近</a></li>
+    <li><a href="#masked">8.4 掩码重建与视觉自监督</a></li>
+    <li><a href="#transfer">8.5 迁移策略：从预训练到下游</a></li>
+    <li><a href="#code">8.6 代码：InfoNCE 与 MLM</a></li>
+    <li><a href="#summary">8.7 本章小结</a></li>
+  </ol>
+</nav>
+
+<section>
+<h2 id="why">8.1 预训练解决的是什么问题</h2>
+<p>监督学习要求每个样本都有标签，而标签的成本随任务复杂度急剧上升。自监督用数据自身的一部分
+预测另一部分，把“无标签”变成“免费标签”，学到的表示再迁移到下游任务。</p>
+
+<div class="grid3">
+  <div class="card"><h4>语言模型</h4><p>用前文预测下一个 token，标签就是文本本身。</p></div>
+  <div class="card"><h4>掩码重建</h4><p>遮住一部分输入，让模型还原，逼它理解上下文。</p></div>
+  <div class="card"><h4>对比学习</h4><p>同一张图的两个增强视图应靠近，不同样本应远离。</p></div>
+</div>
+
+<div class="callout note">
+  <span class="ct">为什么“预测下一个词”能学到知识</span>
+  <p>要准确预测下一个词，模型必须隐式掌握语法、事实、推理与风格。这个目标简单、可扩展、
+    且不需要人工标注，因此能吃到互联网规模的数据。</p>
+</div>
+</section>
+
+<section>
+<h2 id="lm">8.2 语言模型：CLM 与 MLM</h2>
+
+<div class="formula">
+  <span class="label">因果语言建模（CLM / GPT 式）</span>
+  <div class="fx"><span class="v">L</span><sub>CLM</sub> = −Σ<sub>t</sub>
+    log <span class="v">p</span><sub>θ</sub>(<span class="v">x</span><sub>t</sub>|
+    <span class="v">x</span><sub>&lt;t</sub>)</div>
+  <p class="fx-note">只能看左侧上下文，天然适合生成。训练时一次前向即可对每个位置计算损失，
+    并行度高，是 Decoder-only LLM 的目标函数。</p>
+</div>
+
+<div class="formula">
+  <span class="label">掩码语言建模（MLM / BERT 式）</span>
+  <div class="fx"><span class="v">L</span><sub>MLM</sub> = −Σ<sub>i∈M</sub>
+    log <span class="v">p</span><sub>θ</sub>(<span class="v">x</span><sub>i</sub>|
+    <span class="v">x</span><sub>∖M</sub>)</div>
+  <p class="fx-note">随机遮住 15% 的 token，用双向上下文还原。适合理解类任务（分类、抽取、检索），
+    但不能直接用于自回归生成。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>维度</th><th>BERT（Encoder-only）</th><th>GPT（Decoder-only）</th></tr></thead>
+  <tbody>
+    <tr><td>注意力</td><td>双向，可见全部上下文</td><td>因果，只能看左侧</td></tr>
+    <tr><td>目标</td><td>MLM + NSP（原始版本）</td><td>CLM</td></tr>
+    <tr><td>擅长</td><td>分类、NER、检索、句子表示</td><td>生成、对话、推理、few-shot</td></tr>
+    <tr><td>规模扩展</td><td>中等规模更常见</td><td>可扩展到万亿 token 与千亿参数</td></tr>
+    <tr><td>代表</td><td>BERT、RoBERTa、DeBERTa</td><td>GPT、LLaMA、Qwen、DeepSeek</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout">
+  <span class="ct">下一 token 预测的概率分解</span>
+  <p>整段文本的概率被分解为每个位置的条件概率连乘：
+    <span class="fx">p(x<sub>1..T</sub>) = ∏ p(x<sub>t</sub>|x<sub>&lt;t</sub>)</span>。
+    这就是“自回归”的数学定义，也是所有生成式解码策略的基础。</p>
+</div>
+</section>
+
+<section>
+<h2 id="contrastive">8.3 对比学习：把相似样本拉近</h2>
+<p>对比学习不重建像素，而是学习一个度量空间。给定一个锚点样本，它的增强视图是正样本，
+同一 batch 内其他样本是负样本。目标是正样本相似度高、负样本相似度低。</p>
+
+<div class="formula">
+  <span class="label">InfoNCE 损失</span>
+  <div class="fx"><span class="v">L</span> = −log
+    <span class="frac"><span class="num">exp(sim(<span class="v">z</span><sub>i</sub>,
+    <span class="v">z</span><sub>i</sub><sup>+</sup>)/τ)</span>
+    <span class="den">Σ<sub>j</sub> exp(sim(<span class="v">z</span><sub>i</sub>,
+    <span class="v">z</span><sub>j</sub>)/τ)</span></span></div>
+  <p class="fx-note">分母包含正样本与所有负样本，本质是一个 (N+1) 分类问题。
+    τ 是温度，越小越关注困难负样本。batch 越大，负样本越多，效果通常越好。</p>
+</div>
+
+<div class="formula">
+  <span class="label">CLIP：图文对比</span>
+  <div class="fx">sim(<span class="v">i</span>,<span class="v">t</span>) =
+    <span class="frac"><span class="num"><span class="v">f</span>(<span class="v">I</span>) ·
+    <span class="v">g</span>(<span class="v">T</span>)<sup>T</sup></span>
+    <span class="den">‖<span class="v">f</span>(<span class="v">I</span>)‖‖<span class="v">g</span>(<span class="v">T</span>)‖</span></span>
+    / τ</div>
+  <p class="fx-note">一个 batch 内 N 对图文构成 N×N 相似度矩阵，对角线为正样本。
+    CLIP 学到的是跨模态共享空间，可直接做零样本分类与图文检索。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>方法</th><th>正样本构造</th><th>是否需要负样本</th><th>特点</th></tr></thead>
+  <tbody>
+    <tr><td>SimCLR</td><td>同一图像的两个增强</td><td>是（batch 内）</td><td>依赖大 batch 与强增强</td></tr>
+    <tr><td>MoCo</td><td>同一图像的两个增强</td><td>是（队列）</td><td>动量编码器 + 记忆队列</td></tr>
+    <tr><td>BYOL / SimSiam</td><td>同一图像的两个增强</td><td>否</td><td>预测器 + 停止梯度，避免坍缩</td></tr>
+    <tr><td>CLIP</td><td>配对的图像与文本</td><td>是（batch 内）</td><td>跨模态、零样本能力强</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2 id="masked">8.4 掩码重建与视觉自监督</h2>
+<p>MAE（Masked Autoencoder）把图像切成 patch，随机遮住 75%，让 ViT 只从可见 patch 重建缺失部分。
+由于编码器只处理可见 patch，训练效率很高，且迫使模型学习全局语义。</p>
+
+<div class="formula">
+  <span class="label">MAE 重建目标</span>
+  <div class="fx"><span class="v">L</span> = <span class="frac"><span class="num">1</span>
+    <span class="den">|M|</span></span> Σ<sub>i∈M</sub>
+    ‖<span class="v">x</span><sub>i</sub> − <span class="v">x̂</span><sub>i</sub>‖<sup>2</sup></div>
+  <p class="fx-note">只在被遮住的 patch 上计算损失。遮罩比例高会迫使模型使用上下文推理，
+    而不是从邻近像素插值。</p>
+</div>
+
+<div class="callout note">
+  <span class="ct">重建 vs 对比</span>
+  <p>重建类方法（MAE、BEiT）关注细节还原，适合需要精细特征的任务；
+    对比类方法关注语义不变性，适合分类与检索。两者也常被组合使用。</p>
+</div>
+</section>
+
+<section>
+<h2 id="transfer">8.5 迁移策略：从预训练到下游</h2>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>策略</th><th>训练参数</th><th>数据需求</th><th>适用场景</th></tr></thead>
+  <tbody>
+    <tr><td>Linear probe</td><td>只训练分类头</td><td>很少</td><td>评估表示质量、快速基线</td></tr>
+    <tr><td>Full fine-tune</td><td>全部参数</td><td>中等</td><td>数据充足、任务与预训练接近</td></tr>
+    <tr><td>Adapter / LoRA</td><td>少量新增或低秩参数</td><td>较少</td><td>多任务、多租户、显存有限</td></tr>
+    <tr><td>Prompt / Prefix</td><td>提示向量</td><td>极少</td><td>少样本适配、冻结主干</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>经验法则：<strong>数据越少，越应该冻结更多参数</strong>；任务与预训练分布差得越远，
+越需要放开深层参数。微调学习率通常比预训练小 1~2 个数量级。</p>
+</section>
+
+<section>
+<h2 id="code">8.6 代码：InfoNCE 与 MLM</h2>
+
+<div class="code">
+<div class="code-bar"><span>Python · InfoNCE（CLIP 风格）</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn.functional as F
+
+def clip_loss(img_emb, txt_emb, temperature=0.07):
+    # 输入已做 L2 归一化，形状 (B, D)
+    logits = img_emb @ txt_emb.t() / temperature        # (B, B)
+    labels = torch.arange(logits.size(0), device=logits.device)
+    loss_i = F.cross_entropy(logits, labels)            # 图找文
+    loss_t = F.cross_entropy(logits.t(), labels)        # 文找图
+    return (loss_i + loss_t) / 2
+
+B, D = 8, 128
+img = F.normalize(torch.randn(B, D), dim=-1)
+txt = F.normalize(torch.randn(B, D), dim=-1)
+print("clip loss:", clip_loss(img, txt).item())
+
+# 对称 InfoNCE 的相似度矩阵对角线即正样本，
+# 温度越小，模型越关注最难区分的负样本。</code></pre>
+</div>
+
+<div class="code">
+<div class="code-bar"><span>Python · 掩码语言建模损失</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn as nn
+
+vocab, d_model = 1000, 64
+mlm_head = nn.Linear(d_model, vocab)
+hidden = torch.randn(4, 12, d_model)          # (B, T, D)
+labels = torch.randint(0, vocab, (4, 12))
+mask = torch.rand(4, 12) &lt; 0.15                # 15% 被遮住
+labels = torch.where(mask, labels, torch.full_like(labels, -100))  # 忽略未遮位置
+
+logits = mlm_head(hidden)
+loss = nn.functional.cross_entropy(
+    logits.view(-1, vocab), labels.view(-1), ignore_index=-100
+)
+print("mlm loss:", loss.item())
+
+# -100 是 PyTorch 的 ignore_index，未遮住的位置不贡献损失。</code></pre>
+</div>
+
+<div class="callout warn">
+  <span class="ct">忽略位置用 -100</span>
+  <p><code>cross_entropy</code> 默认 <code>ignore_index=-100</code>。
+    如果把未遮位置标成 0，会被当成“第 0 类”参与训练，损失完全失真。</p>
+</div>
+</section>
+
+<section>
+<h2 id="summary">8.7 本章小结</h2>
+<div class="takeaway">
+  <h3>自监督的四种武器</h3>
+  <ul>
+    <li>CLM：预测下一个 token，适合生成，可扩展到极大规模。</li>
+    <li>MLM：还原被遮 token，双向理解，适合分类与抽取。</li>
+    <li>对比学习：拉近正样本、推远负样本，学到可度量的表示空间。</li>
+    <li>掩码重建：还原缺失部分，适合视觉与多模态的细节建模。</li>
+    <li>预训练之后，按数据量选择 probe、全参微调或 LoRA。</li>
+    <li>数据质量与去重，往往比模型结构更决定预训练效果。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>对比学习忘记 L2 归一化，相似度被向量模长主导。</li>
+    <li>batch 太小导致负样本不足，对比效果大打折扣。</li>
+    <li>MLM 的 ignore_index 设错，把非遮位置也计入损失。</li>
+    <li>微调学习率沿用过大的预训练值，把预训练知识冲掉（灾难性遗忘）。</li>
+    <li>只做一次预训练就固定不变，忽略数据分布与领域差异。</li>
+  </ol>
+</div>
+</section>
+    <div class="chapter-actions">
+      <button class="mark-done" id="mark-done" type="button">标记本章已学完</button>
+      <span class="hint">进度保存在本机浏览器，用于跟踪学习路线</span>
+    </div>
+    <nav class="pager" aria-label="章节翻页">
+      <a class="prev" href="07-transformer.html"><span class="dir">← 上一章</span><span class="ttl">注意力与 Transformer</span></a>
+      <a class="next" href="09-generative.html"><span class="dir">下一章 →</span><span class="ttl">生成模型</span></a>
+    </nav>
+  </article>
+  <footer class="page-foot">
+    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
+  </footer>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
