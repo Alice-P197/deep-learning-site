@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>压缩与部署 · 深度学习学习站</title>
+<meta name="description" content="量化 · 蒸馏 · 推理服务">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-slug="13-efficient">
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <span class="brand-mark">DL</span>
+      <span class="brand-text">
+        <strong>深度学习学习站</strong>
+        <em>从数学基础到大模型落地</em>
+      </span>
+    </a>
+  </div>
+  <div class="nav-search">
+    <input id="nav-search" type="search" placeholder="筛选章节（按 / 聚焦）" autocomplete="off">
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-group">
+      <span class="nav-group-title">起点</span>
+      <a class="nav-item" href="index.html" data-page="index" data-chapter="0">
+        <span class="nav-num">00</span><span class="nav-body"><strong>学习地图</strong><em>总览 · 路线 · 怎么用</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第一部分 · 基础</span>
+      <a class="nav-item" href="01-foundations.html" data-page="01-foundations" data-chapter="1">
+        <span class="nav-num">01</span><span class="nav-body"><strong>数学基础</strong><em>张量 · 微积分 · 概率与信息论</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="02-ml-basics.html" data-page="02-ml-basics" data-chapter="1">
+        <span class="nav-num">02</span><span class="nav-body"><strong>机器学习基础</strong><em>任务范式 · 损失 · 评估</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="03-neural-nets.html" data-page="03-neural-nets" data-chapter="1">
+        <span class="nav-num">03</span><span class="nav-body"><strong>神经网络与反向传播</strong><em>MLP · 链式法则 · 计算图</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="04-training.html" data-page="04-training" data-chapter="1">
+        <span class="nav-num">04</span><span class="nav-body"><strong>训练与优化</strong><em>优化器 · 正则化 · 归一化</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第二部分 · 核心架构</span>
+      <a class="nav-item" href="05-cnn.html" data-page="05-cnn" data-chapter="1">
+        <span class="nav-num">05</span><span class="nav-body"><strong>卷积神经网络</strong><em>卷积 · 感受野 · ResNet</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="06-sequence.html" data-page="06-sequence" data-chapter="1">
+        <span class="nav-num">06</span><span class="nav-body"><strong>序列模型</strong><em>RNN · LSTM · Seq2Seq</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="07-transformer.html" data-page="07-transformer" data-chapter="1">
+        <span class="nav-num">07</span><span class="nav-body"><strong>注意力与 Transformer</strong><em>Self-Attention · 多头 · 位置编码</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="08-pretraining.html" data-page="08-pretraining" data-chapter="1">
+        <span class="nav-num">08</span><span class="nav-body"><strong>预训练与自监督</strong><em>语言模型 · 对比学习 · CLIP</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第三部分 · 生成与决策</span>
+      <a class="nav-item" href="09-generative.html" data-page="09-generative" data-chapter="1">
+        <span class="nav-num">09</span><span class="nav-body"><strong>生成模型</strong><em>VAE · GAN · 扩散模型</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="10-reinforcement.html" data-page="10-reinforcement" data-chapter="1">
+        <span class="nav-num">10</span><span class="nav-body"><strong>强化学习</strong><em>MDP · 策略梯度 · PPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="11-gnn.html" data-page="11-gnn" data-chapter="1">
+        <span class="nav-num">11</span><span class="nav-body"><strong>图神经网络</strong><em>消息传递 · GCN · GAT</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第四部分 · 大模型与工程</span>
+      <a class="nav-item" href="12-llm.html" data-page="12-llm" data-chapter="1">
+        <span class="nav-num">12</span><span class="nav-body"><strong>大模型与微调</strong><em>Scaling · LoRA · RLHF/DPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item active" href="13-efficient.html" data-page="13-efficient" data-chapter="1">
+        <span class="nav-num">13</span><span class="nav-body"><strong>压缩与部署</strong><em>量化 · 蒸馏 · 推理服务</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="14-engineering.html" data-page="14-engineering" data-chapter="1">
+        <span class="nav-num">14</span><span class="nav-body"><strong>工程实践</strong><em>数据 · 调试 · 复现 · 分布式</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第五部分 · 应用与资源</span>
+      <a class="nav-item" href="15-applications.html" data-page="15-applications" data-chapter="1">
+        <span class="nav-num">15</span><span class="nav-body"><strong>应用领域</strong><em>视觉 · 语言 · 科学计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="16-resources.html" data-page="16-resources" data-chapter="1">
+        <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+  </nav>
+  <div class="side-foot">
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-bar"><i id="progress-bar"></i></div>
+    <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <button class="nav-toggle" id="nav-toggle" type="button">☰ 目录</button>
+    <span class="topbar-chapter">深度学习学习站 · 第 13 章</span>
+    <span class="topbar-line"></span>
+    <span>离线可用 · 无需联网</span>
+  </div>
+  <article class="content">
+<header class="chapter-head">
+  <div class="crumb">第四部分 · 大模型与工程</div>
+  <h1>压缩与部署：让模型真正跑起来</h1>
+  <p class="lede">训练关注损失，部署关注延迟、吞吐、显存与成本。量化、剪枝、蒸馏把模型变小，
+    ONNX、TensorRT、vLLM 把算力榨干。本章给出可落地的选择顺序与估算方法。</p>
+  <div class="meta">
+    <span>预计 55 分钟</span><span>前置：第 4、12 章</span>
+    <span>关键词：INT8 · GPTQ · 蒸馏 · vLLM</span>
+  </div>
+</header>
+<nav class="outline" id="outline" aria-label="本章目录">
+  <div class="outline-head"><span>本章目录</span><button class="outline-toggle" id="outline-toggle" type="button">收起</button></div>
+  <ol>
+    <li><a href="#why">13.1 部署到底在优化什么</a></li>
+    <li><a href="#quant">13.2 量化：用更低位宽表示权重</a></li>
+    <li><a href="#ptq-qat">PTQ 与 QAT</a></li>
+    <li><a href="#prune">13.3 剪枝与稀疏</a></li>
+    <li><a href="#distill">13.4 知识蒸馏</a></li>
+    <li><a href="#runtime">13.5 图优化与推理引擎</a></li>
+    <li><a href="#paged">PagedAttention 与连续批处理</a></li>
+    <li><a href="#mem">13.6 一次完整的显存估算</a></li>
+    <li><a href="#serve">13.7 服务化要点</a></li>
+  </ol>
+</nav>
+
+<section>
+<h2 id="why">13.1 部署到底在优化什么</h2>
+<p>同一模型在不同场景下的目标函数完全不同。离线批处理追求吞吐（tokens/s），
+  在线对话追求首 token 延迟（TTFT）与单 token 延迟（TPOT），端侧追求内存占用与功耗。
+  先明确目标，再选技术，否则容易做了大量压缩却没有任何收益。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>指标</th><th>含义</th><th>典型瓶颈</th><th>优先手段</th></tr></thead>
+  <tbody>
+    <tr><td>显存占用</td><td>权重 + 激活 + KV Cache</td><td>权重精度、批大小</td><td>量化、PagedAttention</td></tr>
+    <tr><td>TTFT</td><td>请求到第一个 token</td><td>预填充计算</td><td>FlashAttention、前缀缓存</td></tr>
+    <tr><td>TPOT</td><td>相邻 token 间隔</td><td>访存带宽</td><td>量化权重、KV Cache 压缩</td></tr>
+    <tr><td>吞吐</td><td>单位时间总 token</td><td>批处理效率</td><td>连续批处理、更大 batch</td></tr>
+    <tr><td>成本</td><td>每百万 token 花费</td><td>GPU 利用率</td><td>规格匹配、弹性调度</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout note">
+  <span class="ct">先测量再优化</span>
+  <p>没有 profile 的压缩都是猜测。用 <code>nvidia-smi</code>、Nsight Systems、
+    PyTorch Profiler 先确认是计算受限（compute-bound）还是访存受限（memory-bound）。
+    大模型解码阶段几乎总是访存受限，因此降低权重位宽收益最大。</p>
+</div>
+
+<h2 id="quant">13.2 量化：用更低位宽表示权重</h2>
+<p>量化把浮点张量映射到整数网格。核心是两个参数：缩放因子 s 与零点 z。</p>
+
+<div class="formula">
+  <span class="label">仿射量化与反量化</span>
+  <div class="fx"><span class="v">q</span> = round(<span class="v">x</span> / <span class="v">s</span>) +
+    <span class="v">z</span>, &nbsp;&nbsp;
+    <span class="v">x̂</span> = <span class="v">s</span>(<span class="v">q</span> − <span class="v">z</span>)</div>
+  <p class="fx-note">对称量化取 z = 0，适合权重；非对称量化适合激活，因为激活分布常偏移。
+    s 由校准数据的最大绝对值决定：s = max|x| / (2<sup>b-1</sup> − 1)。</p>
+</div>
+
+<div class="formula">
+  <span class="label">量化误差与离群值</span>
+  <div class="fx">Δ<span class="v">x</span> ≤ <span class="v">s</span>/2,
+    &nbsp;&nbsp; <span class="v">s</span> ∝ max|<span class="v">x</span>|</div>
+  <p class="fx-note">一个极端离群值会把 s 撑大，导致其余数值精度骤降。
+    这就是 LLM 量化需要 AWQ（按通道保护显著权重）或 SmoothQuant（把激活难度迁移到权重）的原因。</p>
+</div>
+
+<h3 id="ptq-qat">PTQ 与 QAT</h3>
+<div class="grid2">
+  <div class="card">
+    <h4>训练后量化 PTQ</h4>
+    <p>直接对已训练模型量化，用少量校准数据统计激活范围。速度快、成本低，
+      8 bit 通常无损，4 bit 需要更精细的算法（GPTQ、AWQ、GGUF 系列）。</p>
+  </div>
+  <div class="card">
+    <h4>量化感知训练 QAT</h4>
+    <p>训练时插入伪量化节点，让模型学会适应舍入误差。精度更好，
+      但需要训练资源与标注数据，通常用于端侧小模型。</p>
+  </div>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>方案</th><th>位宽</th><th>特点</th><th>适用</th></tr></thead>
+  <tbody>
+    <tr><td>动态 INT8</td><td>8</td><td>激活运行时量化，无需校准</td><td>CPU、BERT 类模型</td></tr>
+    <tr><td>静态 INT8</td><td>8</td><td>需校准集，延迟最低</td><td>CNN 服务端</td></tr>
+    <tr><td>GPTQ</td><td>4 / 3</td><td>逐层二阶误差补偿</td><td>GPU 上的 LLM</td></tr>
+    <tr><td>AWQ</td><td>4</td><td>保护 1% 显著通道，精度更稳</td><td>LLM 通用</td></tr>
+    <tr><td>GGUF Q4_K_M</td><td>4~5</td><td>混合精度块量化，CPU 友好</td><td>llama.cpp 本地推理</td></tr>
+    <tr><td>FP8</td><td>8</td><td>硬件原生支持，几乎无损</td><td>H100 及以后</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="prune">13.3 剪枝与稀疏</h2>
+<p>剪枝移除不重要的连接或通道。非结构化剪枝（单个权重置零）需要稀疏硬件才能真正加速；
+  结构化剪枝（整通道、整头）可以直接改变矩阵形状，是实际部署的主流。</p>
+
+<div class="formula">
+  <span class="label">结构化剪枝的通道重要性</span>
+  <div class="fx"><span class="v">I</span><sub>c</sub> =
+    <span class="v">λ</span>‖<span class="v">W</span><sub>c</sub>‖<sub>2</sub> +
+    Σ<sub>i</sub> |<span class="v">γ</span><sub>c,i</sub>|</div>
+  <p class="fx-note">常见做法是给 BN 的 γ 加 L1 正则，训练后按 γ 大小剪掉通道，
+    再短程微调恢复精度。注意力头剪枝则依据输出投影的范数。</p>
+</div>
+
+<div class="callout warn">
+  <span class="ct">稀疏不等于加速</span>
+  <p>2:4 结构化稀疏在 Ampere 之后有 Tensor Core 支持可提速；
+    随机 90% 稀疏在普通 GPU 上往往和稠密一样慢。剪枝前先确认硬件与算子库支持。</p>
+</div>
+
+<h2 id="distill">13.4 知识蒸馏</h2>
+<p>用大模型（教师）的输出分布指导小模型（学生）。软标签携带的类别相似性信息
+  比独热标签更丰富，因此学生常常超过同规模直接训练的效果。</p>
+
+<div class="formula">
+  <span class="label">带温度的 KL 蒸馏损失</span>
+  <div class="fx"><span class="v">L</span> =
+    (1−α)·<span class="v">L</span><sub>CE</sub>(<span class="v">y</span>, <span class="v">p</span><sub>s</sub>)
+    + α·<span class="v">T</span><sup>2</sup>·
+    KL(<span class="v">p</span><sub>t</sub><sup>T</sup> ‖
+    <span class="v">p</span><sub>s</sub><sup>T</sup>)</div>
+  <p class="fx-note">p<sup>T</sup> = softmax(z / T)。T 越大分布越平缓、暗知识越多；
+    乘 T<sup>2</sup> 是为了让梯度量与温度无关。α 通常取 0.5~0.9。</p>
+</div>
+
+<p>大模型场景还有“序列级蒸馏”：学生在教师采样的回复上做 SFT，
+  或用教师的 logits 做 token 级 KL。后者信息量更大，但需要教师在线前向，成本更高。</p>
+
+<h2 id="runtime">13.5 图优化与推理引擎</h2>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>工具</th><th>输入</th><th>主要优化</th><th>场景</th></tr></thead>
+  <tbody>
+    <tr><td>ONNX Runtime</td><td>ONNX</td><td>算子融合、量化、跨平台 EP</td><td>CPU / 多后端通用</td></tr>
+    <tr><td>TensorRT</td><td>ONNX</td><td>内核自动调优、FP16/INT8、层融合</td><td>NVIDIA GPU 低延迟</td></tr>
+    <tr><td>OpenVINO</td><td>ONNX / IR</td><td>CPU 向量化、低精度</td><td>Intel 端侧</td></tr>
+    <tr><td>TorchScript / torch.compile</td><td>PyTorch</td><td>图捕获、算子融合</td><td>快速落地</td></tr>
+    <tr><td>vLLM</td><td>HF 权重</td><td>PagedAttention、连续批处理</td><td>LLM 高吞吐服务</td></tr>
+    <tr><td>llama.cpp</td><td>GGUF</td><td>CPU/ Metal 量化推理</td><td>本地与边缘设备</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="paged">PagedAttention 与连续批处理</h3>
+<p>传统实现为每个请求预分配最大长度的 KV Cache，碎片浪费可达 60% 以上。
+  PagedAttention 把 KV Cache 切成固定大小的块，用块表按需映射，显存利用率接近 100%；
+  连续批处理则在序列结束时立刻换入新请求，避免整批等待最慢的那条。</p>
+
+<div class="formula">
+  <span class="label">KV Cache 显存估算</span>
+  <div class="fx"><span class="v">M</span><sub>KV</sub> =
+    2 · <span class="v">L</span> · <span class="v">H</span><sub>kv</sub> ·
+    <span class="v">d</span><sub>head</sub> · <span class="v">S</span> ·
+    <span class="v">B</span> · <span class="v">b</span></div>
+  <p class="fx-note">2 表示 K 与 V，L 为层数，H<sub>kv</sub> 为 KV 头数（GQA 可远小于 Q 头数），
+    S 为序列长度，B 为批大小，b 为字节数（FP16 为 2）。这是长上下文服务的第一成本项。</p>
+</div>
+
+<h2 id="mem">13.6 一次完整的显存估算</h2>
+<p>以 7B 模型、FP16、批大小 8、序列 2048 为例：权重约 14 GB；
+  若 32 层、32 个 KV 头（MHA）、头维 128，则每 token 的 KV 约 0.5 MB，
+  单请求 2048 token 约 1 GB，8 条并发就是 8 GB。加上激活与框架开销，
+  一张 24 GB 卡很快见底——这就是要用量化与 GQA 的原因。</p>
+
+<div class="code">
+  <div class="code-bar"><span>python · 显存与吞吐估算</span>
+    <button class="copy" type="button">复制</button></div>
+<pre><code>def kv_cache_gb(layers, kv_heads, head_dim, seq_len, batch, bytes_per=2):
+    """返回 KV Cache 显存占用（GB）。"""
+    per_token = 2 * layers * kv_heads * head_dim * bytes_per
+    total = per_token * seq_len * batch
+    return total / 1024 ** 3
+
+
+def weight_gb(params_billion, bits=16):
+    """按位宽估算权重显存（GB）。"""
+    return params_billion * 1e9 * bits / 8 / 1024 ** 3
+
+
+if __name__ == "__main__":
+    print("7B FP16 权重:", round(weight_gb(7, 16), 2), "GB")
+    print("7B INT4 权重:", round(weight_gb(7, 4), 2), "GB")
+    for batch in (1, 8, 32):
+        kv = kv_cache_gb(32, 32, 128, 2048, batch)
+        print(f"batch={batch:3d}  KV Cache: {kv:.2f} GB")</code></pre>
+</div>
+
+<div class="callout tip">
+  <span class="ct">部署前的三个问题</span>
+  <p>1）目标硬件是什么，支持哪些精度与算子？2）SLA 要求多低的 TTFT/TPOT？
+    3）精度允许下降多少（用任务指标而非困惑度衡量）？回答完这三个问题，技术选型基本确定。</p>
+</div>
+
+<h2 id="serve">13.7 服务化要点</h2>
+<ol class="steps">
+  <li><strong>规格匹配</strong>先把模型压到能装进一张卡，再考虑多卡并行。
+    张量并行适合单机多卡，流水并行适合跨机，但通信开销会吃掉收益。</li>
+  <li><strong>批处理策略</strong>在线服务用连续批处理与小批量降低延迟；
+    离线任务用大 batch 提升吞吐，二者不要混用同一配置。</li>
+  <li><strong>缓存复用</strong>系统提示词、长文档前缀可做前缀缓存（prefix cache），
+    多轮对话可复用历史 KV，显著降低重复计算。</li>
+  <li><strong>监控与降级</strong>记录队列长度、P99 延迟、显存碎片；
+    过载时降级到更小模型或缩短最大输出，而不是直接超时。</li>
+  <li><strong>版本与回滚</strong>权重、tokenizer、推理引擎版本必须一起锁定，
+    否则会出现输出漂移这类难以复现的问题。</li>
+</ol>
+
+<div class="takeaway">
+  <h3>本章要点</h3>
+  <ul>
+    <li>解码阶段访存受限，降低权重位宽通常是最有效的加速手段。</li>
+    <li>量化关键是处理离群值：AWQ 保护显著通道，SmoothQuant 迁移激活难度。</li>
+    <li>结构化剪枝才容易真正加速，稀疏加速依赖硬件与算子支持。</li>
+    <li>蒸馏用软标签传递暗知识，温度 T 与权重 α 是两个核心超参。</li>
+    <li>LLM 服务的第一成本项是 KV Cache，PagedAttention 解决碎片浪费。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>只看困惑度评估量化，忽略下游任务指标与长尾输入。</li>
+    <li>对所有权重统一量化，未保护嵌入层与输出层。</li>
+    <li>以为参数量小就一定快，忽略算子融合与内存布局。</li>
+    <li>用训练吞吐推断线上延迟，两者瓶颈完全不同。</li>
+    <li>忽略 tokenizer 与推理引擎版本，导致结果不可复现。</li>
+  </ol>
+</div>
+</section>
+    <div class="chapter-actions">
+      <button class="mark-done" id="mark-done" type="button">标记本章已学完</button>
+      <span class="hint">进度保存在本机浏览器，用于跟踪学习路线</span>
+    </div>
+    <nav class="pager" aria-label="章节翻页">
+      <a class="prev" href="12-llm.html"><span class="dir">← 上一章</span><span class="ttl">大模型与微调</span></a>
+      <a class="next" href="14-engineering.html"><span class="dir">下一章 →</span><span class="ttl">工程实践</span></a>
+    </nav>
+  </article>
+  <footer class="page-foot">
+    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
+  </footer>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
