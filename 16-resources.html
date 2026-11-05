@@ -92,9 +92,15 @@
         <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
       </a>
     </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第六部分 · 光学深度学习</span>
+      <a class="nav-item" href="17-optics.html" data-page="17-optics" data-chapter="1">
+        <span class="nav-num">17</span><span class="nav-body"><strong>光学中的深度学习</strong><em>相位恢复 · U-Net · 超表面 · 光子计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
   </nav>
   <div class="side-foot">
-    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 17</span></div>
     <div class="progress-bar"><i id="progress-bar"></i></div>
     <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
   </div>
@@ -125,9 +131,11 @@
     <li><a href="#courses">16.3 课程与教材</a></li>
     <li><a href="#papers">16.4 值得精读的论文</a></li>
     <li><a href="#projects">16.5 项目清单：按难度分三档</a></li>
-    <li><a href="#tools">16.6 工具链</a></li>
-    <li><a href="#env">16.7 环境自检</a></li>
-    <li><a href="#habit">16.8 学习习惯与自查</a></li>
+    <li><a href="#optics-papers">16.6 光学 + 深度学习论文清单</a></li>
+    <li><a href="#my-optics">16.7 我的光学开源项目</a></li>
+    <li><a href="#tools">16.8 工具链</a></li>
+    <li><a href="#env">16.9 环境自检</a></li>
+    <li><a href="#habit">16.10 学习习惯与自查</a></li>
   </ol>
 </nav>
 
@@ -239,7 +247,68 @@
   </div>
 </div>
 
-<h2 id="tools">16.6 工具链</h2>
+<h2 id="optics-papers">16.6 光学 + 深度学习论文清单</h2>
+<p>下列论文覆盖相位恢复、计算成像、超表面逆向设计、光子神经网络四大方向，
+  均附 arXiv 链接，建议按方向挑 1~2 篇精读。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>方向</th><th>论文</th><th>链接</th></tr></thead>
+  <tbody>
+    <tr><td rowspan="3">光子神经网络</td>
+      <td>Optical neural network with temporal synthetic dimension</td>
+      <td><a href="https://arxiv.org/abs/2101.08439" target="_blank">2101.08439</a></td></tr>
+    <tr><td>Compatible Learning for Deep Photonic Neural Network</td>
+      <td><a href="https://arxiv.org/abs/2003.08360" target="_blank">2003.08360</a></td></tr>
+    <tr><td>LuxNAS: Coherent Photonic NN + Neural Architecture Search</td>
+      <td><a href="https://arxiv.org/abs/2503.03731" target="_blank">2503.03731</a></td></tr>
+    <tr><td rowspan="3">相位恢复</td>
+      <td>Res-U²-Net: Untrained DL for Phase Retrieval</td>
+      <td><a href="https://arxiv.org/abs/2404.06657" target="_blank">2404.06657</a></td></tr>
+    <tr><td>PR-DAD: Phase Retrieval Using Deep Auto-Decoders</td>
+      <td><a href="https://arxiv.org/abs/2204.09051" target="_blank">2204.09051</a></td></tr>
+    <tr><td>Reference Learning for Fourier Phase Retrieval</td>
+      <td><a href="https://arxiv.org/abs/2110.13688" target="_blank">2110.13688</a></td></tr>
+    <tr><td rowspan="2">计算成像</td>
+      <td>TST-DL: Real-time Computational Imaging w/o Physics Priors</td>
+      <td><a href="https://arxiv.org/abs/2001.03493" target="_blank">2001.03493</a></td></tr>
+    <tr><td>Physics-Aware Style Transfer for Holographic Reconstruction</td>
+      <td><a href="https://arxiv.org/abs/2507.00482" target="_blank">2507.00482</a></td></tr>
+    <tr><td rowspan="2">超表面设计</td>
+      <td>DL-based Design of Broadband Complex Metasurfaces</td>
+      <td><a href="https://arxiv.org/abs/2110.12999" target="_blank">2110.12999</a></td></tr>
+    <tr><td>Intelligent Nanophotonics（综述）</td>
+      <td><a href="https://arxiv.org/abs/1810.11709" target="_blank">1810.11709</a></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout tip">
+  <span class="ct">顶刊复现</span>
+  <p><strong>Optical generative models</strong>（Nature 644, 903–911, 2025）与
+    <strong>MetaE-former</strong>（PhotoniX 7:69, 2026）已在
+    <a href="https://github.com/Alice-P197/literature-archive" target="_blank">literature-archive</a>
+    复现，含源码、权重与对比结果。</p>
+</div>
+
+<h2 id="my-optics">16.7 我的光学开源项目</h2>
+<p>这些是我在 GitHub 公开的光学仿真与设计项目，可作为第 17 章的实践参考：</p>
+<ul>
+  <li><a href="https://github.com/Alice-P197/literature-archive" target="_blank">literature-archive</a>
+    — Nature 2025 光学生成模型、MetaE-former 超表面设计复现</li>
+  <li><a href="https://github.com/Alice-P197/doe-image-reconstruction" target="_blank">doe-image-reconstruction</a>
+    — IFTA+MRAF 纯相位 DOE 设计与图像再现</li>
+  <li><a href="https://github.com/Alice-P197/slm-phase-optimization" target="_blank">slm-phase-optimization</a>
+    — 伴随梯度 SLM 相位优化，抑制贝塞尔光束旁瓣</li>
+  <li><a href="https://github.com/Alice-P197/fresnel-diffraction-matlab" target="_blank">fresnel-diffraction-matlab</a>
+    — S-FFT/T-FFT/D-FFT 菲涅尔衍射算法对比</li>
+  <li><a href="https://github.com/Alice-P197/collins_equation" target="_blank">collins_equation</a>
+    — Collins 衍射积分与 ABCD 系统光场传播</li>
+  <li><a href="https://github.com/Alice-P197/laser-cavity-analysis" target="_blank">laser-cavity-analysis</a>
+    — 激光谐振腔自再现模与 g 参数稳定图</li>
+</ul>
+
+<h2 id="tools">16.8 工具链</h2>
 <div class="tbl-wrap">
 <table class="tbl">
   <thead><tr><th>用途</th><th>常用工具</th><th>备注</th></tr></thead>
@@ -255,7 +324,7 @@
 </table>
 </div>
 
-<h2 id="env">16.7 环境自检</h2>
+<h2 id="env">16.9 环境自检</h2>
 <p>开始任何项目前，先确认框架、CUDA 与随机性设置正常。下面的脚本可以在新机器上快速排雷。</p>
 
 <div class="code">
@@ -302,7 +371,7 @@ if __name__ == "__main__":
         print(f"{key:14s} {value}")</code></pre>
 </div>
 
-<h2 id="habit">16.8 学习习惯与自查</h2>
+<h2 id="habit">16.10 学习习惯与自查</h2>
 <ol class="steps">
   <li><strong>先跑通再理解</strong>拿到新模型先跑官方示例，再逐层拆解，
     比从公式开始更高效。</li>
@@ -341,11 +410,11 @@ if __name__ == "__main__":
     </div>
     <nav class="pager" aria-label="章节翻页">
       <a class="prev" href="15-applications.html"><span class="dir">← 上一章</span><span class="ttl">应用领域</span></a>
-      <span class="empty"></span>
+      <a class="next" href="17-optics.html"><span class="dir">下一章 →</span><span class="ttl">光学中的深度学习</span></a>
     </nav>
   </article>
   <footer class="page-foot">
-    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>深度学习学习站 · 共 17 章，按顺序阅读效果最佳</span>
     <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
   </footer>
 </main>
