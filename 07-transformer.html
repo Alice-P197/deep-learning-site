@@ -92,9 +92,15 @@
         <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
       </a>
     </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第六部分 · 光学深度学习</span>
+      <a class="nav-item" href="17-optics.html" data-page="17-optics" data-chapter="1">
+        <span class="nav-num">17</span><span class="nav-body"><strong>光学中的深度学习</strong><em>相位恢复 · U-Net · 超表面 · 光子计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
   </nav>
   <div class="side-foot">
-    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 17</span></div>
     <div class="progress-bar"><i id="progress-bar"></i></div>
     <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
   </div>
@@ -328,6 +334,18 @@ print(block(x, causal=True).shape)      # (2, 16, 256)</code></pre>
 
 <section>
 <h2 id="summary">7.6 本章小结</h2>
+<div class="callout note">
+  <span class="ct">关键论文</span>
+  <p>• <a href="https://arxiv.org/abs/1706.03762" target="_blank">Attention Is All You Need (2017)</a> —
+    Transformer 原始论文，必读。<br>
+    • <a href="https://arxiv.org/abs/1810.04805" target="_blank">BERT (2018)</a> —
+    双向编码器预训练。<br>
+    • <a href="https://arxiv.org/abs/2001.08361" target="_blank">T5 (2019)</a> —
+    统一文本到文本框架。<br>
+    • <a href="https://arxiv.org/abs/2204.02311" target="_blank">GLM-130B (2022)</a> /
+    <a href="https://arxiv.org/abs/2302.13971" target="_blank">LLaMA (2023)</a> —
+    开源大模型代表。</p>
+</div>
 <div class="takeaway">
   <h3>Transformer 必记要点</h3>
   <ul>
@@ -362,7 +380,7 @@ print(block(x, causal=True).shape)      # (2, 16, 256)</code></pre>
     </nav>
   </article>
   <footer class="page-foot">
-    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>深度学习学习站 · 共 17 章，按顺序阅读效果最佳</span>
     <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
   </footer>
 </main>
