@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>数学基础 · 深度学习学习站</title>
+<meta name="description" content="张量 · 微积分 · 概率与信息论">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-slug="01-foundations">
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <span class="brand-mark">DL</span>
+      <span class="brand-text">
+        <strong>深度学习学习站</strong>
+        <em>从数学基础到大模型落地</em>
+      </span>
+    </a>
+  </div>
+  <div class="nav-search">
+    <input id="nav-search" type="search" placeholder="筛选章节（按 / 聚焦）" autocomplete="off">
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-group">
+      <span class="nav-group-title">起点</span>
+      <a class="nav-item" href="index.html" data-page="index" data-chapter="0">
+        <span class="nav-num">00</span><span class="nav-body"><strong>学习地图</strong><em>总览 · 路线 · 怎么用</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第一部分 · 基础</span>
+      <a class="nav-item active" href="01-foundations.html" data-page="01-foundations" data-chapter="1">
+        <span class="nav-num">01</span><span class="nav-body"><strong>数学基础</strong><em>张量 · 微积分 · 概率与信息论</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="02-ml-basics.html" data-page="02-ml-basics" data-chapter="1">
+        <span class="nav-num">02</span><span class="nav-body"><strong>机器学习基础</strong><em>任务范式 · 损失 · 评估</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="03-neural-nets.html" data-page="03-neural-nets" data-chapter="1">
+        <span class="nav-num">03</span><span class="nav-body"><strong>神经网络与反向传播</strong><em>MLP · 链式法则 · 计算图</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="04-training.html" data-page="04-training" data-chapter="1">
+        <span class="nav-num">04</span><span class="nav-body"><strong>训练与优化</strong><em>优化器 · 正则化 · 归一化</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第二部分 · 核心架构</span>
+      <a class="nav-item" href="05-cnn.html" data-page="05-cnn" data-chapter="1">
+        <span class="nav-num">05</span><span class="nav-body"><strong>卷积神经网络</strong><em>卷积 · 感受野 · ResNet</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="06-sequence.html" data-page="06-sequence" data-chapter="1">
+        <span class="nav-num">06</span><span class="nav-body"><strong>序列模型</strong><em>RNN · LSTM · Seq2Seq</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="07-transformer.html" data-page="07-transformer" data-chapter="1">
+        <span class="nav-num">07</span><span class="nav-body"><strong>注意力与 Transformer</strong><em>Self-Attention · 多头 · 位置编码</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="08-pretraining.html" data-page="08-pretraining" data-chapter="1">
+        <span class="nav-num">08</span><span class="nav-body"><strong>预训练与自监督</strong><em>语言模型 · 对比学习 · CLIP</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第三部分 · 生成与决策</span>
+      <a class="nav-item" href="09-generative.html" data-page="09-generative" data-chapter="1">
+        <span class="nav-num">09</span><span class="nav-body"><strong>生成模型</strong><em>VAE · GAN · 扩散模型</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="10-reinforcement.html" data-page="10-reinforcement" data-chapter="1">
+        <span class="nav-num">10</span><span class="nav-body"><strong>强化学习</strong><em>MDP · 策略梯度 · PPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="11-gnn.html" data-page="11-gnn" data-chapter="1">
+        <span class="nav-num">11</span><span class="nav-body"><strong>图神经网络</strong><em>消息传递 · GCN · GAT</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第四部分 · 大模型与工程</span>
+      <a class="nav-item" href="12-llm.html" data-page="12-llm" data-chapter="1">
+        <span class="nav-num">12</span><span class="nav-body"><strong>大模型与微调</strong><em>Scaling · LoRA · RLHF/DPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="13-efficient.html" data-page="13-efficient" data-chapter="1">
+        <span class="nav-num">13</span><span class="nav-body"><strong>压缩与部署</strong><em>量化 · 蒸馏 · 推理服务</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="14-engineering.html" data-page="14-engineering" data-chapter="1">
+        <span class="nav-num">14</span><span class="nav-body"><strong>工程实践</strong><em>数据 · 调试 · 复现 · 分布式</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第五部分 · 应用与资源</span>
+      <a class="nav-item" href="15-applications.html" data-page="15-applications" data-chapter="1">
+        <span class="nav-num">15</span><span class="nav-body"><strong>应用领域</strong><em>视觉 · 语言 · 科学计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="16-resources.html" data-page="16-resources" data-chapter="1">
+        <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+  </nav>
+  <div class="side-foot">
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-bar"><i id="progress-bar"></i></div>
+    <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <button class="nav-toggle" id="nav-toggle" type="button">☰ 目录</button>
+    <span class="topbar-chapter">深度学习学习站 · 第 01 章</span>
+    <span class="topbar-line"></span>
+    <span>离线可用 · 无需联网</span>
+  </div>
+  <article class="content">
+<header class="chapter-head">
+  <div class="crumb">第一部分 · 基础</div>
+  <h1>数学基础：读懂深度学习公式的语言</h1>
+  <p class="lede">深度学习不是一堆公式的堆砌，而是三门语言的三次握手：线性代数描述“如何变换表示”，
+    微积分描述“如何修正参数”，概率论描述“如何在不确定中做判断”。这一章把后面 15 章真正会用到的
+    数学压缩成可操作的直觉。</p>
+  <div class="meta">
+    <span>预计 50 分钟</span><span>前置：无</span>
+    <span>关键词：张量 · 梯度 · 交叉熵</span><span>代码：PyTorch 2.x</span>
+  </div>
+</header>
+<nav class="outline" id="outline" aria-label="本章目录">
+  <div class="outline-head"><span>本章目录</span><button class="outline-toggle" id="outline-toggle" type="button">收起</button></div>
+  <ol>
+    <li><a href="#why-math">1.1 为什么这些数学非学不可</a></li>
+    <li><a href="#tensor">1.2 张量：深度学习的唯一数据结构</a></li>
+    <li><a href="#broadcast">广播与矩阵乘法</a></li>
+    <li><a href="#linalg">1.3 线性代数：表示与相似度</a></li>
+    <li><a href="#svd">特征值、SVD 与“有效维度”</a></li>
+    <li><a href="#calculus">1.4 微积分：梯度告诉你往哪走</a></li>
+    <li><a href="#probability">1.5 概率：模型到底在输出什么</a></li>
+    <li><a href="#mle">最大似然：大多数损失的来源</a></li>
+    <li><a href="#info">1.6 信息论：交叉熵与 KL 散度</a></li>
+    <li><a href="#softmax">Softmax 与数值稳定</a></li>
+    <li><a href="#code">1.7 代码：把概念跑一遍</a></li>
+    <li><a href="#summary">1.8 本章小结</a></li>
+  </ol>
+</nav>
+
+<section>
+<h2 id="why-math">1.1 为什么这些数学非学不可</h2>
+<p>你完全可以在不理解数学的情况下调用 <code>model.fit()</code>，但会遇到三类无法绕开的问题：
+模型不收敛却不知道查哪里、看到论文公式就跳过、调参全靠玄学。<strong>数学的作用不是推导，而是让你在
+出问题时知道该看哪一行</strong>。</p>
+
+<div class="grid3">
+  <div class="card">
+    <h4>线性代数</h4>
+    <p>回答“数据长什么样、层与层之间怎么变换”。形状不匹配、维度对不上，几乎都在这。</p>
+  </div>
+  <div class="card">
+    <h4>微积分</h4>
+    <p>回答“参数往哪个方向改”。反向传播本质是链式法则在计算图上的高效实现。</p>
+  </div>
+  <div class="card">
+    <h4>概率与信息论</h4>
+    <p>回答“模型输出意味着什么”。分类损失、生成模型、不确定性都在这里。</p>
+  </div>
+</div>
+
+<blockquote>学习建议：本章不要求手推所有公式。先建立“符号 → 形状 → 含义”的映射，
+    遇到不懂的公式再回来查对应小节。</blockquote>
+</section>
+
+<section>
+<h2 id="tensor">1.2 张量：深度学习的唯一数据结构</h2>
+<p>标量是 0 维张量，向量是 1 维，矩阵是 2 维，彩色图片是 3 维（通道 × 高 × 宽），
+一个 batch 的图片是 4 维（batch × 通道 × 高 × 宽）。PyTorch 里所有计算都是张量运算，
+<strong>读代码的第一件事永远是标注形状</strong>。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>符号</th><th>形状</th><th>典型含义</th><th>代码</th></tr></thead>
+  <tbody>
+    <tr><td><span class="v">x</span></td><td>()</td><td>标量损失</td><td><code>torch.tensor(3.0)</code></td></tr>
+    <tr><td><span class="v">x</span></td><td>(C,)</td><td>一个特征向量</td><td><code>torch.randn(128)</code></td></tr>
+    <tr><td><span class="v">X</span></td><td>(N, C)</td><td>N 个样本，每个 C 维</td><td><code>torch.randn(64, 128)</code></td></tr>
+    <tr><td><span class="v">X</span></td><td>(N, C, H, W)</td><td>图像 batch</td><td><code>torch.randn(32, 3, 224, 224)</code></td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="broadcast">广播与矩阵乘法</h3>
+<p>广播（broadcasting）让形状不同的张量按规则自动对齐：从最后一维开始比较，维度相等或其中一个为 1
+即可扩展。它减少了显式复制，但也制造了大量“看起来能跑、其实算错了”的 bug。</p>
+
+<div class="formula">
+  <span class="label">矩阵乘法的形状规则</span>
+  <div class="fx">(<span class="v">N</span>, <span class="v">D</span>) · (<span class="v">D</span>,
+    <span class="v">M</span>) → (<span class="v">N</span>, <span class="v">M</span>)</div>
+  <p class="fx-note">中间维度必须相等，结果保留外侧两个维度。神经网络里几乎每个线性层都是这一步：
+    <span class="v">Y</span> = <span class="v">XW</span> + <span class="v">b</span>。</p>
+</div>
+
+<div class="code">
+<div class="code-bar"><span>Python · 形状与广播</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+
+x = torch.randn(4, 3, 32, 32)          # batch=4, 通道=3, 32x32
+w = torch.randn(3, 3)                  # 形状不匹配，会报错
+# 正确写法：把通道维换到最后一维再做线性映射
+y = x.permute(0, 2, 3, 1) @ w          # (4, 32, 32, 3) @ (3, 3) -> (4, 32, 32, 3)
+
+a = torch.tensor([[1.0], [2.0], [3.0]])  # (3, 1)
+b = torch.tensor([10.0, 20.0])           # (2,) 广播为 (3, 2)
+print((a + b).shape)                     # torch.Size([3, 2])
+
+print(x.mean(dim=(0, 2, 3)).shape)       # 按通道求均值 -> (3,)
+print(x.view(4, -1).shape)               # 展平空间维 -> (4, 3072)</code></pre>
+</div>
+
+<div class="callout">
+  <span class="ct">工程习惯</span>
+  <p>在任何模型代码里，先写一行注释标明输入输出形状，例如
+    <code># x: (B, 3, 224, 224) -> (B, 1000)</code>。这行注释能省掉一半调试时间。</p>
+</div>
+</section>
+
+<section>
+<h2 id="linalg">1.3 线性代数：表示与相似度</h2>
+<p>线性层做的是仿射变换，注意力做的是向量内积，PCA 与 SVD 做的是找“主要方向”。
+真正需要掌握的是四个概念：<strong>内积、范数、秩、特征分解</strong>。</p>
+
+<div class="formula">
+  <span class="label">内积与余弦相似度</span>
+  <div class="fx"><span class="v">x</span> · <span class="v">y</span> = Σ<sub>i</sub>
+    <span class="v">x</span><sub>i</sub><span class="v">y</span><sub>i</sub>
+    &nbsp;&nbsp;&nbsp; cos θ = <span class="frac"><span class="num"><span class="v">x</span> ·
+    <span class="v">y</span></span><span class="den">‖<span class="v">x</span>‖ ‖<span class="v">y</span>‖</span></span></div>
+  <p class="fx-note">内积衡量方向一致程度。词向量、图像检索、对比学习都靠它：方向越接近，语义越相似。
+    余弦相似度对向量长度不敏感，适合比较归一化后的表示。</p>
+</div>
+
+<div class="formula">
+  <span class="label">常见范数</span>
+  <div class="fx">‖<span class="v">x</span>‖<sub>1</sub> = Σ<sub>i</sub>|<span class="v">x</span><sub>i</sub>|
+    &nbsp;&nbsp; ‖<span class="v">x</span>‖<sub>2</sub> = √(Σ<sub>i</sub><span class="v">x</span><sub>i</sub><sup>2</sup>)
+    &nbsp;&nbsp; ‖<span class="v">W</span>‖<sub>F</sub> = √(Σ<sub>ij</sub><span class="v">W</span><sub>ij</sub><sup>2</sup>)</div>
+  <p class="fx-note">L1 促进稀疏（很多权重变 0），L2 抑制大幅值（权重整体变小）。
+    这就是 L1/L2 正则化在几何上的区别。</p>
+</div>
+
+<h3 id="svd">特征值、SVD 与“有效维度”</h3>
+<p>矩阵的秩说明它能把输入映射到多少独立方向。神经网络的表示学习，很多时候就是在寻找一个
+低维流形：高维像素其实由少量语义因子控制。<strong>PCA 取最大特征值对应的方向，
+SVD 把任意矩阵分解为旋转—缩放—旋转</strong>，这两者常用于降维、压缩与 LoRA 的秩约束。</p>
+
+<div class="formula">
+  <span class="label">SVD 与低秩近似</span>
+  <div class="fx"><span class="v">A</span> = <span class="v">U</span><span class="v">Σ</span><span class="v">V</span><sup>T</sup>
+    &nbsp;&nbsp; <span class="v">A</span><sub>k</sub> = Σ<sub>i=1..k</sub>
+    σ<sub>i</sub><span class="v">u</span><sub>i</sub><span class="v">v</span><sub>i</sub><sup>T</sup></div>
+  <p class="fx-note">只保留前 k 个奇异值即可用极少参数逼近原矩阵——这是模型压缩与低秩微调（LoRA）的数学依据。</p>
+</div>
+</section>
+
+<section>
+<h2 id="calculus">1.4 微积分：梯度告诉你往哪走</h2>
+<p>训练模型就是最小化一个标量损失 <span class="v">L</span>(<span class="v">θ</span>)。
+偏导数 ∂<span class="v">L</span>/∂<span class="v">θ</span><sub>i</sub> 表示“只把第 i 个参数动一点点，
+损失会怎么变”。把所有偏导排成向量就是梯度，它指向损失上升最快的方向，因此沿负梯度走就能下降。</p>
+
+<div class="formula">
+  <span class="label">梯度下降更新</span>
+  <div class="fx"><span class="v">θ</span><sub>t+1</sub> = <span class="v">θ</span><sub>t</sub> −
+    η ∇<sub>θ</sub><span class="v">L</span>(<span class="v">θ</span><sub>t</sub>)</div>
+  <p class="fx-note">η 是学习率。步子太小收敛慢，太大则震荡甚至发散。
+    所有优化器（Momentum、Adam）本质上都在改写这一行的“方向”和“步长”。</p>
+</div>
+
+<div class="formula">
+  <span class="label">链式法则 · 反向传播的骨架</span>
+  <div class="fx"><span class="frac"><span class="num">∂<span class="v">L</span></span>
+    <span class="den">∂<span class="v">x</span></span></span> =
+    <span class="frac"><span class="num">∂<span class="v">L</span></span>
+    <span class="den">∂<span class="v">y</span></span></span> ·
+    <span class="frac"><span class="num">∂<span class="v">y</span></span>
+    <span class="den">∂<span class="v">x</span></span></span></div>
+  <p class="fx-note">若 <span class="v">y</span> = <span class="v">f</span>(<span class="v">x</span>) 且
+    <span class="v">L</span> 只通过 <span class="v">y</span> 依赖 <span class="v">x</span>，
+    上游传来的梯度乘以本层局部导数即可。多层堆叠时从后往前连乘，这就是 backprop。</p>
+</div>
+
+<div class="formula">
+  <span class="label">多元情形与雅可比</span>
+  <div class="fx"><span class="v">J</span><sub>ij</sub> =
+    <span class="frac"><span class="num">∂<span class="v">y</span><sub>i</sub></span>
+    <span class="den">∂<span class="v">x</span><sub>j</sub></span></span>
+    &nbsp;&nbsp; ∇<sub>x</sub><span class="v">L</span> = <span class="v">J</span><sup>T</sup>
+    ∇<sub>y</sub><span class="v">L</span></div>
+  <p class="fx-note">向量对向量求导得到雅可比矩阵。反向传播并不真的构造这个矩阵，
+    而是用“向量—雅可比积”一次算完，复杂度与一次前向相当。</p>
+</div>
+
+<div class="callout note">
+  <span class="ct">关键直觉</span>
+  <p>梯度是“局部线性近似”的斜率。神经网络高度非线性，所以梯度只保证一小步内有效：
+    这就是学习率不能随便调大的根本原因。</p>
+</div>
+</section>
+
+<section>
+<h2 id="probability">1.5 概率：模型到底在输出什么</h2>
+<p>分类模型输出的不是“答案”，而是<strong>条件概率分布</strong>
+<span class="v">p</span>(<span class="v">y</span>|<span class="v">x</span>)。
+训练就是让模型分布逼近真实分布；推理则是从这个分布里取最大概率或采样。</p>
+
+<div class="formula">
+  <span class="label">贝叶斯公式</span>
+  <div class="fx"><span class="v">p</span>(<span class="v">y</span>|<span class="v">x</span>) =
+    <span class="frac"><span class="num"><span class="v">p</span>(<span class="v">x</span>|<span class="v">y</span>)<span class="v">p</span>(<span class="v">y</span>)</span>
+    <span class="den"><span class="v">p</span>(<span class="v">x</span>)</span></span>
+    &nbsp;&nbsp; <span class="v">p</span>(<span class="v">x</span>) = Σ<sub>y</sub>
+    <span class="v">p</span>(<span class="v">x</span>|<span class="v">y</span>)<span class="v">p</span>(<span class="v">y</span>)</div>
+  <p class="fx-note">先验 × 似然 = 后验。生成模型建模 <span class="v">p</span>(<span class="v">x</span>|<span class="v">y</span>)，
+    判别模型直接建模 <span class="v">p</span>(<span class="v">y</span>|<span class="v">x</span>)。</p>
+</div>
+
+<h3 id="mle">最大似然：大多数损失的来源</h3>
+<p>给定数据集，我们希望模型给真实标签分配高概率。连乘容易下溢，取对数后变成求和，
+于是“最大化对数似然”等价于“最小化负对数似然”。</p>
+
+<div class="formula">
+  <span class="label">最大似然估计（MLE）</span>
+  <div class="fx"><span class="v">θ</span><sup>*</sup> = argmax<sub>θ</sub>
+    Σ<sub>i</sub> log <span class="v">p</span><sub>θ</sub>(<span class="v">y</span><sub>i</sub>|<span class="v">x</span><sub>i</sub>)
+    = argmin<sub>θ</sub> − Σ<sub>i</sub> log <span class="v">p</span><sub>θ</sub>(<span class="v">y</span><sub>i</sub>|<span class="v">x</span><sub>i</sub>)</div>
+  <p class="fx-note">回归用高斯似然 → 均方误差；分类用伯努利/类别分布 → 二元/多元交叉熵。
+    损失函数不是随便发明的，几乎都能从似然推出来。</p>
+</div>
+</section>
+
+<section>
+<h2 id="info">1.6 信息论：交叉熵与 KL 散度</h2>
+<p>熵衡量不确定性，交叉熵衡量“用模型分布 q 编码真实分布 p 的平均代价”。
+由于真实分布的熵是常数，<strong>最小化交叉熵就等于最小化 KL 散度</strong>。</p>
+
+<div class="formula">
+  <span class="label">熵 · 交叉熵 · KL 散度</span>
+  <div class="fx"><span class="v">H</span>(<span class="v">p</span>) = −Σ<sub>i</sub>
+    <span class="v">p</span><sub>i</sub> log <span class="v">p</span><sub>i</sub></div>
+  <div class="fx"><span class="v">H</span>(<span class="v">p</span>, <span class="v">q</span>) = −Σ<sub>i</sub>
+    <span class="v">p</span><sub>i</sub> log <span class="v">q</span><sub>i</sub>
+    &nbsp;&nbsp; <span class="v">D</span><sub>KL</sub>(<span class="v">p</span>‖<span class="v">q</span>) =
+    <span class="v">H</span>(<span class="v">p</span>, <span class="v">q</span>) −
+    <span class="v">H</span>(<span class="v">p</span>)</div>
+  <p class="fx-note">KL 非对称，不是距离。训练中常固定 <span class="v">p</span> 为数据分布，
+    最小化 KL 即最小化交叉熵。<span class="v">D</span><sub>KL</sub> ≥ 0，等号仅当两分布相同。</p>
+</div>
+
+<h3 id="softmax">Softmax 与数值稳定</h3>
+<p>多分类先用 logits 的指数归一化得到概率。直接取指数会溢出，实现时先减去最大值，
+结果在数学上完全等价。</p>
+
+<div class="formula">
+  <span class="label">Softmax</span>
+  <div class="fx">softmax(<span class="v">z</span>)<sub>i</sub> =
+    <span class="frac"><span class="num">e<sup><span class="v">z</span><sub>i</sub></sup></span>
+    <span class="den">Σ<sub>j</sub> e<sup><span class="v">z</span><sub>j</sub></sup></span></span>
+    &nbsp;&nbsp; 实现时：<span class="v">z</span> ← <span class="v">z</span> − max(<span class="v">z</span>)</div>
+  <p class="fx-note">Softmax 有温度参数 <span class="v">z</span>/<span class="v">T</span>：
+    温度高 → 分布更平（更随机），温度低 → 更尖锐（更确定），是采样策略的核心旋钮。</p>
+</div>
+</section>
+
+<section>
+<h2 id="code">1.7 代码：把概念跑一遍</h2>
+<p>下面的脚本做三件事：验证广播规则、用数值差分检查梯度、验证交叉熵与 log-softmax 的一致性。
+这三项是后续所有章节的“数学体检”。</p>
+
+<div class="code">
+<div class="code-bar"><span>Python · 数学体检</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn.functional as F
+
+# 1) 广播：形状从右往左对齐，1 可以扩展
+a = torch.arange(6.).view(2, 3)
+b = torch.tensor([10., 20., 30.])
+print("broadcast:", (a + b).shape)              # (2, 3)
+
+# 2) 数值梯度：中心差分，用于验证手写反向传播
+def f(x):
+    return (x ** 3).sum()
+
+x = torch.tensor([2.0, -1.0], requires_grad=True)
+loss = f(x)
+loss.backward()
+auto = x.grad.clone()
+
+eps = 1e-4
+num = []
+for i in range(x.numel()):
+    xi = x.detach().clone()
+    xi[i] += eps
+    xj = x.detach().clone()
+    xj[i] -= eps
+    num.append((f(xi) - f(xj)) / (2 * eps))
+print("auto:", auto, "numeric:", torch.tensor(num))  # 应几乎相等
+
+# 3) 交叉熵 = NLL + log-softmax，torch 已融合成稳定实现
+logits = torch.tensor([[2.0, 1.0, 0.1], [0.3, 2.5, 0.2]])
+target = torch.tensor([0, 1])
+print("ce:", F.cross_entropy(logits, target))
+print("manual:", -(F.log_softmax(logits, dim=1)[range(2), target]).mean())
+
+# 4) KL 非负且非对称
+p = torch.tensor([0.7, 0.2, 0.1])
+q = torch.tensor([0.5, 0.3, 0.2])
+print("KL(p||q):", (p * (p / q).log()).sum())
+print("KL(q||p):", (q * (q / p).log()).sum())</code></pre>
+</div>
+
+<div class="callout warn">
+  <span class="ct">常见坑</span>
+  <p><code>loss.backward()</code> 会累加梯度而不是覆盖。每个训练步必须
+    <code>optimizer.zero_grad()</code>，否则梯度会跨 step 叠加。</p>
+</div>
+</section>
+
+<section>
+<h2 id="summary">1.8 本章小结</h2>
+<div class="takeaway">
+  <h3>应该带走的六件事</h3>
+  <ul>
+    <li>张量的<strong>形状</strong>比数值更重要，读代码先读 shape。</li>
+    <li>线性层 = 矩阵乘法 + 偏置；注意力 = 内积 + softmax + 加权求和。</li>
+    <li>梯度指向损失上升方向，训练沿负梯度走；学习率决定步子。</li>
+    <li>反向传播 = 链式法则 + 从后往前 + 复用中间结果。</li>
+    <li>分类输出是概率分布；交叉熵来自最大似然，KL 衡量分布差异。</li>
+    <li>Softmax 必须做数值稳定处理，否则会溢出为 NaN。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>初学者最容易踩的坑</h3>
+  <ol>
+    <li>把广播当成“自动对齐任意形状”——只有维数为 1 或相等时才能广播。</li>
+    <li>把 <code>view</code> 与 <code>reshape</code> 混用，遇到非连续内存就报错。</li>
+    <li>忘记梯度是累加的，导致 loss 突然爆炸。</li>
+    <li>用准确率评估类别不平衡的数据，得到 99% 却毫无意义。</li>
+    <li>以为 KL 是对称距离，写出方向错误的损失函数。</li>
+  </ol>
+</div>
+
+<div class="callout note">
+  <span class="ct">下一步</span>
+  <p>数学是工具，不必一次学完。进入第 2 章，把这些符号放进一个真实的机器学习流程里，
+    你会发现自己只需要其中很小一部分，而且会记得更牢。</p>
+</div>
+</section>
+    <div class="chapter-actions">
+      <button class="mark-done" id="mark-done" type="button">标记本章已学完</button>
+      <span class="hint">进度保存在本机浏览器，用于跟踪学习路线</span>
+    </div>
+    <nav class="pager" aria-label="章节翻页">
+      <a class="prev" href="index.html"><span class="dir">← 上一章</span><span class="ttl">学习地图</span></a>
+      <a class="next" href="02-ml-basics.html"><span class="dir">下一章 →</span><span class="ttl">机器学习基础</span></a>
+    </nav>
+  </article>
+  <footer class="page-foot">
+    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
+  </footer>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
