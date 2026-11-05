@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>强化学习 · 深度学习学习站</title>
+<meta name="description" content="MDP · 策略梯度 · PPO">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-slug="10-reinforcement">
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <span class="brand-mark">DL</span>
+      <span class="brand-text">
+        <strong>深度学习学习站</strong>
+        <em>从数学基础到大模型落地</em>
+      </span>
+    </a>
+  </div>
+  <div class="nav-search">
+    <input id="nav-search" type="search" placeholder="筛选章节（按 / 聚焦）" autocomplete="off">
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-group">
+      <span class="nav-group-title">起点</span>
+      <a class="nav-item" href="index.html" data-page="index" data-chapter="0">
+        <span class="nav-num">00</span><span class="nav-body"><strong>学习地图</strong><em>总览 · 路线 · 怎么用</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第一部分 · 基础</span>
+      <a class="nav-item" href="01-foundations.html" data-page="01-foundations" data-chapter="1">
+        <span class="nav-num">01</span><span class="nav-body"><strong>数学基础</strong><em>张量 · 微积分 · 概率与信息论</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="02-ml-basics.html" data-page="02-ml-basics" data-chapter="1">
+        <span class="nav-num">02</span><span class="nav-body"><strong>机器学习基础</strong><em>任务范式 · 损失 · 评估</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="03-neural-nets.html" data-page="03-neural-nets" data-chapter="1">
+        <span class="nav-num">03</span><span class="nav-body"><strong>神经网络与反向传播</strong><em>MLP · 链式法则 · 计算图</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="04-training.html" data-page="04-training" data-chapter="1">
+        <span class="nav-num">04</span><span class="nav-body"><strong>训练与优化</strong><em>优化器 · 正则化 · 归一化</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第二部分 · 核心架构</span>
+      <a class="nav-item" href="05-cnn.html" data-page="05-cnn" data-chapter="1">
+        <span class="nav-num">05</span><span class="nav-body"><strong>卷积神经网络</strong><em>卷积 · 感受野 · ResNet</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="06-sequence.html" data-page="06-sequence" data-chapter="1">
+        <span class="nav-num">06</span><span class="nav-body"><strong>序列模型</strong><em>RNN · LSTM · Seq2Seq</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="07-transformer.html" data-page="07-transformer" data-chapter="1">
+        <span class="nav-num">07</span><span class="nav-body"><strong>注意力与 Transformer</strong><em>Self-Attention · 多头 · 位置编码</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="08-pretraining.html" data-page="08-pretraining" data-chapter="1">
+        <span class="nav-num">08</span><span class="nav-body"><strong>预训练与自监督</strong><em>语言模型 · 对比学习 · CLIP</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第三部分 · 生成与决策</span>
+      <a class="nav-item" href="09-generative.html" data-page="09-generative" data-chapter="1">
+        <span class="nav-num">09</span><span class="nav-body"><strong>生成模型</strong><em>VAE · GAN · 扩散模型</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item active" href="10-reinforcement.html" data-page="10-reinforcement" data-chapter="1">
+        <span class="nav-num">10</span><span class="nav-body"><strong>强化学习</strong><em>MDP · 策略梯度 · PPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="11-gnn.html" data-page="11-gnn" data-chapter="1">
+        <span class="nav-num">11</span><span class="nav-body"><strong>图神经网络</strong><em>消息传递 · GCN · GAT</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第四部分 · 大模型与工程</span>
+      <a class="nav-item" href="12-llm.html" data-page="12-llm" data-chapter="1">
+        <span class="nav-num">12</span><span class="nav-body"><strong>大模型与微调</strong><em>Scaling · LoRA · RLHF/DPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="13-efficient.html" data-page="13-efficient" data-chapter="1">
+        <span class="nav-num">13</span><span class="nav-body"><strong>压缩与部署</strong><em>量化 · 蒸馏 · 推理服务</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="14-engineering.html" data-page="14-engineering" data-chapter="1">
+        <span class="nav-num">14</span><span class="nav-body"><strong>工程实践</strong><em>数据 · 调试 · 复现 · 分布式</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第五部分 · 应用与资源</span>
+      <a class="nav-item" href="15-applications.html" data-page="15-applications" data-chapter="1">
+        <span class="nav-num">15</span><span class="nav-body"><strong>应用领域</strong><em>视觉 · 语言 · 科学计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="16-resources.html" data-page="16-resources" data-chapter="1">
+        <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+  </nav>
+  <div class="side-foot">
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-bar"><i id="progress-bar"></i></div>
+    <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <button class="nav-toggle" id="nav-toggle" type="button">☰ 目录</button>
+    <span class="topbar-chapter">深度学习学习站 · 第 10 章</span>
+    <span class="topbar-line"></span>
+    <span>离线可用 · 无需联网</span>
+  </div>
+  <article class="content">
+<header class="chapter-head">
+  <div class="crumb">第三部分 · 生成与决策</div>
+  <h1>强化学习：在试错中学习决策</h1>
+  <p class="lede">监督学习告诉你“正确答案是什么”，强化学习只给一个延迟的分数。
+    智能体必须在探索与利用之间权衡，从稀疏奖励中推断“哪一步做对了”。
+    它也是大模型对齐（RLHF）的理论基础。</p>
+  <div class="meta">
+    <span>预计 65 分钟</span><span>前置：第 1、3 章</span>
+    <span>关键词：MDP · Bellman · 策略梯度 · PPO</span>
+  </div>
+</header>
+<nav class="outline" id="outline" aria-label="本章目录">
+  <div class="outline-head"><span>本章目录</span><button class="outline-toggle" id="outline-toggle" type="button">收起</button></div>
+  <ol>
+    <li><a href="#mdp">10.1 马尔可夫决策过程</a></li>
+    <li><a href="#value">10.2 基于价值：Q-Learning 与 DQN</a></li>
+    <li><a href="#pg">10.3 策略梯度：直接优化策略</a></li>
+    <li><a href="#ppo">10.4 Actor-Critic 与 PPO</a></li>
+    <li><a href="#code">10.5 代码：REINFORCE 与 PPO 损失</a></li>
+    <li><a href="#summary">10.6 本章小结</a></li>
+  </ol>
+</nav>
+
+<section>
+<h2 id="mdp">10.1 马尔可夫决策过程</h2>
+<p>强化学习把问题形式化为 MDP：状态、动作、转移、奖励、折扣因子。
+“马尔可夫”意味着未来只依赖当前状态，与更早的历史无关。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>要素</th><th>符号</th><th>含义</th></tr></thead>
+  <tbody>
+    <tr><td>状态</td><td><span class="v">s</span> ∈ <span class="v">S</span></td><td>智能体观察到的环境信息</td></tr>
+    <tr><td>动作</td><td><span class="v">a</span> ∈ <span class="v">A</span></td><td>可选行为</td></tr>
+    <tr><td>转移</td><td><span class="v">P</span>(<span class="v">s</span>′|<span class="v">s</span>,<span class="v">a</span>)</td><td>执行动作后的状态分布</td></tr>
+    <tr><td>奖励</td><td><span class="v">r</span>(<span class="v">s</span>,<span class="v">a</span>)</td><td>即时反馈，可能稀疏、延迟</td></tr>
+    <tr><td>折扣</td><td>γ ∈ [0,1)</td><td>未来奖励的折现率，控制视野</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="formula">
+  <span class="label">回报与状态价值</span>
+  <div class="fx"><span class="v">G</span><sub>t</sub> = Σ<sub>k≥0</sub>
+    γ<sup>k</sup><span class="v">r</span><sub>t+k+1</sub>
+    &nbsp;&nbsp; <span class="v">V</span><sup>π</sup>(<span class="v">s</span>) =
+    E<sub>π</sub>[<span class="v">G</span><sub>t</sub>|<span class="v">s</span><sub>t</sub>=<span class="v">s</span>]</div>
+  <p class="fx-note">γ 越接近 0 越短视，越接近 1 越重视长期收益。
+    价值函数回答“在状态 s、按策略 π 行动，期望能拿多少分”。</p>
+</div>
+
+<div class="formula">
+  <span class="label">动作价值与 Bellman 期望方程</span>
+  <div class="fx"><span class="v">Q</span><sup>π</sup>(<span class="v">s</span>,<span class="v">a</span>)
+    = <span class="v">r</span>(<span class="v">s</span>,<span class="v">a</span>) +
+    γ E<sub>s′</sub>[<span class="v">V</span><sup>π</sup>(<span class="v">s</span>′)]</div>
+  <div class="fx"><span class="v">V</span><sup>π</sup>(<span class="v">s</span>) = Σ<sub>a</sub>
+    π(<span class="v">a</span>|<span class="v">s</span>)<span class="v">Q</span><sup>π</sup>(<span class="v">s</span>,<span class="v">a</span>)</div>
+  <p class="fx-note">Bellman 方程把“长期价值”拆成“即时奖励 + 下一状态价值”。
+    所有值迭代、策略迭代、TD 学习都从这个递归出发。</p>
+</div>
+</section>
+
+<section>
+<h2 id="value">10.2 基于价值：Q-Learning 与 DQN</h2>
+<p>如果能准确估计每个动作的 Q 值，策略就是“选 Q 最大的动作”。Q-Learning 用 TD 误差
+在线更新，深度版本 DQN 用网络拟合 Q 函数，并用经验回放与目标网络稳定训练。</p>
+
+<div class="formula">
+  <span class="label">Q-Learning 更新（off-policy）</span>
+  <div class="fx"><span class="v">Q</span>(<span class="v">s</span>,<span class="v">a</span>)
+    ← <span class="v">Q</span>(<span class="v">s</span>,<span class="v">a</span>) + α[
+    <span class="v">r</span> + γ max<sub>a′</sub><span class="v">Q</span>(<span class="v">s</span>′,<span class="v">a</span>′)
+    − <span class="v">Q</span>(<span class="v">s</span>,<span class="v">a</span>)]</div>
+  <p class="fx-note">max 操作让目标策略与行为策略分离，因此可以用旧数据学习（off-policy）。
+    经验回放打散时间相关性，目标网络冻结一段时间，避免“自己追自己”导致发散。</p>
+</div>
+
+<div class="formula">
+  <span class="label">DQN 损失</span>
+  <div class="fx"><span class="v">L</span> = E[(<span class="v">r</span> + γ
+    max<sub>a′</sub><span class="v">Q</span><sub>θ−</sub>(<span class="v">s</span>′,<span class="v">a</span>′)
+    − <span class="v">Q</span><sub>θ</sub>(<span class="v">s</span>,<span class="v">a</span>))<sup>2</sup>]</div>
+  <p class="fx-note">θ− 是目标网络参数，定期从 θ 同步。Double DQN 用在线网络选动作、
+    目标网络估值，缓解 Q 值高估。</p>
+</div>
+</section>
+
+<section>
+<h2 id="pg">10.3 策略梯度：直接优化策略</h2>
+<p>价值方法只能处理离散动作，且难以表达随机策略。策略梯度直接参数化
+π<sub>θ</sub>(a|s)，用“让高回报动作概率变大”的直觉优化期望回报。</p>
+
+<div class="formula">
+  <span class="label">策略梯度定理</span>
+  <div class="fx">∇<sub>θ</sub><span class="v">J</span>(θ) =
+    E<sub>π</sub>[∇<sub>θ</sub>log π<sub>θ</sub>(<span class="v">a</span>|<span class="v">s</span>)
+    · <span class="v">G</span><sub>t</sub>]</div>
+  <p class="fx-note">对数概率的梯度方向是“让这个动作更可能发生”，乘以回报作为权重。
+    回报高则强化，回报低则抑制。REINFORCE 用整条轨迹的回报估计，方差很大。</p>
+</div>
+
+<div class="formula">
+  <span class="label">引入基线降低方差</span>
+  <div class="fx">∇<sub>θ</sub><span class="v">J</span>(θ) =
+    E[∇<sub>θ</sub>log π<sub>θ</sub>(<span class="v">a</span>|<span class="v">s</span>)
+    · (<span class="v">G</span><sub>t</sub> − <span class="v">b</span>(<span class="v">s</span>))]</div>
+  <p class="fx-note">减去与动作无关的基线不改变期望，但显著降低方差。
+    常用基线是状态价值 V(s)，差值就是优势函数 A = Q − V。</p>
+</div>
+
+<div class="formula">
+  <span class="label">优势函数与 GAE</span>
+  <div class="fx"><span class="v">A</span><sup>π</sup>(<span class="v">s</span>,<span class="v">a</span>)
+    = <span class="v">Q</span><sup>π</sup>(<span class="v">s</span>,<span class="v">a</span>) −
+    <span class="v">V</span><sup>π</sup>(<span class="v">s</span>)</div>
+  <p class="fx-note">优势回答“这个动作比平均水平好多少”。
+    GAE 用 TD 残差的指数加权和，在偏差与方差之间做权衡，是 PPO 的标准配置。</p>
+</div>
+</section>
+
+<section>
+<h2 id="ppo">10.4 Actor-Critic 与 PPO</h2>
+<p>Actor 负责选动作，Critic 负责评估状态价值。PPO 在策略梯度的基础上加了一个“信任域”约束：
+每次更新不能让新策略离旧策略太远，否则性能会崩塌。</p>
+
+<div class="formula">
+  <span class="label">重要性采样比率</span>
+  <div class="fx"><span class="v">r</span><sub>t</sub>(θ) =
+    <span class="frac"><span class="num">π<sub>θ</sub>(<span class="v">a</span><sub>t</sub>|<span class="v">s</span><sub>t</sub>)</span>
+    <span class="den">π<sub>θ<sub>old</sub></sub>(<span class="v">a</span><sub>t</sub>|<span class="v">s</span><sub>t</sub>)</span></span></div>
+  <p class="fx-note">比率大于 1 表示新策略更倾向该动作。
+    用旧策略采样的数据可以多次更新，提高样本效率。</p>
+</div>
+
+<div class="formula">
+  <span class="label">PPO 裁剪目标</span>
+  <div class="fx"><span class="v">L</span><sup>CLIP</sup> =
+    E<sub>t</sub>[min(<span class="v">r</span><sub>t</sub><span class="v">A</span><sub>t</sub>,
+    clip(<span class="v">r</span><sub>t</sub>, 1−ε, 1+ε)<span class="v">A</span><sub>t</sub>)]</div>
+  <p class="fx-note">ε 通常取 0.2。比率超出范围后梯度被截断，避免一次更新把策略带偏。
+    总损失还包含价值损失与熵奖励（鼓励探索）。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>算法</th><th>类型</th><th>动作空间</th><th>样本效率</th><th>稳定性</th></tr></thead>
+  <tbody>
+    <tr><td>Q-Learning / DQN</td><td>值方法</td><td>离散</td><td>高（可回放）</td><td>需目标网络</td></tr>
+    <tr><td>REINFORCE</td><td>策略梯度</td><td>离散/连续</td><td>低</td><td>方差大</td></tr>
+    <tr><td>A2C / A3C</td><td>Actor-Critic</td><td>两者皆可</td><td>中</td><td>中等</td></tr>
+    <tr><td>PPO</td><td>Actor-Critic</td><td>两者皆可</td><td>中高</td><td>好，工业默认</td></tr>
+    <tr><td>SAC / TD3</td><td>Off-policy AC</td><td>连续</td><td>高</td><td>好</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout note">
+  <span class="ct">与 RLHF 的关系</span>
+  <p>大模型对齐把“生成回答”看作动作，把奖励模型打分看作奖励，用 PPO 优化策略。
+    区别在于动作空间是词表，状态是提示词 + 已生成前缀。第 12 章会展开这条链路。</p>
+</div>
+</section>
+
+<section>
+<h2 id="code">10.5 代码：REINFORCE 与 PPO 损失</h2>
+
+<div class="code">
+<div class="code-bar"><span>Python · REINFORCE（带基线）</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn as nn
+
+class Policy(nn.Module):
+    def __init__(self, obs_dim=4, n_actions=2, hidden=64):
+        super().__init__()
+        self.body = nn.Sequential(
+            nn.Linear(obs_dim, hidden), nn.Tanh(),
+            nn.Linear(hidden, hidden), nn.Tanh(),
+        )
+        self.logits = nn.Linear(hidden, n_actions)
+        self.value = nn.Linear(hidden, 1)
+
+    def forward(self, obs):
+        h = self.body(obs)
+        return self.logits(h), self.value(h).squeeze(-1)
+
+def compute_returns(rewards, gamma=0.99):
+    out, running = [], 0.0
+    for r in reversed(rewards):
+        running = r + gamma * running
+        out.append(running)
+    return torch.tensor(list(reversed(out)), dtype=torch.float32)
+
+def reinforce_step(policy, opt, obs, actions, rewards):
+    logits, values = policy(obs)
+    dist = torch.distributions.Categorical(logits=logits)
+    logp = dist.log_prob(actions)
+    returns = compute_returns(rewards)
+    adv = returns - values.detach()                # 用 V(s) 作基线
+    policy_loss = -(logp * adv).mean()
+    value_loss = nn.functional.mse_loss(values, returns)
+    loss = policy_loss + 0.5 * value_loss
+    opt.zero_grad()
+    loss.backward()
+    opt.step()
+    return loss.item()</code></pre>
+</div>
+
+<div class="code">
+<div class="code-bar"><span>Python · PPO 裁剪损失</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn.functional as F
+
+def ppo_loss(new_logits, old_logits, actions, advantages, clip=0.2):
+    new_logp = F.log_softmax(new_logits, dim=-1).gather(1, actions.view(-1, 1)).squeeze(1)
+    old_logp = F.log_softmax(old_logits, dim=-1).gather(1, actions.view(-1, 1)).squeeze(1)
+    ratio = (new_logp - old_logp).exp()            # π_new / π_old
+    unclipped = ratio * advantages
+    clipped = torch.clamp(ratio, 1 - clip, 1 + clip) * advantages
+    return -torch.min(unclipped, clipped).mean()
+
+B, A = 8, 4
+new_logits, old_logits = torch.randn(B, A), torch.randn(B, A)
+actions = torch.randint(0, A, (B,))
+adv = torch.randn(B)
+print(ppo_loss(new_logits, old_logits, actions, adv).item())</code></pre>
+</div>
+
+<div class="callout warn">
+  <span class="ct">优势必须 detach</span>
+  <p>策略损失里，优势与回报只作为“权重”，不能对它们反传。
+    忘记 <code>.detach()</code> 会让价值网络通过策略损失被二次更新，训练不稳定。</p>
+</div>
+</section>
+
+<section>
+<h2 id="summary">10.6 本章小结</h2>
+<div class="takeaway">
+  <h3>强化学习的四条经验</h3>
+  <ul>
+    <li>先明确 MDP：状态、动作、奖励、终止条件，奖励设计决定上限。</li>
+    <li>值方法适合离散动作与高样本效率场景，策略梯度适合连续动作与随机策略。</li>
+    <li>基线、GAE、优势归一化都是降低方差的手段。</li>
+    <li>PPO 用裁剪把更新限制在信任域内，是工业界最常用的默认算法。</li>
+    <li>奖励稀疏时考虑课程学习、内在奖励、示范数据或逆强化学习。</li>
+    <li>评估要看多随机种子的均值与方差，单条曲线没有意义。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>只看平均回报，不看方差与成功率。</li>
+    <li>奖励函数设计有漏洞，智能体学会“刷分”而不是完成任务。</li>
+    <li>经验回放与目标网络缺失，DQN 训练发散。</li>
+    <li>策略损失中对优势反传，导致价值函数被污染。</li>
+    <li>探索不足，策略过早收敛到局部最优。</li>
+  </ol>
+</div>
+</section>
+    <div class="chapter-actions">
+      <button class="mark-done" id="mark-done" type="button">标记本章已学完</button>
+      <span class="hint">进度保存在本机浏览器，用于跟踪学习路线</span>
+    </div>
+    <nav class="pager" aria-label="章节翻页">
+      <a class="prev" href="09-generative.html"><span class="dir">← 上一章</span><span class="ttl">生成模型</span></a>
+      <a class="next" href="11-gnn.html"><span class="dir">下一章 →</span><span class="ttl">图神经网络</span></a>
+    </nav>
+  </article>
+  <footer class="page-foot">
+    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
+  </footer>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
