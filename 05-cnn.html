@@ -92,9 +92,15 @@
         <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
       </a>
     </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第六部分 · 光学深度学习</span>
+      <a class="nav-item" href="17-optics.html" data-page="17-optics" data-chapter="1">
+        <span class="nav-num">17</span><span class="nav-body"><strong>光学中的深度学习</strong><em>相位恢复 · U-Net · 超表面 · 光子计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
   </nav>
   <div class="side-foot">
-    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 17</span></div>
     <div class="progress-bar"><i id="progress-bar"></i></div>
     <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
   </div>
@@ -125,7 +131,8 @@
     <li><a href="#receptive">5.3 感受野：一个神经元能看多远</a></li>
     <li><a href="#architectures">5.4 经典架构的演进</a></li>
     <li><a href="#code">5.5 代码：为 CIFAR-10 写一个小 ResNet</a></li>
-    <li><a href="#summary">5.6 本章小结</a></li>
+    <li><a href="#papers">5.6 关键论文</a></li>
+    <li><a href="#summary">5.7 本章小结</a></li>
   </ol>
 </nav>
 
@@ -368,7 +375,41 @@ for epoch in range(30):
 </section>
 
 <section>
-<h2 id="summary">5.6 本章小结</h2>
+<h2 id="papers">5.6 关键论文</h2>
+<div class="grid2">
+  <div class="card">
+    <h4>AlexNet (2012)</h4>
+    <p>深度学习复兴起点，ReLU、Dropout、GPU 训练。
+      <a href="https://papers.nips.cc/paper/4824-imagenet-classification" target="_blank">NeurIPS 2012</a></p>
+  </div>
+  <div class="card">
+    <h4>VGGNet (2014)</h4>
+    <p>3×3 小核堆叠的范式确立。
+      <a href="https://arxiv.org/abs/1409.1556" target="_blank">arxiv:1409.1556</a></p>
+  </div>
+  <div class="card">
+    <h4>ResNet (2015)</h4>
+    <p>残差连接解决深层退化，现代网络骨架。
+      <a href="https://arxiv.org/abs/1512.03385" target="_blank">arxiv:1512.03385</a></p>
+  </div>
+  <div class="card">
+    <h4>U-Net (2015)</h4>
+    <p>编码器-解码器 + 跳跃连接，光学成像标配。
+      <a href="https://arxiv.org/abs/1505.04597" target="_blank">arxiv:1505.04597</a></p>
+  </div>
+  <div class="card">
+    <h4>MobileNet (2017)</h4>
+    <p>深度可分离卷积，移动端高效网络。
+      <a href="https://arxiv.org/abs/1704.04861" target="_blank">arxiv:1704.04861</a></p>
+  </div>
+  <div class="card">
+    <h4>ViT (2020)</h4>
+    <p>Transformer 引入视觉，patch 即 token。
+      <a href="https://arxiv.org/abs/2010.11929" target="_blank">arxiv:2010.11929</a></p>
+  </div>
+</div>
+
+<h2 id="summary">5.7 本章小结</h2>
 <div class="takeaway">
   <h3>卷积网络的核心</h3>
   <ul>
@@ -401,7 +442,7 @@ for epoch in range(30):
     </nav>
   </article>
   <footer class="page-foot">
-    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>深度学习学习站 · 共 17 章，按顺序阅读效果最佳</span>
     <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
   </footer>
 </main>
