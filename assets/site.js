@@ -25,7 +25,7 @@
   /* 1. 侧边栏进度与勾选标记 */
   var pages = document.querySelectorAll(".nav-item[data-page]");
   var chapters = document.querySelectorAll(".nav-item[data-chapter='1']");
-  var total = 16;
+  var total = 17;
 
   function paintProgress() {
     var done = 0;
