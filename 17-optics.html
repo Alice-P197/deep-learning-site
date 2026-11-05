@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>光学中的深度学习 · 深度学习学习站</title>
+<meta name="description" content="相位恢复 · U-Net · 超表面 · 光子计算">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-slug="17-optics">
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <span class="brand-mark">DL</span>
+      <span class="brand-text">
+        <strong>深度学习学习站</strong>
+        <em>从数学基础到大模型落地</em>
+      </span>
+    </a>
+  </div>
+  <div class="nav-search">
+    <input id="nav-search" type="search" placeholder="筛选章节（按 / 聚焦）" autocomplete="off">
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-group">
+      <span class="nav-group-title">起点</span>
+      <a class="nav-item" href="index.html" data-page="index" data-chapter="0">
+        <span class="nav-num">00</span><span class="nav-body"><strong>学习地图</strong><em>总览 · 路线 · 怎么用</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第一部分 · 基础</span>
+      <a class="nav-item" href="01-foundations.html" data-page="01-foundations" data-chapter="1">
+        <span class="nav-num">01</span><span class="nav-body"><strong>数学基础</strong><em>张量 · 微积分 · 概率与信息论</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="02-ml-basics.html" data-page="02-ml-basics" data-chapter="1">
+        <span class="nav-num">02</span><span class="nav-body"><strong>机器学习基础</strong><em>任务范式 · 损失 · 评估</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="03-neural-nets.html" data-page="03-neural-nets" data-chapter="1">
+        <span class="nav-num">03</span><span class="nav-body"><strong>神经网络与反向传播</strong><em>MLP · 链式法则 · 计算图</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="04-training.html" data-page="04-training" data-chapter="1">
+        <span class="nav-num">04</span><span class="nav-body"><strong>训练与优化</strong><em>优化器 · 正则化 · 归一化</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第二部分 · 核心架构</span>
+      <a class="nav-item" href="05-cnn.html" data-page="05-cnn" data-chapter="1">
+        <span class="nav-num">05</span><span class="nav-body"><strong>卷积神经网络</strong><em>卷积 · 感受野 · ResNet</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="06-sequence.html" data-page="06-sequence" data-chapter="1">
+        <span class="nav-num">06</span><span class="nav-body"><strong>序列模型</strong><em>RNN · LSTM · Seq2Seq</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="07-transformer.html" data-page="07-transformer" data-chapter="1">
+        <span class="nav-num">07</span><span class="nav-body"><strong>注意力与 Transformer</strong><em>Self-Attention · 多头 · 位置编码</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="08-pretraining.html" data-page="08-pretraining" data-chapter="1">
+        <span class="nav-num">08</span><span class="nav-body"><strong>预训练与自监督</strong><em>语言模型 · 对比学习 · CLIP</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第三部分 · 生成与决策</span>
+      <a class="nav-item" href="09-generative.html" data-page="09-generative" data-chapter="1">
+        <span class="nav-num">09</span><span class="nav-body"><strong>生成模型</strong><em>VAE · GAN · 扩散模型</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="10-reinforcement.html" data-page="10-reinforcement" data-chapter="1">
+        <span class="nav-num">10</span><span class="nav-body"><strong>强化学习</strong><em>MDP · 策略梯度 · PPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="11-gnn.html" data-page="11-gnn" data-chapter="1">
+        <span class="nav-num">11</span><span class="nav-body"><strong>图神经网络</strong><em>消息传递 · GCN · GAT</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第四部分 · 大模型与工程</span>
+      <a class="nav-item" href="12-llm.html" data-page="12-llm" data-chapter="1">
+        <span class="nav-num">12</span><span class="nav-body"><strong>大模型与微调</strong><em>Scaling · LoRA · RLHF/DPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="13-efficient.html" data-page="13-efficient" data-chapter="1">
+        <span class="nav-num">13</span><span class="nav-body"><strong>压缩与部署</strong><em>量化 · 蒸馏 · 推理服务</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="14-engineering.html" data-page="14-engineering" data-chapter="1">
+        <span class="nav-num">14</span><span class="nav-body"><strong>工程实践</strong><em>数据 · 调试 · 复现 · 分布式</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第五部分 · 应用与资源</span>
+      <a class="nav-item" href="15-applications.html" data-page="15-applications" data-chapter="1">
+        <span class="nav-num">15</span><span class="nav-body"><strong>应用领域</strong><em>视觉 · 语言 · 科学计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="16-resources.html" data-page="16-resources" data-chapter="1">
+        <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第六部分 · 光学深度学习</span>
+      <a class="nav-item active" href="17-optics.html" data-page="17-optics" data-chapter="1">
+        <span class="nav-num">17</span><span class="nav-body"><strong>光学中的深度学习</strong><em>相位恢复 · U-Net · 超表面 · 光子计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+  </nav>
+  <div class="side-foot">
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 17</span></div>
+    <div class="progress-bar"><i id="progress-bar"></i></div>
+    <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <button class="nav-toggle" id="nav-toggle" type="button">☰ 目录</button>
+    <span class="topbar-chapter">深度学习学习站 · 第 17 章</span>
+    <span class="topbar-line"></span>
+    <span>离线可用 · 无需联网</span>
+  </div>
+  <article class="content">
+<header class="chapter-head">
+  <div class="crumb">第六部分 · 光学深度学习</div>
+  <h1>光学中的深度学习：从相位恢复到光子计算</h1>
+  <p class="lede">光学里充满病态逆问题——相位、衍射、散射让"观测到光场"到"还原物体"远非一步到位。
+    深度学习把物理先验编码进网络结构，让 U-Net、无训练网络、物理展开网络成为计算成像的标配。
+    本章从逆问题讲起，深入 U-Net 架构，覆盖相位恢复、超表面逆向设计、光子神经网络，
+    并附上可运行的相位恢复 U-Net 代码与本人复现项目。</p>
+  <div class="meta">
+    <span>预计 70 分钟</span><span>前置：第 5、9 章</span>
+    <span>关键词：相位恢复 · U-Net · 逆问题 · 超表面 · 光子计算</span>
+  </div>
+</header>
+<nav class="outline" id="outline" aria-label="本章目录">
+  <div class="outline-head"><span>本章目录</span><button class="outline-toggle" id="outline-toggle" type="button">收起</button></div>
+  <ol>
+    <li><a href="#why">17.1 为什么光学需要深度学习</a></li>
+    <li><a href="#inverse">17.2 光学逆问题的数学结构</a></li>
+    <li><a href="#gs">经典方法：Gerchberg–Saxton 迭代</a></li>
+    <li><a href="#cnn-optics">17.3 CNN 在光学成像中的应用</a></li>
+    <li><a href="#unet">17.4 U-Net 架构深度解析</a></li>
+    <li><a href="#unet-arch">整体结构</a></li>
+    <li><a href="#unet-why">为什么 U-Net 适合光学成像</a></li>
+    <li><a href="#unet-variant">U-Net 演进</a></li>
+    <li><a href="#unet-code">17.5 代码：用 U-Net 做相位恢复</a></li>
+    <li><a href="#untrained">17.6 物理启发与无训练网络</a></li>
+    <li><a href="#dip">Deep Image Prior</a></li>
+    <li><a href="#unrolled">深度展开（Deep Unfolding）</a></li>
+    <li><a href="#phase">17.7 相位恢复的深度学习路线</a></li>
+    <li><a href="#computational">17.8 计算成像：全息、单像素、超分辨</a></li>
+    <li><a href="#metasurface">17.9 超表面逆向设计</a></li>
+    <li><a href="#photonic">17.10 光子神经网络与光学计算</a></li>
+    <li><a href="#optical-gen">17.11 光学生成模型：让光在自由空间完成生成</a></li>
+    <li><a href="#my-repos">17.12 我的光学复现与开源项目</a></li>
+    <li><a href="#practice">17.13 动手建议：从入门到精通的路线</a></li>
+  </ol>
+</nav>
+
+<section>
+<h2 id="why">17.1 为什么光学需要深度学习</h2>
+<p>光学测量的本质是<strong>逆问题</strong>：我们能拿到的是探测器上的强度分布
+  （像素值），想还原的是物体本身的振幅、相位、折射率等物理量。这个映射通常
+  <strong>病态（ill-posed）</strong>且非线性——丢失的相位、卷积模糊、噪声都会让
+  解不唯一。传统方法依赖物理模型 + 迭代优化，慢且对噪声敏感。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>光学任务</th><th>观测</th><th>想还原</th><th>难点</th></tr></thead>
+  <tbody>
+    <tr><td>相位恢复</td><td>远场强度 |F(u)|²</td><td>复数场 u</td><td>相位丢失</td></tr>
+    <tr><td>全息重建</td><td>干涉强度</td><td>复数振幅</td><td>孪生像、噪声</td></tr>
+    <tr><td>去卷积 / 超分辨</td><td>模糊图像</td><td>清晰图像</td><td>核未知、病态</td></tr>
+    <tr><td>超表面设计</td><td>目标光学响应</td><td>结构参数</td><td>逆向非凸</td></tr>
+    <tr><td>散射成像</td><td>散斑</td><td>物体</td><td>记忆效应有限</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>深度学习在这里的角色有三：① <strong>学习正演模型</strong>（用网络逼近物理前向，
+  加速仿真）；② <strong>直接学逆映射</strong>（观测 → 物体，端到端）；
+  ③ <strong>展开迭代</strong>（把传统优化算法展开成网络，兼具物理可解释性与数据驱动）。</p>
+
+<div class="callout note">
+  <span class="ct">先懂物理，再上网络</span>
+  <p>光学 DL 不是把 CNN 往数据上一扔。理解前向模型（衍射积分、传输矩阵）、
+    噪声来源、采样约束，才能设计正确的网络输入输出、损失函数与物理一致性约束。
+    不懂物理的 DL 光学，常常"看起来对"但物理上站不住。</p>
+</div>
+
+<h2 id="inverse">17.2 光学逆问题的数学结构</h2>
+<div class="formula">
+  <span class="label">前向模型与逆问题</span>
+  <div class="fx"><span class="v">y</span> = <span class="v">A</span>(<span class="v">x</span>) +
+    <span class="v">n</span>, &nbsp;&nbsp; 求 <span class="v">x</span></div>
+  <p class="fx-note">x 是物体（振幅/相位/结构），A 是前向算子（衍射、卷积、散射矩阵），
+    y 是观测强度，n 是噪声。逆问题的病态体现在 A 不是满秩或条件数极大。</p>
+</div>
+
+<div class="formula">
+  <span class="label">正则化化解</span>
+  <div class="fx"><span class="v">x̂</span> = argmin<sub><span class="v">x</span></sub>
+    ‖<span class="v">y</span> − <span class="v">A</span>(<span class="v">x</span>)‖² +
+    λ <span class="v">R</span>(<span class="v">x</span>)</div>
+  <p class="fx-note">R(x) 是正则项（TV、稀疏、低秩），λ 权衡数据保真与先验。
+    深度学习的核心贡献之一就是用数据驱动的方式学到 R(x)，甚至学到整个逆映射。</p>
+</div>
+
+<h3 id="gs">经典方法：Gerchberg–Saxton 迭代</h3>
+<p>相位恢复的标杆算法。在物面与像面之间交替传播，分别施加振幅约束。
+  本质是投影到两个凸集的交，但这两个集非凸，因此容易陷入局部解。</p>
+
+<div class="formula">
+  <span class="label">GS 单次迭代</span>
+  <div class="fx"><span class="v">u</span><sub>k+1</sub> =
+    <span class="v">A</span><sup>−1</sup>{ <span class="v">I</span> · exp(
+    <span class="v">i</span>∠<span class="v">A</span>(<span class="v">u</span><sub>k</sub>)) }</div>
+  <p class="fx-note">A 是傅里叶/衍射算子，I 是测得的强度，∠ 取相位。
+    每轮保留测量面的振幅、替换相位，再反传回去。</p>
+</div>
+
+<div class="callout warn">
+  <span class="ct">GS 的局限</span>
+  <p>收敛慢、对初值敏感、易陷入局部极小。改进路线：① 过采样提高唯一性；
+    ② 混合输入-输出（HIO）放松约束；③ 用深度网络做初值或直接替代迭代。</p>
+</div>
+
+<h2 id="cnn-optics">17.3 CNN 在光学成像中的应用</h2>
+<p>光学图像天然具有<strong>局部性与平移不变性</strong>——这正是卷积的归纳偏置。
+  一个 3×3 卷积核可以理解为"局部衍射/散射响应"，多层堆叠逐步扩大感受野，
+  从强度图中恢复相位或高频细节。</p>
+
+<div class="grid2">
+  <div class="card">
+    <h4>图像重建</h4>
+    <p>输入低质观测（模糊、噪声、欠采样），输出清晰图像。
+      代表：DnCNN 去噪、RCAN 超分辨、NAFNet 去模糊。</p>
+  </div>
+  <div class="card">
+    <h4>相位恢复</h4>
+    <p>输入强度（或衍射图），输出相位/复数场。
+      代表：PR-DAD、Res-U2Net、DeepMMSE。</p>
+  </div>
+  <div class="card">
+    <h4>全息重建</h4>
+    <p>输入全息图，输出振幅+相位。代表：eHolo、Y-Net、物理感知风格迁移。</p>
+  </div>
+  <div class="card">
+    <h4>散射透过</h4>
+    <p>输入散斑，输出原图。代表：基于 U-Net 的散射介质成像。</p>
+  </div>
+</div>
+
+<p>纯 CNN 端到端方法的优势是快（一次前向即出结果）、可针对特定数据分布优化；
+  缺点是<strong>物理一致性难保证</strong>——网络可能"猜"出与物理不符的解。
+  因此更可靠的做法是把物理模型嵌进网络（见 17.6 节）。</p>
+
+<h2 id="unet">17.4 U-Net 架构深度解析</h2>
+<p>U-Net 是光学成像领域最成功的网络结构，没有之一。它的编码器-解码器 + 跳跃连接
+  设计完美匹配"从局部观测恢复全局结构"的任务。</p>
+
+<h3 id="unet-arch">整体结构</h3>
+<ol class="steps">
+  <li><strong>编码器（左半）：</strong>逐级下采样，用卷积+ReLU 提取特征，
+    每级感受野翻倍，通道数翻倍。高层特征语义强但空间分辨率低。</li>
+  <li><strong>瓶颈层：</strong>最深层，感受野最大，负责全局上下文。</li>
+  <li><strong>解码器（右半）：</strong>逐级上采样，恢复空间分辨率。
+    上采样可用转置卷积或上采样+卷积。</li>
+  <li><strong>跳跃连接：</strong>编码器同级特征直接拼到解码器，
+    把高层语义与低层细节结合——这是 U-Net 的灵魂。</li>
+</ol>
+
+<div class="formula">
+  <span class="label">跳跃连接的张量拼接</span>
+  <div class="fx"><span class="v">D</span><sup>l</sup> = Conv([
+    <span class="v">Upsample</span>(<span class="v">D</span><sup>l+1</sup>),
+    <span class="v">E</span><sup>l</sup> ])</div>
+  <p class="fx-note">[ , ] 表示沿通道维拼接。E<sup>l</sup> 是编码器第 l 层输出，
+    D<sup>l+1</sup> 是解码器上一层上采样后的特征。
+    拼接后通道数 = 上采样通道 + 编码器通道，再用卷积融合。</p>
+</div>
+
+<div class="formula">
+  <span class="label">上采样：转置卷积 vs 双线性</span>
+  <div class="fx"><span class="v">y</span><sub>2i,2j</sub> =
+    Σ<sub><span class="v">m,n</span></sub>
+    <span class="v">w</span><sub>m,n</sub> · <span class="v">x</span><sub>i+m,j+n</sub></div>
+  <p class="fx-note">转置卷积可学习上采样权重，但容易产生棋盘伪影；
+    双线性上采样固定、无伪影但表达力弱。现代 U-Net 常用"上采样+卷积"组合。</p>
+</div>
+
+<h3 id="unet-why">为什么 U-Net 适合光学成像</h3>
+<div class="grid3">
+  <div class="card">
+    <span class="no">1</span>
+    <h4>多尺度特征</h4>
+    <p>衍射/散射在不同尺度都有结构。编码器捕获全局低频（相位趋势），
+      跳跃连接保留局部高频（边缘细节）。</p>
+  </div>
+  <div class="card">
+    <span class="no">2</span>
+    <h4>端到端可逆</h4>
+    <p>输入输出同尺寸像素级对应，天然适合"强度图 → 相位图"的密集预测。</p>
+  </div>
+  <div class="card">
+    <span class="no">3</span>
+    <h4>小数据友好</h4>
+    <p>跳跃连接让梯度直达浅层，在光学数据稀缺（几百张）时仍能训练。</p>
+  </div>
+</div>
+
+<h3 id="unet-variant">U-Net 演进</h3>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>变体</th><th>改进</th><th>适用</th></tr></thead>
+  <tbody>
+    <tr><td>Attention U-Net</td><td>跳跃连接加注意力门，抑制无关区域</td><td>医学/复杂场景</td></tr>
+    <tr><td>U²-Net</td><td>残差 U 块嵌套，更深更宽的多尺度特征</td><td>显著目标检测/相位</td></tr>
+    <tr><td>Res-U²-Net</td><td>U²-Net + 残差，用于无训练相位恢复</td><td>相位恢复（无 GT）</td></tr>
+    <tr><td>nnU-Net</td><td>自动配置管道，自适应数据集</td><td>医学分割通用</td></tr>
+    <tr><td>Swin-UNet</td><td>编码器换 Swin Transformer</td><td>大感受野需求</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout note">
+  <span class="ct">论文参考</span>
+  <p>U-Net 原始论文：Ronneberger et al., <em>U-Net: Convolutional Networks for
+    Biomedical Image Segmentation</em>, MICCAI 2015
+    <a href="https://arxiv.org/abs/1505.04597" target="_blank">arxiv:1505.04597</a>。
+    Res-U²-Net 相位恢复：Osorio Quero et al., 2024
+    <a href="https://arxiv.org/abs/2404.06657" target="_blank">arxiv:2404.06657</a>。</p>
+</div>
+
+<h2 id="unet-code">17.5 代码：用 U-Net 做相位恢复</h2>
+<p>下面是一个最小可跑的 U-Net 实现，用于"傅里叶强度 → 相位"的端到端恢复。
+  训练数据由随机相位经 FFT 生成，损失用 MSE（相位）+ 物理一致性（强度约束）。</p>
+
+<div class="code">
+  <div class="code-bar"><span>python · U-Net 相位恢复</span>
+    <button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+from torch import nn
+
+
+class DoubleConv(nn.Module):
+    """(Conv - BN - ReLU) × 2。"""
+    def __init__(self, in_ch, out_ch):
+        super().__init__()
+        self.block = nn.Sequential(
+            nn.Conv2d(in_ch, out_ch, 3, padding=1, bias=False),
+            nn.BatchNorm2d(out_ch), nn.ReLU(inplace=True),
+            nn.Conv2d(out_ch, out_ch, 3, padding=1, bias=False),
+            nn.BatchNorm2d(out_ch), nn.ReLU(inplace=True),
+        )
+
+    def forward(self, x):
+        return self.block(x)
+
+
+class UNet(nn.Module):
+    def __init__(self, in_ch=1, out_ch=1, base=32):
+        super().__init__()
+        self.enc1 = DoubleConv(in_ch, base)
+        self.enc2 = DoubleConv(base, base * 2)
+        self.enc3 = DoubleConv(base * 2, base * 4)
+        self.enc4 = DoubleConv(base * 4, base * 8)
+        self.bott = DoubleConv(base * 8, base * 16)
+
+        self.pool = nn.MaxPool2d(2)
+        self.up   = nn.Upsample(scale_factor=2, mode="bilinear",
+                                align_corners=True)
+
+        self.dec4 = DoubleConv(base * 16 + base * 8, base * 8)
+        self.dec3 = DoubleConv(base * 8 + base * 4, base * 4)
+        self.dec2 = DoubleConv(base * 4 + base * 2, base * 2)
+        self.dec1 = DoubleConv(base * 2 + base, base)
+        self.out  = nn.Conv2d(base, out_ch, 1)
+
+    def forward(self, x):
+        e1 = self.enc1(x)
+        e2 = self.enc2(self.pool(e1))
+        e3 = self.enc3(self.pool(e2))
+        e4 = self.enc4(self.pool(e3))
+        b  = self.bott(self.pool(e4))
+
+        d4 = self.dec4(torch.cat([self.up(b),  e4], dim=1))
+        d3 = self.dec3(torch.cat([self.up(d4), e3], dim=1))
+        d2 = self.dec2(torch.cat([self.up(d3), e2], dim=1))
+        d1 = self.dec1(torch.cat([self.up(d2), e1], dim=1))
+        return self.out(d1)
+
+
+def physics_loss(pred_phase, measured_intensity):
+    """物理一致性：预测场经 FFT 后强度应匹配观测。"""
+    field = torch.exp(1j * pred_phase)
+    ft = torch.fft.fft2(field)
+    recon_intensity = ft.abs() ** 2
+    recon_intensity = recon_intensity / recon_intensity.max()
+    measured = measured_intensity / measured_intensity.max()
+    return nn.functional.mse_loss(recon_intensity, measured)</code></pre>
+</div>
+
+<div class="callout tip">
+  <span class="ct">训练技巧</span>
+  <p>光学数据少时，先在仿真数据上预训练，再用少量实测数据微调；
+    物理一致性损失（physics_loss）能显著降低对真值相位的依赖。
+    若完全没有真值，可改用无训练网络（见下节）。</p>
+</div>
+
+<h2 id="untrained">17.6 物理启发与无训练网络</h2>
+<p>光学数据标注极难（真值相位靠干涉才能测），无训练（untrained）方法应运而生：
+  <strong>不依赖任何数据集</strong>，只用物理模型 + 网络结构先验就能解逆问题。</p>
+
+<h3 id="dip">Deep Image Prior</h3>
+<p>随机初始化的网络本身就自带"自然图像"的低维结构先验。固定一张观测图，
+  反复让网络拟合它，早期停止即可恢复干净图像——不需要任何训练数据。</p>
+
+<div class="formula">
+  <span class="label">DIP 目标</span>
+  <div class="fx">min<sub>θ</sub> ‖ <span class="v">A</span>(<span class="v">f</span><sub>θ</sub>(
+    <span class="v">z</span>)) − <span class="v">y</span> ‖²</div>
+  <p class="fx-note">z 是固定随机输入，f<sub>θ</sub> 是随机初始化网络，A 是前向算子。
+    优化 θ 使网络输出经 A 后匹配观测 y。网络倾向先拟合信号后拟合噪声，
+    因此早期停止能去噪、去伪影。</p>
+</div>
+
+<h3 id="unrolled">深度展开（Deep Unfolding）</h3>
+<p>把传统迭代算法（如 GS、ADMM）的每一步展开成网络层，每步含可学习参数。
+  既保留物理可解释性，又有数据驱动的收敛加速。代表：
+  <a href="https://arxiv.org/abs/2110.13688" target="_blank">unrolled GS for phase retrieval</a>。</p>
+
+<div class="formula">
+  <span class="label">展开迭代的通用形式</span>
+  <div class="fx"><span class="v">x</span><sub>k+1</sub> =
+    <span class="v">g</span><sub>θ</sub>( <span class="v">x</span><sub>k</sub>,
+    <span class="v">y</span>, <span class="v">A</span> )</div>
+  <p class="fx-note">g<sub>θ</sub> 把传统更新规则参数化，如步长、松弛因子、投影算子都可学习。
+    层数 = 迭代次数，通常 5~20 层。</p>
+</div>
+
+<div class="callout note">
+  <span class="ct">Plug-and-Play 框架</span>
+  <p>把数据保真步（物理模型）与去噪步（任何去噪器，含 DnCNN）交替执行。
+    去噪器即"正则项"，无需显式写出 R(x)。这是光学成像中非常实用的混合范式。</p>
+</div>
+
+<h2 id="phase">17.7 相位恢复的深度学习路线</h2>
+<p>相位恢复是光学逆问题的"圣杯"——也是 DL 渗透最深的方向。代表性工作：</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>方法</th><th>类型</th><th>核心思路</th><th>论文</th></tr></thead>
+  <tbody>
+    <tr><td>PR-DAD</td><td>自解码</td><td>深自解码器 + 数学建模</td>
+      <td><a href="https://arxiv.org/abs/2204.09051" target="_blank">2204.09051</a></td></tr>
+    <tr><td>Res-U²-Net</td><td>无训练</td><td>U²-Net 残差结构拟合物理</td>
+      <td><a href="https://arxiv.org/abs/2404.06657" target="_blank">2404.06657</a></td></tr>
+    <tr><td>DLMMPR</td><td>端到端</td><td>测量矩阵可学习 + 近端梯度</td>
+      <td><a href="https://arxiv.org/abs/2511.12556" target="_blank">2511.12556</a></td></tr>
+    <tr><td>参考学习 GS</td><td>展开</td><td>学习参考图改进 GS</td>
+      <td><a href="https://arxiv.org/abs/2110.13688" target="_blank">2110.13688</a></td></tr>
+    <tr><td>物理感知风格迁移</td><td>无监督</td><td>距离作隐式风格，循环翻译</td>
+      <td><a href="https://arxiv.org/abs/2507.00482" target="_blank">2507.00482</a></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout tip">
+  <span class="ct">如何选方法</span>
+  <p>有真值数据 → 端到端 U-Net；无数据但有物理模型 → DIP / 无训练；
+    想兼顾可解释与性能 → 深度展开 / Plug-and-Play。
+    实战中通常先仿真预训练 + 实测微调。</p>
+</div>
+
+<h2 id="computational">17.8 计算成像：全息、单像素、超分辨</h2>
+<div class="grid2">
+  <div class="card">
+    <h4>数字全息</h4>
+    <p>干涉记录物波的振幅与相位，DL 用于去孪生像、自动聚焦、相位解包裹。
+      物理感知风格迁移可在无 GT 下自适应重建（见 2507.00482）。</p>
+  </div>
+  <div class="card">
+    <h4>单像素成像</h4>
+    <p>用空间光调制器做结构化照明，单探测器采集。DL 直接从压缩测量重建图像，
+      两步训练框架（TST-DL）无需精确物理先验
+      <a href="https://arxiv.org/abs/2001.03493" target="_blank">2001.03493</a>。</p>
+  </div>
+  <div class="card">
+    <h4>超分辨成像</h4>
+    <p>突破衍射极限。SRCNN/RCAN 从低分辨图恢复高频；STORM/PALM 用闪烁定位，
+      DL 加速定位与重建。</p>
+  </div>
+  <div class="card">
+    <h4>散射透过</h4>
+    <p>透过生物组织/毛玻璃成像。U-Net 可学习散斑到图像的映射，
+      但依赖记忆效应范围，物理约束能提升泛化。</p>
+  </div>
+</div>
+
+<h2 id="metasurface">17.9 超表面逆向设计</h2>
+<p>超表面由亚波长结构阵列构成，可任意调控光的振幅、相位、偏振。
+  设计问题是：给定目标光学响应，反求结构几何参数。这是高维非凸逆问题。</p>
+
+<div class="formula">
+  <span class="label">正演与逆设计</span>
+  <div class="fx"><span class="v">s</span> = <span class="v">f</span><sub>NN</sub>(<span class="v">R</span>),
+    &nbsp;&nbsp; <span class="v">R</span> = <span class="v">FEM</span>(<span class="v">s</span>)</div>
+  <p class="fx-note">s 是结构参数，R 是光学响应。正演 FEM 仿真慢且不可微；
+    用代理模型 NN 逼近 FEM，再对 s 做梯度反演。</p>
+</div>
+
+<div class="grid2">
+  <div class="card">
+    <h4>正向代理模型</h4>
+    <p>CNN/Transformer 从结构预测响应，替代 FEM。加速 10³~10⁶ 倍。
+      MetaE-former 用邻域注意力代理大尺寸超表面
+      <a href="https://alice-p197.github.io/literature-archive/" target="_blank">复现</a>。</p>
+  </div>
+  <div class="card">
+    <h4>逆向网络</h4>
+    <p>直接从目标响应生成结构。常用 GAN 或条件流模型，一次前向即得解，
+      再用正演仿真验证回代。</p>
+  </div>
+  <div class="card">
+    <h4>伴随优化</h4>
+    <p>对可微正演做梯度下降。配合 SLM 可实时优化相位，抑制旁瓣
+      <a href="https://github.com/Alice-P197/slm-phase-optimization" target="_blank">SLM 优化</a>。</p>
+  </div>
+  <div class="card">
+    <h4>生成式设计</h4>
+    <p>扩散/扩散模型生成满足响应约束的结构分布，探索设计空间。</p>
+  </div>
+</div>
+
+<h2 id="photonic">17.10 光子神经网络与光学计算</h2>
+<p>不仅用 DL 设计光学器件，还可以让光本身做计算。光子计算利用光的
+  高速、并行、低功耗优势，把矩阵乘法搬到光域。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>方案</th><th>原理</th><th>代表</th></tr></thead>
+  <tbody>
+    <tr><td>MZI 网格</td><td>马赫-曾德干涉仪阵列做酉矩阵</td>
+      <td>Clements 网络、LuxNAS</td></tr>
+    <tr><td>衍射神经网络</td><td>多层相位屏做光场变换</td>
+      <td>D²NN、兼容学习</td></tr>
+    <tr><td>微环权重</td><td>微环谐振器调谐透射率</td>
+      <td>光子加速器</td></tr>
+    <tr><td>合成维度</td><td>脉冲到达时间构造网络层</td>
+      <td>时序 ONN <a href="https://arxiv.org/abs/2101.08439" target="_blank">2101.08439</a></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="formula">
+  <span class="label">光域矩阵乘法</span>
+  <div class="fx"><span class="v">y</span> = <span class="v">W</span> ⊙
+    <span class="v">x</span>, &nbsp;&nbsp; <span class="v">W</span><sub>ij</sub> =
+    <span class="v">t</span><sub>ij</sub> · <span class="v">e</span><sup>iφ<sub>ij</sub></sup></div>
+  <p class="fx-note">t<sub>ij</sub> 为振幅透射率，φ<sub>ij</sub> 为相位。
+    整个矩阵乘法以光速并行完成，延迟仅由光程决定。
+    难点在制造误差、级联损耗与非线性激活。</p>
+</div>
+
+<div class="callout note">
+  <span class="ct">论文参考</span>
+  <p>衍射深度神经网络 D²NN: <a href="https://www.science.org/doi/10.1126/science.aar8082" target="_blank">Science 2018</a>；
+    兼容学习深度光子网络：<a href="https://arxiv.org/abs/2003.08360" target="_blank">2003.08360</a>；
+    LuxNAS 神经架构搜索光子网络：<a href="https://arxiv.org/abs/2503.03731" target="_blank">2503.03731</a>；
+    综述：<a href="https://arxiv.org/abs/1810.11709" target="_blank">Intelligent Nanophotonics 1810.11709</a>。</p>
+</div>
+
+<h2 id="optical-gen">17.11 光学生成模型：让光在自由空间完成生成</h2>
+<p>2025 年 Nature 发表的工作把<strong>生成模型直接做在光域</strong>：用多层可学习相位屏，
+  让输入光场经过衍射传播后直接生成目标图像——无需电子计算机推理。
+  这是"用光计算"的里程碑。</p>
+
+<div class="formula">
+  <span class="label">光学生成模型的传播</span>
+  <div class="fx"><span class="v">E</span><sub>out</sub> =
+    <span class="v">A</span><sub>N</sub> · <span class="v">P</span><sub>N</sub> · ... ·
+    <span class="v">A</span><sub>1</sub> · <span class="v">P</span><sub>1</sub> ·
+    <span class="v">E</span><sub>in</sub></div>
+  <p class="fx-note">P<sub>k</sub> 是第 k 层相位屏（可学习），A<sub>k</sub> 是自由空间衍射传播。
+    训练时在仿真中优化相位屏，制造后物理系统一次性完成"生成"。
+    推理延迟 = 光传播时间（纳秒级）。</p>
+</div>
+
+<div class="callout tip">
+  <span class="ct">复现项目</span>
+  <p>本人已复现该工作（MATLAB，CPU 可跑），含 15 个脚本、两套原型权重与结果对比：
+    <a href="https://github.com/Alice-P197/literature-archive" target="_blank">literature-archive</a>
+    / <a href="https://alice-p197.github.io/literature-archive/" target="_blank">在线站点</a>。
+    可对照原文理解光学生成与电子生成的差异。</p>
+</div>
+
+<h2 id="my-repos">17.12 我的光学复现与开源项目</h2>
+<p>下面是我在 GitHub 上公开的光学相关项目，涵盖仿真、设计、复现三个方向，
+  可作为本章知识的实践参考。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>项目</th><th>方向</th><th>说明</th></tr></thead>
+  <tbody>
+    <tr><td><a href="https://github.com/Alice-P197/literature-archive" target="_blank">literature-archive</a></td>
+      <td>论文复现</td><td>Nature 2025 光学生成模型、MetaE-former 超表面设计</td></tr>
+    <tr><td><a href="https://github.com/Alice-P197/doe-image-reconstruction" target="_blank">doe-image-reconstruction</a></td>
+      <td>相位恢复</td><td>IFTA+MRAF 纯相位 DOE 设计，自由空间再现目标图像</td></tr>
+    <tr><td><a href="https://github.com/Alice-P197/slm-phase-optimization" target="_blank">slm-phase-optimization</a></td>
+      <td>SLM 优化</td><td>伴随梯度抑制旁瓣，螺旋轴锥镜贝塞尔光束</td></tr>
+    <tr><td><a href="https://github.com/Alice-P197/fresnel-diffraction-matlab" target="_blank">fresnel-diffraction-matlab</a></td>
+      <td>衍射仿真</td><td>S-FFT/T-FFT/D-FFT 对比，LG 涡旋光束过环孔</td></tr>
+    <tr><td><a href="https://github.com/Alice-P197/collins_equation" target="_blank">collins_equation</a></td>
+      <td>ABCD 传播</td><td>Collins 衍射积分，FFT 实现含光阑系统传播</td></tr>
+    <tr><td><a href="https://github.com/Alice-P197/laser-cavity-analysis" target="_blank">laser-cavity-analysis</a></td>
+      <td>激光腔</td><td>ABCD 矩阵分析谐振腔自再现模与稳定图</td></tr>
+    <tr><td><a href="https://github.com/Alice-P197/petal-mode-laser" target="_blank">petal-mode-laser</a></td>
+      <td>涡旋光</td><td>LG 光束叠加花瓣模，MATLAB 完整复现</td></tr>
+    <tr><td><a href="https://github.com/Alice-P197/rotational-doppler-vortex-detection" target="_blank">rotational-doppler-vortex-detection</a></td>
+      <td>涡旋探测</td><td>旋转多普勒效应测速，丁友 2021 文献复现</td></tr>
+    <tr><td><a href="https://github.com/Alice-P197/double-phase-encoding-vortex-array" target="_blank">double-phase-encoding-vortex-array</a></td>
+      <td>涡旋阵列</td><td>4f 系统双相位编码生成涡旋光阵列</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="practice">17.13 动手建议：从入门到精通的路线</h2>
+<ol class="steps">
+  <li><strong>入门（1~2 月）：</strong>掌握傅里叶光学（卷积、衍射、菲涅尔/夫琅禾费），
+    用 MATLAB/Python 复现一次 GS 相位恢复，理解前向模型。</li>
+  <li><strong>进阶（2~4 月）：</strong>用 PyTorch 复现一个 U-Net 图像重建任务
+    （如去噪或超分辨），理解跳跃连接与多尺度。</li>
+  <li><strong>深入（4~6 月）：</strong>把物理模型嵌入网络——实现 DIP 或深度展开
+    相位恢复，对比纯端到端的差异。</li>
+  <li><strong>精通（6 月+）：</strong>选定一个方向（超表面设计 / 光子计算 / 计算成像），
+    复现一篇顶刊论文并做改进，公开代码与结果。</li>
+</ol>
+
+<div class="takeaway">
+  <h3>本章要点</h3>
+  <ul>
+    <li>光学逆问题病态且非线性，DL 的价值在于学习先验或加速逆映射。</li>
+    <li>U-Net 的编码器-解码器 + 跳跃连接天然匹配光学成像的多尺度需求。</li>
+    <li>无真值数据时，DIP 与深度展开是首选——物理模型比数据更可靠。</li>
+    <li>超表面逆向设计的核心是"代理模型 + 梯度反演"，替代慢且不可微的 FEM。</li>
+    <li>光子计算把矩阵乘法搬到光域，光学生成模型让推理延迟达到纳秒级。</li>
+    <li>光学 DL 必须先懂物理：输入输出、损失、约束都要与前向模型一致。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>不懂物理就端到端训练，结果"看起来对"但物理上不成立。</li>
+    <li>忽略相位包裹与强度归一化，网络输出范围与物理量不匹配。</li>
+    <li>只用 MSE 损失，不加强度一致性约束，泛化到新物理参数时崩溃。</li>
+    <li>在仿真数据上训练却不考虑实测噪声、像差、采样误差。</li>
+    <li>光子网络只看理论 FLOPs，忽略制造误差与级联损耗。</li>
+  </ol>
+</div>
+</section>
+    <div class="chapter-actions">
+      <button class="mark-done" id="mark-done" type="button">标记本章已学完</button>
+      <span class="hint">进度保存在本机浏览器，用于跟踪学习路线</span>
+    </div>
+    <nav class="pager" aria-label="章节翻页">
+      <a class="prev" href="16-resources.html"><span class="dir">← 上一章</span><span class="ttl">学习路线与资源</span></a>
+      <span class="empty"></span>
+    </nav>
+  </article>
+  <footer class="page-foot">
+    <span>深度学习学习站 · 共 17 章，按顺序阅读效果最佳</span>
+    <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
+  </footer>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
