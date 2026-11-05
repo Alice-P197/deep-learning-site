@@ -36,6 +36,10 @@ NAV = [
         ("15-applications", "15", "应用领域", "视觉 · 语言 · 科学计算"),
         ("16-resources", "16", "学习路线与资源", "课程 · 论文 · 项目清单"),
     ]),
+    ("第六部分 · 光学深度学习", [
+        ("17-optics", "17", "光学中的深度学习",
+         "相位恢复 · U-Net · 超表面 · 光子计算"),
+    ]),
 ]
 
 PAGES = [item for _, items in NAV for item in items]
@@ -68,7 +72,7 @@ TPL = """<!DOCTYPE html>
 {{NAV}}
   </nav>
   <div class="side-foot">
-    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 17</span></div>
     <div class="progress-bar"><i id="progress-bar"></i></div>
     <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
   </div>
@@ -86,7 +90,7 @@ TPL = """<!DOCTYPE html>
 {{PAGER}}
   </article>
   <footer class="page-foot">
-    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>深度学习学习站 · 共 17 章，按顺序阅读效果最佳</span>
     <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
   </footer>
 </main>
