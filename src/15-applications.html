@@ -1,0 +1,248 @@
+<header class="chapter-head">
+  <div class="crumb">第五部分 · 应用与资源</div>
+  <h1>应用领域：同一套方法，不同的归纳偏置</h1>
+  <p class="lede">深度学习不是单一技术，而是一族方法。视觉用卷积与注意力处理空间，
+    语言用序列建模处理结构，推荐用嵌入与交互处理稀疏 ID，科学计算用等变网络处理对称性。
+    本章按领域梳理任务、代表模型与落地要点。</p>
+  <div class="meta">
+    <span>预计 60 分钟</span><span>前置：第 5~12 章</span>
+    <span>关键词：CV · NLP · 语音 · 推荐 · 多模态 · 科学计算</span>
+  </div>
+</header>
+
+<section>
+<h2 id="map">15.1 领域全景</h2>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>领域</th><th>输入结构</th><th>核心任务</th><th>代表模型</th></tr></thead>
+  <tbody>
+    <tr><td>计算机视觉</td><td>2D/3D 网格，局部相关</td><td>分类、检测、分割、生成</td><td>ResNet、ViT、SAM、DiT</td></tr>
+    <tr><td>自然语言</td><td>离散序列，长程依赖</td><td>分类、抽取、生成、检索</td><td>BERT、GPT、T5</td></tr>
+    <tr><td>语音</td><td>时序波形/频谱</td><td>识别、合成、分离、增强</td><td>Whisper、Conformer、VITS</td></tr>
+    <tr><td>推荐</td><td>稀疏 ID 与特征交叉</td><td>召回、排序、重排</td><td>双塔、DeepFM、DIN</td></tr>
+    <tr><td>多模态</td><td>图文音视频对齐</td><td>检索、问答、生成</td><td>CLIP、BLIP-2、LLaVA</td></tr>
+    <tr><td>科学计算</td><td>坐标、网格、图</td><td>预测、模拟、反演</td><td>AlphaFold、GNoME、Neural ODE</td></tr>
+    <tr><td>具身智能</td><td>观测 + 动作序列</td><td>抓取、导航、操作</td><td>RT-2、Diffusion Policy</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="cv">15.2 计算机视觉</h2>
+<h3 id="cv-tasks">四类基础任务</h3>
+<div class="grid2">
+  <div class="card">
+    <h4>分类</h4>
+    <p>整图一个标签。骨干网络提取特征，全局池化后接线性头。
+      ViT 把图像切成 patch 当 token，数据足够时通常优于 CNN。</p>
+  </div>
+  <div class="card">
+    <h4>检测</h4>
+    <p>输出框与类别。分单阶段（YOLO、RetinaNet）与两阶段（Faster R-CNN）。
+      损失由分类项与框回归项组成，常配 IoU 或 GIoU。</p>
+  </div>
+  <div class="card">
+    <h4>分割</h4>
+    <p>逐像素分类。语义分割不区分实例，实例分割需要 mask 头，
+      提示式分割（SAM）把“分割”变成可提示的通用任务。</p>
+  </div>
+  <div class="card">
+    <h4>生成</h4>
+    <p>从噪声或条件生成图像。扩散模型是当前主流，DiT 把 U-Net 换成 Transformer。</p>
+  </div>
+</div>
+
+<div class="formula">
+  <span class="label">IoU 与非极大值抑制</span>
+  <div class="fx">IoU = |<span class="v">A</span> ∩ <span class="v">B</span>| /
+    |<span class="v">A</span> ∪ <span class="v">B</span>|</div>
+  <p class="fx-note">检测评估用 mAP（不同 IoU 阈值下的平均精度）。
+    NMS 按分数排序，抑制与高分框 IoU 超过阈值的候选，阈值过大会漏检、过小会重复。</p>
+</div>
+
+<div class="code">
+  <div class="code-bar"><span>python · 使用预训练视觉模型</span>
+    <button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+from PIL import Image
+from torchvision import transforms
+from torchvision.models import resnet50, ResNet50_Weights
+
+weights = ResNet50_Weights.IMAGENET1K_V2
+model = resnet50(weights=weights).eval()
+
+preprocess = transforms.Compose([
+    transforms.Resize(256),
+    transforms.CenterCrop(224),
+    transforms.ToTensor(),
+    transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225]),
+])
+
+img = Image.open("cat.jpg").convert("RGB")
+x = preprocess(img).unsqueeze(0)
+
+with torch.inference_mode():
+    logits = model(x)
+    probs = logits.softmax(dim=-1)[0]
+
+top5 = probs.topk(5)
+for idx, p in zip(top5.indices.tolist(), top5.values.tolist()):
+    print(weights.meta["categories"][idx], round(p, 4))</code></pre>
+</div>
+
+<div class="callout note">
+  <span class="ct">迁移学习仍是性价比之王</span>
+  <p>数据少于万级时，优先用预训练骨干 + 冻结特征 + 轻量头；
+    数据量上来后再全量微调。从零训练视觉模型在大多数业务里没有必要。</p>
+</div>
+
+<h2 id="nlp">15.3 自然语言处理</h2>
+<p>语言任务可以归为四类：理解（分类、抽取、匹配）、生成（摘要、翻译、对话）、
+  检索（召回、排序、问答）、结构化（信息抽取、工具调用）。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>任务</th><th>典型做法</th><th>关键指标</th></tr></thead>
+  <tbody>
+    <tr><td>文本分类</td><td>编码器 + 池化 + 线性头</td><td>F1、AUC</td></tr>
+    <tr><td>命名实体识别</td><td>BIO 标注 + Token 分类</td><td>实体级 F1</td></tr>
+    <tr><td>检索问答</td><td>双塔召回 + 交叉编码重排 + 生成</td><td>Recall@k、EM、F1</td></tr>
+    <tr><td>摘要翻译</td><td>Seq2Seq 或解码器生成</td><td>ROUGE、COMET、BLEU</td></tr>
+    <tr><td>对话智能体</td><td>指令微调 + 工具调用 + 记忆</td><td>任务成功率</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="rag">RAG：检索增强生成</h3>
+<ol class="steps">
+  <li><strong>切块</strong>按语义切分文档，块太大噪声多，太小丢上下文。
+    一般 300~800 token，并保留标题与来源元数据。</li>
+  <li><strong>嵌入</strong>用对比学习训练的双塔模型编码块，建立向量索引。</li>
+  <li><strong>召回</strong>向量检索结合关键词检索（BM25），再加重排模型精排。</li>
+  <li><strong>生成</strong>把命中的块拼进提示词，要求模型引用来源并承认不知道。</li>
+  <li><strong>评估</strong>分别评估召回率与答案忠实度，否则无法定位是检索还是生成的问题。</li>
+</ol>
+
+<div class="formula">
+  <span class="label">生成式问答的联合概率</span>
+  <div class="fx"><span class="v">p</span>(<span class="v">a</span>|<span class="v">q</span>) =
+    Σ<sub><span class="v">d</span>∈<span class="v">D</span></sub>
+    <span class="v">p</span>(<span class="v">d</span>|<span class="v">q</span>) ·
+    <span class="v">p</span>(<span class="v">a</span>|<span class="v">q</span>,<span class="v">d</span>)</div>
+  <p class="fx-note">检索质量是上限：文档没被召回，再强的生成模型也无从作答。
+    因此 RAG 调优的第一步永远是提升 Recall@k，而不是换更大的模型。</p>
+</div>
+
+<h2 id="speech">15.4 语音与音频</h2>
+<p>语音识别把波形转为文本，主流是编码器（Conformer/Whisper）加 CTC 或注意力解码。
+  语音合成从文本生成声学特征再转波形，关注自然度与可控性（音色、韵律、情感）。</p>
+
+<div class="callout note">
+  <span class="ct">音频的表示选择</span>
+  <p>原始波形保留全部信息但序列极长；梅尔频谱压缩后更易建模。
+    生成任务常用声码器把频谱还原为波形，识别任务则多用车梅尔特征。</p>
+</div>
+
+<h2 id="rec">15.5 推荐系统</h2>
+<p>推荐是工业界最成熟的深度学习场景之一，链路通常分召回、粗排、精排、重排四级。
+  核心难点是稀疏 ID、特征交叉与冷启动。</p>
+
+<div class="formula">
+  <span class="label">双塔召回的内积打分</span>
+  <div class="fx"><span class="v">s</span>(<span class="v">u</span>,<span class="v">i</span>) =
+    <span class="v">f</span>(<span class="v">u</span>)<sup>T</sup>
+    <span class="v">g</span>(<span class="v">i</span>)</div>
+  <p class="fx-note">用户塔与物品塔分别编码，离线建立向量索引做近似最近邻搜索。
+    双塔无法建模用户—物品交互，因此精排阶段改用交叉特征模型（DeepFM、DIN）。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>阶段</th><th>候选量级</th><th>模型复杂度</th><th>目标</th></tr></thead>
+  <tbody>
+    <tr><td>召回</td><td>百万 → 千</td><td>双塔 / 向量检索</td><td>高召回、低延迟</td></tr>
+    <tr><td>粗排</td><td>千 → 百</td><td>轻量交叉模型</td><td>平衡精度与成本</td></tr>
+    <tr><td>精排</td><td>百 → 十</td><td>深度交叉网络</td><td>点击率/转化率预估</td></tr>
+    <tr><td>重排</td><td>十 → 展示位</td><td>列表模型 / 规则</td><td>多样性、商业约束</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="multi">15.6 多模态</h2>
+<p>多模态的关键是“对齐”：把不同模态映射到同一语义空间。
+  CLIP 用图文对比学习实现零样本分类；BLIP-2、LLaVA 用轻量连接器把视觉特征接入语言模型。</p>
+
+<div class="code">
+  <div class="code-bar"><span>python · CLIP 零样本分类</span>
+    <button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+from PIL import Image
+
+# 需要安装 openai-clip 或 transformers
+import clip
+
+model, preprocess = clip.load("ViT-B/32")
+image = preprocess(Image.open("dog.jpg")).unsqueeze(0)
+
+labels = ["a photo of a dog", "a photo of a cat", "a photo of a car"]
+text = clip.tokenize(labels)
+
+with torch.inference_mode():
+    logits_per_image, _ = model(image, text)
+    probs = logits_per_image.softmax(dim=-1).squeeze(0)
+
+for name, p in zip(labels, probs.tolist()):
+    print(f"{name:24s} {p:.4f}")</code></pre>
+</div>
+
+<div class="callout warn">
+  <span class="ct">多模态模型的幻觉更隐蔽</span>
+  <p>模型可能描述图中不存在的物体，且语言流畅让人难以察觉。
+    评估时应加入“物体存在性”与“关系正确性”的细粒度检查。</p>
+</div>
+
+<h2 id="science">15.7 科学计算与具身智能</h2>
+<div class="grid2">
+  <div class="card">
+    <h4>科学机器学习</h4>
+    <p>蛋白质结构预测（AlphaFold）、天气预报（GraphCast）、材料发现（GNoME）、
+      物理约束网络（PINN）。核心是编码对称性与守恒律，而非堆参数。</p>
+  </div>
+  <div class="card">
+    <h4>等变网络</h4>
+    <p>旋转、平移、置换等变换下的等变性可大幅提升样本效率。
+      分子与晶体任务几乎都受益于 E(3) 等变设计。</p>
+  </div>
+  <div class="card">
+    <h4>具身智能</h4>
+    <p>视觉—语言—动作模型把感知与决策连起来。数据稀缺是主要瓶颈，
+      常用仿真、遥操作与扩散策略生成动作。</p>
+  </div>
+  <div class="card">
+    <h4>AI for Science 的评估</h4>
+    <p>不能只看测试集误差，还要看能否复现已知物理规律、外推到新条件、
+      以及实验验证成本。</p>
+  </div>
+</div>
+
+<div class="takeaway">
+  <h3>本章要点</h3>
+  <ul>
+    <li>领域的差异主要体现在输入结构与归纳偏置，而非损失函数。</li>
+    <li>视觉任务优先迁移学习；检测与分割的关键在标签与后处理。</li>
+    <li>RAG 的上限由召回决定，先优化检索再优化生成。</li>
+    <li>推荐系统是分级链路，召回与精排的目标与模型复杂度不同。</li>
+    <li>科学计算强调对称性、守恒律与外推能力，样本效率比参数量更重要。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>在小数据集上从零训练大模型，而不使用预训练权重。</li>
+    <li>把分类指标直接用于检测，忽略 IoU 与定位质量。</li>
+    <li>RAG 效果差就换更大模型，却不检查召回率。</li>
+    <li>推荐只看 AUC，忽略线上生态指标与多样性。</li>
+    <li>多模态只看语言流畅度，不验证视觉事实一致性。</li>
+  </ol>
+</div>
+</section>
