@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>工程实践 · 深度学习学习站</title>
+<meta name="description" content="数据 · 调试 · 复现 · 分布式">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-slug="14-engineering">
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <span class="brand-mark">DL</span>
+      <span class="brand-text">
+        <strong>深度学习学习站</strong>
+        <em>从数学基础到大模型落地</em>
+      </span>
+    </a>
+  </div>
+  <div class="nav-search">
+    <input id="nav-search" type="search" placeholder="筛选章节（按 / 聚焦）" autocomplete="off">
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-group">
+      <span class="nav-group-title">起点</span>
+      <a class="nav-item" href="index.html" data-page="index" data-chapter="0">
+        <span class="nav-num">00</span><span class="nav-body"><strong>学习地图</strong><em>总览 · 路线 · 怎么用</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第一部分 · 基础</span>
+      <a class="nav-item" href="01-foundations.html" data-page="01-foundations" data-chapter="1">
+        <span class="nav-num">01</span><span class="nav-body"><strong>数学基础</strong><em>张量 · 微积分 · 概率与信息论</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="02-ml-basics.html" data-page="02-ml-basics" data-chapter="1">
+        <span class="nav-num">02</span><span class="nav-body"><strong>机器学习基础</strong><em>任务范式 · 损失 · 评估</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="03-neural-nets.html" data-page="03-neural-nets" data-chapter="1">
+        <span class="nav-num">03</span><span class="nav-body"><strong>神经网络与反向传播</strong><em>MLP · 链式法则 · 计算图</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="04-training.html" data-page="04-training" data-chapter="1">
+        <span class="nav-num">04</span><span class="nav-body"><strong>训练与优化</strong><em>优化器 · 正则化 · 归一化</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第二部分 · 核心架构</span>
+      <a class="nav-item" href="05-cnn.html" data-page="05-cnn" data-chapter="1">
+        <span class="nav-num">05</span><span class="nav-body"><strong>卷积神经网络</strong><em>卷积 · 感受野 · ResNet</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="06-sequence.html" data-page="06-sequence" data-chapter="1">
+        <span class="nav-num">06</span><span class="nav-body"><strong>序列模型</strong><em>RNN · LSTM · Seq2Seq</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="07-transformer.html" data-page="07-transformer" data-chapter="1">
+        <span class="nav-num">07</span><span class="nav-body"><strong>注意力与 Transformer</strong><em>Self-Attention · 多头 · 位置编码</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="08-pretraining.html" data-page="08-pretraining" data-chapter="1">
+        <span class="nav-num">08</span><span class="nav-body"><strong>预训练与自监督</strong><em>语言模型 · 对比学习 · CLIP</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第三部分 · 生成与决策</span>
+      <a class="nav-item" href="09-generative.html" data-page="09-generative" data-chapter="1">
+        <span class="nav-num">09</span><span class="nav-body"><strong>生成模型</strong><em>VAE · GAN · 扩散模型</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="10-reinforcement.html" data-page="10-reinforcement" data-chapter="1">
+        <span class="nav-num">10</span><span class="nav-body"><strong>强化学习</strong><em>MDP · 策略梯度 · PPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="11-gnn.html" data-page="11-gnn" data-chapter="1">
+        <span class="nav-num">11</span><span class="nav-body"><strong>图神经网络</strong><em>消息传递 · GCN · GAT</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第四部分 · 大模型与工程</span>
+      <a class="nav-item" href="12-llm.html" data-page="12-llm" data-chapter="1">
+        <span class="nav-num">12</span><span class="nav-body"><strong>大模型与微调</strong><em>Scaling · LoRA · RLHF/DPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="13-efficient.html" data-page="13-efficient" data-chapter="1">
+        <span class="nav-num">13</span><span class="nav-body"><strong>压缩与部署</strong><em>量化 · 蒸馏 · 推理服务</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item active" href="14-engineering.html" data-page="14-engineering" data-chapter="1">
+        <span class="nav-num">14</span><span class="nav-body"><strong>工程实践</strong><em>数据 · 调试 · 复现 · 分布式</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第五部分 · 应用与资源</span>
+      <a class="nav-item" href="15-applications.html" data-page="15-applications" data-chapter="1">
+        <span class="nav-num">15</span><span class="nav-body"><strong>应用领域</strong><em>视觉 · 语言 · 科学计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="16-resources.html" data-page="16-resources" data-chapter="1">
+        <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+  </nav>
+  <div class="side-foot">
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-bar"><i id="progress-bar"></i></div>
+    <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <button class="nav-toggle" id="nav-toggle" type="button">☰ 目录</button>
+    <span class="topbar-chapter">深度学习学习站 · 第 14 章</span>
+    <span class="topbar-line"></span>
+    <span>离线可用 · 无需联网</span>
+  </div>
+  <article class="content">
+<header class="chapter-head">
+  <div class="crumb">第四部分 · 大模型与工程</div>
+  <h1>工程实践：把实验变成可复现的系统</h1>
+  <p class="lede">研究代码与生产代码的区别不在模型，而在数据、配置、日志、测试与协作。
+    本章给出构建可靠训练系统的清单：先保证可复现，再谈性能。</p>
+  <div class="meta">
+    <span>预计 50 分钟</span><span>前置：第 4 章</span>
+    <span>关键词：数据管线 · 可复现 · 调试 · DDP</span>
+  </div>
+</header>
+<nav class="outline" id="outline" aria-label="本章目录">
+  <div class="outline-head"><span>本章目录</span><button class="outline-toggle" id="outline-toggle" type="button">收起</button></div>
+  <ol>
+    <li><a href="#pipeline">14.1 数据管线</a></li>
+    <li><a href="#repro">14.2 可复现的五个要素</a></li>
+    <li><a href="#debug">14.3 调试：从最小可复现开始</a></li>
+    <li><a href="#overfit">单批过拟合测试</a></li>
+    <li><a href="#eval">14.4 评测体系</a></li>
+    <li><a href="#dist">14.5 分布式训练入门</a></li>
+    <li><a href="#parallel">并行策略怎么选</a></li>
+    <li><a href="#ops">14.6 实验管理与协作</a></li>
+  </ol>
+</nav>
+
+<section>
+<h2 id="pipeline">14.1 数据管线</h2>
+<p>模型上限由数据决定。一个可靠的数据管线要回答四个问题：数据从哪来、
+  如何清洗、如何切分、如何版本化。任何一环缺失，实验结论都不可信。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>环节</th><th>关键动作</th><th>常见事故</th></tr></thead>
+  <tbody>
+    <tr><td>采集</td><td>记录来源、时间、许可</td><td>混入评测集、版权不清</td></tr>
+    <tr><td>清洗</td><td>去重、去噪、脱敏、语言识别</td><td>去重不彻底导致指标虚高</td></tr>
+    <tr><td>标注</td><td>指南、双人标注、一致性检验</td><td>标注标准漂移</td></tr>
+    <tr><td>切分</td><td>按用户/时间分组切分</td><td>同源样本跨集泄漏</td></tr>
+    <tr><td>版本</td><td>内容哈希 + 处理脚本版本</td><td>数据被就地覆盖无法回溯</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout note">
+  <span class="ct">切分比洗数据更容易出错</span>
+  <p>同一用户的多条记录、同一文档的多个片段、同一事件的重复报道，
+    都属于“同源”。随机切分会让训练集与测试集共享这些信息，指标会明显偏高。
+    正确做法是按实体或时间做分组切分。</p>
+</div>
+
+<h2 id="repro">14.2 可复现的五个要素</h2>
+<ol class="steps">
+  <li><strong>代码版本</strong>提交哈希写进日志；未提交的改动要显式标记为 dirty。</li>
+  <li><strong>数据版本</strong>用内容哈希或清单文件锁定，而不是“最新目录”。</li>
+  <li><strong>环境版本</strong>Python、CUDA、PyTorch、驱动与依赖锁文件一并记录。</li>
+  <li><strong>随机性</strong>种子、确定性算子、数据加载顺序都要控制。</li>
+  <li><strong>配置</strong>所有超参进配置文件并随实验存档，禁止散落在命令行。</li>
+</ol>
+
+<div class="code">
+  <div class="code-bar"><span>python · 种子与确定性</span>
+    <button class="copy" type="button">复制</button></div>
+<pre><code>import os
+import random
+
+import numpy as np
+import torch
+
+
+def set_seed(seed: int = 42) -> None:
+    """固定所有随机源，尽量保证实验可复现。"""
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    random.seed(seed)
+    np.random.seed(seed)
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+
+    # 确定性算法会牺牲一些速度，调试阶段建议开启
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
+    torch.use_deterministic_algorithms(True, warn_only=True)
+
+    # DataLoader 的 worker 也需要独立的种子来源
+    def seed_worker(worker_id: int) -> None:
+        worker_seed = seed + worker_id
+        np.random.seed(worker_seed)
+        random.seed(worker_seed)
+
+    return seed_worker</code></pre>
+</div>
+
+<h2 id="debug">14.3 调试：从最小可复现开始</h2>
+<p>训练不收敛时，不要随机改超参。按下面的顺序做二分排查，
+  每一步都应该是可证伪的小实验。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>现象</th><th>优先检查</th><th>快速验证</th></tr></thead>
+  <tbody>
+    <tr><td>损失是 NaN</td><td>学习率、除零、log(0)、混合精度溢出</td><td>调小 lr，关闭 AMP，加 clip</td></tr>
+    <tr><td>损失不下降</td><td>标签错位、学习率过小、梯度被切断</td><td>单 batch 过拟合测试</td></tr>
+    <tr><td>训练升验证降</td><td>过拟合、数据泄漏、切分错误</td><td>检查同源样本与正则</td></tr>
+    <tr><td>指标突然跳水</td><td>数据分布变化、学习率调度、脏样本</td><td>回放最近一个 checkpoint</td></tr>
+    <tr><td>多卡结果异常</td><td>BN 统计、梯度同步、采样重复</td><td>换单卡对比同种子</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="overfit">单批过拟合测试</h3>
+<p>取一个固定 batch，关闭正则与数据增强，训练几十步。若损失无法降到接近 0，
+  说明模型或代码有结构性错误，而不是数据问题。这是最省时间的排查手段。</p>
+
+<div class="code">
+  <div class="code-bar"><span>python · 单批过拟合</span>
+    <button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+from torch import nn
+
+
+def overfit_one_batch(model, batch, steps=200, lr=1e-3):
+    """用一个 batch 反复训练，验证模型与损失实现是否正确。"""
+    model.train()
+    x, y = batch
+    opt = torch.optim.AdamW(model.parameters(), lr=lr)
+    loss_fn = nn.CrossEntropyLoss()
+
+    for step in range(steps):
+        logits = model(x)
+        loss = loss_fn(logits, y)
+
+        opt.zero_grad(set_to_none=True)
+        loss.backward()
+        opt.step()
+
+        if step % 20 == 0:
+            acc = (logits.argmax(dim=-1) == y).float().mean().item()
+            print(f"step {step:3d}  loss {loss.item():.4f}  acc {acc:.3f}")
+
+    assert loss.item() < 0.1, "单批都无法过拟合，先查模型或标签"
+    return model</code></pre>
+</div>
+
+<h2 id="eval">14.4 评测体系</h2>
+<p>离线指标、线上指标与人工评估各有盲区。成熟的做法是三层评测：
+  单元级（单条样本回归）、集合级（固定测试集）、线上级（A/B 与真实流量）。</p>
+
+<div class="grid3">
+  <div class="card">
+    <span class="no">01</span>
+    <h4>单元回归</h4>
+    <p>为每个已知 bug 保留一条测试样本，防止修复被回滚。</p>
+  </div>
+  <div class="card">
+    <span class="no">02</span>
+    <h4>固定测试集</h4>
+    <p>版本化、去重、防泄漏；报告置信区间而非单点数字。</p>
+  </div>
+  <div class="card">
+    <span class="no">03</span>
+    <h4>线上评估</h4>
+    <p>A/B、影子流量、人工抽检，关注业务指标而非仅损失。</p>
+  </div>
+</div>
+
+<div class="callout warn">
+  <span class="ct">警惕评测污染</span>
+  <p>公开基准可能已进入预训练语料。报告结果时应说明是否做过污染检测，
+    并补充私有测试集与扰动测试（改写、换序、加噪）。</p>
+</div>
+
+<h2 id="dist">14.5 分布式训练入门</h2>
+<p>单卡放不下时有三条路：数据并行、张量并行、流水并行。
+  最常见的是分布式数据并行（DDP），每张卡持有完整模型，处理不同数据，
+  反向传播时对梯度做 all-reduce 求平均。</p>
+
+<div class="formula">
+  <span class="label">DDP 的有效批大小</span>
+  <div class="fx"><span class="v">B</span><sub>eff</sub> =
+    <span class="v">B</span><sub>per</sub> ·
+    <span class="v">N</span><sub>gpu</sub> ·
+    <span class="v">A</span><sub>accum</sub></div>
+  <p class="fx-note">换卡数或改梯度累积时，要同步调整学习率与 warmup，
+    否则等价于换了一套训练配置，曲线不可直接比较。</p>
+</div>
+
+<div class="code">
+  <div class="code-bar"><span>bash · DDP 启动</span>
+    <button class="copy" type="button">复制</button></div>
+<pre><code># 单机 4 卡
+torchrun --nproc_per_node=4 train_ddp.py \
+    --batch-size 32 --grad-accum 2 --lr 3e-4
+
+# 多机：每台机器都要设置相同的 master 地址与端口
+# node 0
+torchrun --nnodes=2 --node_rank=0 --master_addr=10.0.0.1 \
+    --master_port=29500 --nproc_per_node=8 train_ddp.py
+
+# node 1
+torchrun --nnodes=2 --node_rank=1 --master_addr=10.0.0.1 \
+    --master_port=29500 --nproc_per_node=8 train_ddp.py</code></pre>
+</div>
+
+<div class="code">
+  <div class="code-bar"><span>python · DDP 最小骨架</span>
+    <button class="copy" type="button">复制</button></div>
+<pre><code>import os
+
+import torch
+import torch.distributed as dist
+from torch import nn
+from torch.nn.parallel import DistributedDataParallel as DDP
+
+
+def main() -> None:
+    dist.init_process_group("nccl")
+    rank = dist.get_rank()
+    torch.cuda.set_device(rank)
+
+    model = nn.Linear(128, 10).cuda(rank)
+    model = DDP(model, device_ids=[rank])
+
+    opt = torch.optim.AdamW(model.parameters(), lr=3e-4)
+    for step in range(10):
+        x = torch.randn(32, 128, device=rank)
+        loss = model(x).sum()
+        opt.zero_grad(set_to_none=True)
+        loss.backward()          # 梯度在这里自动 all-reduce
+        opt.step()
+        if rank == 0:
+            print(step, loss.item())
+
+    dist.destroy_process_group()</code></pre>
+</div>
+
+<h3 id="parallel">并行策略怎么选</h3>
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>策略</th><th>切分对象</th><th>通信量</th><th>适用</th></tr></thead>
+  <tbody>
+    <tr><td>DDP</td><td>数据</td><td>梯度 all-reduce</td><td>模型能放进单卡</td></tr>
+    <tr><td>ZeRO / FSDP</td><td>参数、梯度、优化器状态</td><td>较高，可重叠</td><td>单卡放不下但层可切</td></tr>
+    <tr><td>张量并行 TP</td><td>单层内矩阵</td><td>每层两次 all-reduce</td><td>单机多卡、低延迟推理</td></tr>
+    <tr><td>流水并行 PP</td><td>按层分段</td><td>段间激活传递</td><td>跨机、超深模型</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h2 id="ops">14.6 实验管理与协作</h2>
+<div class="grid2">
+  <div class="card">
+    <h4>配置即代码</h4>
+    <p>用 YAML 或 dataclass 管理超参，实验输出目录带时间戳与配置快照，
+      禁止手工改默认值后忘记记录。</p>
+  </div>
+  <div class="card">
+    <h4>日志三件套</h4>
+    <p>指标曲线、样本级预测、系统指标（显存、吞吐、数据加载耗时）。
+      只记录损失不足以定位问题。</p>
+  </div>
+  <div class="card">
+    <h4>Checkpoint 策略</h4>
+    <p>按步数与时间双触发保存，保留最近 N 个与最佳指标版本，
+      并验证能从 checkpoint 完整恢复优化器与调度器状态。</p>
+  </div>
+</div>
+
+<div class="takeaway">
+  <h3>本章要点</h3>
+  <ul>
+    <li>数据切分要按实体或时间分组，随机切分极易造成泄漏。</li>
+    <li>可复现依赖代码、数据、环境、随机性、配置五要素同时锁定。</li>
+    <li>调试从单批过拟合开始，先证明模型能学会，再怀疑数据与超参。</li>
+    <li>DDP 改卡数或累积步数时，必须同步调整学习率与 warmup。</li>
+    <li>评测要防污染，报告置信区间而不是单点分数。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>用测试集调超参，最终指标无法代表泛化能力。</li>
+    <li>只保存模型权重，不保存优化器与调度器状态，无法续训。</li>
+    <li>在多卡上使用普通 BatchNorm，统计量不同步导致结果异常。</li>
+    <li>数据加载成为瓶颈却一直优化模型，GPU 利用率长期低于 50%。</li>
+    <li>实验目录随手命名，几周后无法复现任何一条曲线。</li>
+  </ol>
+</div>
+</section>
+    <div class="chapter-actions">
+      <button class="mark-done" id="mark-done" type="button">标记本章已学完</button>
+      <span class="hint">进度保存在本机浏览器，用于跟踪学习路线</span>
+    </div>
+    <nav class="pager" aria-label="章节翻页">
+      <a class="prev" href="13-efficient.html"><span class="dir">← 上一章</span><span class="ttl">压缩与部署</span></a>
+      <a class="next" href="15-applications.html"><span class="dir">下一章 →</span><span class="ttl">应用领域</span></a>
+    </nav>
+  </article>
+  <footer class="page-foot">
+    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
+  </footer>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
