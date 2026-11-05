@@ -1,0 +1,200 @@
+<header class="chapter-head">
+  <div class="crumb">第三部分 · 生成与决策</div>
+  <h1>图神经网络：在关系结构上做推理</h1>
+  <p class="lede">分子、社交网络、知识图谱、推荐系统、交通路网——现实数据很多时候不是网格或序列，
+    而是图。GNN 用“邻居聚合”把局部结构编码进节点表示，是关系型数据的通用架构。</p>
+  <div class="meta">
+    <span>预计 55 分钟</span><span>前置：第 3、7 章</span>
+    <span>关键词：消息传递 · GCN · GAT · 过平滑</span>
+  </div>
+</header>
+
+<section>
+<h2 id="graph">11.1 图的表示与任务</h2>
+<p>图由节点集合 <span class="v">V</span>、边集合 <span class="v">E</span> 与节点特征
+<span class="v">X</span> ∈ R<sup>N×F</sup> 组成。邻接矩阵 <span class="v">A</span> ∈
+{0,1}<sup>N×N</sup> 描述连接关系，度矩阵 <span class="v">D</span> 的对角线是每个节点的邻居数。</p>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>任务层级</th><th>预测目标</th><th>例子</th><th>输出头</th></tr></thead>
+  <tbody>
+    <tr><td>节点级</td><td>每个节点的标签</td><td>用户分类、论文主题</td><td>节点表示 → 线性层</td></tr>
+    <tr><td>边级</td><td>边是否存在 / 类型</td><td>推荐、知识图谱补全</td><td>两端表示做内积或拼接</td></tr>
+    <tr><td>图层级</td><td>整张图的标签</td><td>分子性质、图分类</td><td>Readout 聚合后接分类头</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout note">
+  <span class="ct">为什么不能直接用 MLP</span>
+  <p>MLP 把每个节点当独立样本，完全忽略连接关系；CNN 要求规则网格；RNN 要求序列顺序。
+    图的结构不规则、邻居数量可变，需要一种<strong>对邻居排列不变</strong>的聚合方式。</p>
+</div>
+</section>
+
+<section>
+<h2 id="mp">11.2 消息传递：GNN 的统一框架</h2>
+<p>每一层做三件事：从邻居收集消息、聚合消息、与自身表示融合更新。
+聚合函数必须对邻居顺序不敏感（sum / mean / max）。</p>
+
+<div class="formula">
+  <span class="label">消息传递通用形式</span>
+  <div class="fx"><span class="v">m</span><sub>v</sub><sup>(l)</sup> =
+    AGG<sub>u∈N(v)</sub> M<sup>(l)</sup>(<span class="v">h</span><sub>v</sub><sup>(l)</sup>,
+    <span class="v">h</span><sub>u</sub><sup>(l)</sup>, <span class="v">e</span><sub>uv</sub>)</div>
+  <div class="fx"><span class="v">h</span><sub>v</sub><sup>(l+1)</sup> =
+    U<sup>(l)</sup>(<span class="v">h</span><sub>v</sub><sup>(l)</sup>,
+    <span class="v">m</span><sub>v</sub><sup>(l)</sup>)</div>
+  <p class="fx-note">M 是消息函数，AGG 是排列不变的聚合，U 是更新函数。
+    GCN、GraphSAGE、GAT、GIN 都可以写进这个框架，区别只在三者如何定义。</p>
+</div>
+
+<div class="formula">
+  <span class="label">层数与感受野</span>
+  <div class="fx">L 层 GNN 的节点表示汇聚了 L 跳邻居</div>
+  <p class="fx-note">层数太少看不到远距离依赖，层数太多所有节点表示趋同（过平滑）。
+    实践中 2~4 层往往最优，需要更远的信息时用虚拟节点、残差或图重连。</p>
+</div>
+</section>
+
+<section>
+<h2 id="gcn">11.3 GCN：带归一化的邻居平均</h2>
+<p>GCN 可以看作图上的低通滤波：每个节点的新表示是“自身 + 邻居”的加权平均，
+权重由度的乘积归一化，防止高度节点主导。</p>
+
+<div class="formula">
+  <span class="label">GCN 层</span>
+  <div class="fx"><span class="v">H</span><sup>(l+1)</sup> = σ(
+    <span class="v">D̃</span><sup>−1/2</sup><span class="v">Ã</span>
+    <span class="v">D̃</span><sup>−1/2</sup><span class="v">H</span><sup>(l)</sup>
+    <span class="v">W</span><sup>(l)</sup>)</div>
+  <p class="fx-note">Ã = A + I 加入自环，D̃ 是 Ã 的度矩阵。
+    归一化项 1/√(d<sub>i</sub>d<sub>j</sub>) 让高度节点的边权重变小，训练更稳定。</p>
+</div>
+
+<div class="code">
+<div class="code-bar"><span>Python · 手写 GCN 层</span><button class="copy" type="button">复制</button></div>
+<pre><code>import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+class GCNLayer(nn.Module):
+    def __init__(self, in_dim, out_dim):
+        super().__init__()
+        self.weight = nn.Linear(in_dim, out_dim, bias=False)
+        self.bias = nn.Parameter(torch.zeros(out_dim))
+
+    def forward(self, x, adj):
+        # adj: (N, N) 原始邻接矩阵（含自环更佳）
+        n = adj.size(0)
+        a = adj + torch.eye(n, device=adj.device)      # 加自环
+        deg = a.sum(dim=1).pow(-0.5)
+        norm = deg.view(-1, 1) * a * deg.view(1, -1)   # D^-1/2 A D^-1/2
+        return F.relu(norm @ self.weight(x) + self.bias)
+
+class GCN(nn.Module):
+    def __init__(self, in_dim, hidden, num_classes, dropout=0.5):
+        super().__init__()
+        self.g1 = GCNLayer(in_dim, hidden)
+        self.g2 = GCNLayer(hidden, num_classes)
+        self.drop = nn.Dropout(dropout)
+
+    def forward(self, x, adj):
+        x = self.drop(F.relu(self.g1(x, adj)))
+        return self.g2(x, adj)
+
+x = torch.randn(10, 16)
+adj = (torch.rand(10, 10) &gt; 0.5).float()
+adj = ((adj + adj.t()) &gt; 0).float()                   # 对称化
+model = GCN(16, 32, 3)
+print(model(x, adj).shape)                              # (10, 3)</code></pre>
+</div>
+</section>
+
+<section>
+<h2 id="sage-gat">11.4 GraphSAGE 与 GAT</h2>
+<p>GCN 需要整张图的邻接矩阵，难以做大规模归纳学习。GraphSAGE 采样固定数量的邻居，
+聚合后与自身拼接，可对 unseen 节点直接推理。GAT 则用注意力给邻居分配不同权重。</p>
+
+<div class="formula">
+  <span class="label">GraphSAGE 聚合</span>
+  <div class="fx"><span class="v">h</span><sub>N(v)</sub> =
+    AGG({<span class="v">h</span><sub>u</sub>, u ∈ N(v)})
+    &nbsp;&nbsp; <span class="v">h</span><sub>v</sub>′ =
+    σ(<span class="v">W</span> · [<span class="v">h</span><sub>v</sub> ‖
+    <span class="v">h</span><sub>N(v)</sub>])</div>
+  <p class="fx-note">聚合函数可选 mean / LSTM / max-pool。拼接而非相加保留了“自身”与“邻居”的区分。</p>
+</div>
+
+<div class="formula">
+  <span class="label">GAT 的注意力系数</span>
+  <div class="fx">α<sub>vu</sub> = softmax<sub>u∈N(v)</sub>(
+    LeakyReLU(<span class="v">a</span><sup>T</sup>[<span class="v">W</span><span class="v">h</span><sub>v</sub> ‖
+    <span class="v">W</span><span class="v">h</span><sub>u</sub>]))</div>
+  <div class="fx"><span class="v">h</span><sub>v</sub>′ = σ(Σ<sub>u∈N(v)</sub>
+    α<sub>vu</sub><span class="v">W</span><span class="v">h</span><sub>u</sub>)</div>
+  <p class="fx-note">多头 GAT 与 Transformer 的多头注意力思路一致。
+    注意力让模型自动识别“哪些邻居更重要”，可解释性也更好。</p>
+</div>
+
+<div class="tbl-wrap">
+<table class="tbl">
+  <thead><tr><th>模型</th><th>聚合方式</th><th>是否用边权</th><th>适合</th></tr></thead>
+  <tbody>
+    <tr><td>GCN</td><td>度归一化加权平均</td><td>可扩展</td><td>转导式节点分类</td></tr>
+    <tr><td>GraphSAGE</td><td>采样 + 拼接聚合</td><td>否</td><td>大规模归纳学习</td></tr>
+    <tr><td>GAT</td><td>多头注意力</td><td>可扩展</td><td>异质邻居重要性差异大</td></tr>
+    <tr><td>GIN</td><td>sum + MLP</td><td>否</td><td>图分类，表达力强</td></tr>
+  </tbody>
+</table>
+</div>
+</section>
+
+<section>
+<h2 id="issues">11.5 过平滑、过挤压与读出</h2>
+
+<h3 id="oversmooth">过平滑</h3>
+<p>层数增加后，邻居聚合反复平均，所有节点表示趋于同一向量，分类能力下降。
+表现是训练/验证准确率随层数增加先升后降。对策：残差连接、Jumping Knowledge、
+PairNorm、限制层数。</p>
+
+<h3 id="oversquash">过挤压</h3>
+<p>图分类任务中，节点数远大于隐藏维度时，把大量信息压进固定向量会丢失细节。
+对策：更宽的表示、层级池化（DiffPool）、或使用能保留结构的读出。</p>
+
+<div class="formula">
+  <span class="label">图级读出</span>
+  <div class="fx"><span class="v">h</span><sub>G</sub> =
+    READOUT({<span class="v">h</span><sub>v</sub><sup>(L)</sup>, v ∈ <span class="v">V</span>})
+    &nbsp;&nbsp; <span class="v">ŷ</span> = MLP(<span class="v">h</span><sub>G</sub>)</div>
+  <p class="fx-note">READOUT 常用 sum / mean / max 或注意力加权。
+    对分子性质预测，sum 通常比 mean 更合适，因为它保留规模信息。</p>
+</div>
+</section>
+
+<section>
+<h2 id="summary">11.6 本章小结</h2>
+<div class="takeaway">
+  <h3>GNN 的关键结论</h3>
+  <ul>
+    <li>图学习的核心是排列不变的邻居聚合。</li>
+    <li>GCN 用归一化邻接矩阵做加权平均，是最常用的基线。</li>
+    <li>GraphSAGE 通过邻居采样支持大规模与归纳学习。</li>
+    <li>GAT 用注意力区分邻居重要性，适合异质图。</li>
+    <li>层数不是越多越好，过平滑会抹平节点差异。</li>
+    <li>图分类需要读出层，聚合方式要与任务语义匹配。</li>
+  </ul>
+</div>
+
+<div class="pit">
+  <h3>常见误区</h3>
+  <ol>
+    <li>邻接矩阵没有对称化或忘记加自环。</li>
+    <li>在节点分类中随机划分节点，导致邻居信息泄漏到验证集。</li>
+    <li>盲目堆叠 10 层 GCN，性能因过平滑反而下降。</li>
+    <li>度归一化实现错误，维度广播方向搞反。</li>
+    <li>图分类用 mean 读出，丢失了节点数量这一重要特征。</li>
+  </ol>
+</div>
+</section>
