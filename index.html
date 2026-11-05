@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>学习地图 · 深度学习学习站</title>
+<meta name="description" content="总览 · 路线 · 怎么用">
+<link rel="stylesheet" href="assets/site.css">
+</head>
+<body data-slug="index">
+<div class="layout">
+<aside class="sidebar" id="sidebar">
+  <div class="brand">
+    <a class="brand-link" href="index.html">
+      <span class="brand-mark">DL</span>
+      <span class="brand-text">
+        <strong>深度学习学习站</strong>
+        <em>从数学基础到大模型落地</em>
+      </span>
+    </a>
+  </div>
+  <div class="nav-search">
+    <input id="nav-search" type="search" placeholder="筛选章节（按 / 聚焦）" autocomplete="off">
+  </div>
+  <nav class="nav" id="nav">
+    <div class="nav-group">
+      <span class="nav-group-title">起点</span>
+      <a class="nav-item active" href="index.html" data-page="index" data-chapter="0">
+        <span class="nav-num">00</span><span class="nav-body"><strong>学习地图</strong><em>总览 · 路线 · 怎么用</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第一部分 · 基础</span>
+      <a class="nav-item" href="01-foundations.html" data-page="01-foundations" data-chapter="1">
+        <span class="nav-num">01</span><span class="nav-body"><strong>数学基础</strong><em>张量 · 微积分 · 概率与信息论</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="02-ml-basics.html" data-page="02-ml-basics" data-chapter="1">
+        <span class="nav-num">02</span><span class="nav-body"><strong>机器学习基础</strong><em>任务范式 · 损失 · 评估</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="03-neural-nets.html" data-page="03-neural-nets" data-chapter="1">
+        <span class="nav-num">03</span><span class="nav-body"><strong>神经网络与反向传播</strong><em>MLP · 链式法则 · 计算图</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="04-training.html" data-page="04-training" data-chapter="1">
+        <span class="nav-num">04</span><span class="nav-body"><strong>训练与优化</strong><em>优化器 · 正则化 · 归一化</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第二部分 · 核心架构</span>
+      <a class="nav-item" href="05-cnn.html" data-page="05-cnn" data-chapter="1">
+        <span class="nav-num">05</span><span class="nav-body"><strong>卷积神经网络</strong><em>卷积 · 感受野 · ResNet</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="06-sequence.html" data-page="06-sequence" data-chapter="1">
+        <span class="nav-num">06</span><span class="nav-body"><strong>序列模型</strong><em>RNN · LSTM · Seq2Seq</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="07-transformer.html" data-page="07-transformer" data-chapter="1">
+        <span class="nav-num">07</span><span class="nav-body"><strong>注意力与 Transformer</strong><em>Self-Attention · 多头 · 位置编码</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="08-pretraining.html" data-page="08-pretraining" data-chapter="1">
+        <span class="nav-num">08</span><span class="nav-body"><strong>预训练与自监督</strong><em>语言模型 · 对比学习 · CLIP</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第三部分 · 生成与决策</span>
+      <a class="nav-item" href="09-generative.html" data-page="09-generative" data-chapter="1">
+        <span class="nav-num">09</span><span class="nav-body"><strong>生成模型</strong><em>VAE · GAN · 扩散模型</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="10-reinforcement.html" data-page="10-reinforcement" data-chapter="1">
+        <span class="nav-num">10</span><span class="nav-body"><strong>强化学习</strong><em>MDP · 策略梯度 · PPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="11-gnn.html" data-page="11-gnn" data-chapter="1">
+        <span class="nav-num">11</span><span class="nav-body"><strong>图神经网络</strong><em>消息传递 · GCN · GAT</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第四部分 · 大模型与工程</span>
+      <a class="nav-item" href="12-llm.html" data-page="12-llm" data-chapter="1">
+        <span class="nav-num">12</span><span class="nav-body"><strong>大模型与微调</strong><em>Scaling · LoRA · RLHF/DPO</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="13-efficient.html" data-page="13-efficient" data-chapter="1">
+        <span class="nav-num">13</span><span class="nav-body"><strong>压缩与部署</strong><em>量化 · 蒸馏 · 推理服务</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="14-engineering.html" data-page="14-engineering" data-chapter="1">
+        <span class="nav-num">14</span><span class="nav-body"><strong>工程实践</strong><em>数据 · 调试 · 复现 · 分布式</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+    <div class="nav-group">
+      <span class="nav-group-title">第五部分 · 应用与资源</span>
+      <a class="nav-item" href="15-applications.html" data-page="15-applications" data-chapter="1">
+        <span class="nav-num">15</span><span class="nav-body"><strong>应用领域</strong><em>视觉 · 语言 · 科学计算</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+      <a class="nav-item" href="16-resources.html" data-page="16-resources" data-chapter="1">
+        <span class="nav-num">16</span><span class="nav-body"><strong>学习路线与资源</strong><em>课程 · 论文 · 项目清单</em></span><span class="tick" aria-hidden="true"></span>
+      </a>
+    </div>
+  </nav>
+  <div class="side-foot">
+    <div class="progress-top"><span>学习进度</span><span id="progress-count">0 / 16</span></div>
+    <div class="progress-bar"><i id="progress-bar"></i></div>
+    <a class="side-link" href="16-resources.html">资源与项目清单 →</a>
+  </div>
+</aside>
+<main class="main">
+  <div class="topbar">
+    <button class="nav-toggle" id="nav-toggle" type="button">☰ 目录</button>
+    <span class="topbar-chapter">深度学习学习站 · 学习地图</span>
+    <span class="topbar-line"></span>
+    <span>离线可用 · 无需联网</span>
+  </div>
+  <article class="content">
+<section>
+  <div class="hero">
+    <div class="kicker">DEEP LEARNING · FROM FOUNDATIONS TO DEPLOYMENT</div>
+    <h1>深度学习学习站</h1>
+    <p>一套覆盖数学基础、核心架构、生成与决策、大模型与工程落地的完整课程。
+      每章包含概念讲解、公式推导与可直接运行的 PyTorch 代码，离线打开即可学习。</p>
+    <div class="stat-row">
+      <div class="stat"><b>16</b><span>章节</span></div>
+      <div class="stat"><b>5</b><span>知识模块</span></div>
+      <div class="stat"><b>40+</b><span>公式推导</span></div>
+      <div class="stat"><b>30+</b><span>代码示例</span></div>
+      <div class="stat"><b>100%</b><span>离线可用</span></div>
+    </div>
+  </div>
+
+  <h2 id="usage">怎么用这个站</h2>
+  <ol class="steps">
+    <li><strong>按顺序读，别跳章</strong>第 1~4 章是所有后续内容的地基，
+      尤其是反向传播与优化器，跳过会在第 7 章卡住。</li>
+    <li><strong>先看本章目录</strong>每章开头有自动生成的小目录，可快速定位公式或代码段。</li>
+    <li><strong>动手改代码</strong>示例基于 PyTorch 2.x，建议复制到本地，改形状、改超参观察结果。</li>
+    <li><strong>标记进度</strong>读完一章点“标记本章已学完”，侧边栏与首页会同步显示进度。</li>
+    <li><strong>按需查阅</strong>侧边栏顶部可搜索章节；按 <code>/</code> 快速聚焦搜索框。</li>
+  </ol>
+
+  <h2 id="map">知识地图</h2>
+  <p>五部分按依赖关系排列。第一部分打基础，第二部分讲核心架构，
+    第三部分扩展到生成与决策，第四部分进入大模型与工程，第五部分落到应用与资源。</p>
+
+  <div class="map">
+    <div class="map-col">
+      <h3>起点</h3>
+      <ol>
+        <li><a href="index.html">学习地图</a></li>
+      </ol>
+      <h3 style="margin-top:14px">第一部分 · 基础</h3>
+      <ol>
+        <li><a href="01-foundations.html">数学基础</a></li>
+        <li><a href="02-ml-basics.html">机器学习基础</a></li>
+        <li><a href="03-neural-nets.html">神经网络与反向传播</a></li>
+        <li><a href="04-training.html">训练与优化</a></li>
+      </ol>
+    </div>
+    <div class="map-col">
+      <h3>第二部分 · 核心架构</h3>
+      <ol>
+        <li><a href="05-cnn.html">卷积神经网络</a></li>
+        <li><a href="06-sequence.html">序列模型</a></li>
+        <li><a href="07-transformer.html">注意力与 Transformer</a></li>
+        <li><a href="08-pretraining.html">预训练与自监督</a></li>
+      </ol>
+      <h3 style="margin-top:14px">第三部分 · 生成与决策</h3>
+      <ol>
+        <li><a href="09-generative.html">生成模型</a></li>
+        <li><a href="10-reinforcement.html">强化学习</a></li>
+        <li><a href="11-gnn.html">图神经网络</a></li>
+      </ol>
+    </div>
+    <div class="map-col">
+      <h3>第四部分 · 大模型与工程</h3>
+      <ol>
+        <li><a href="12-llm.html">大模型与微调</a></li>
+        <li><a href="13-efficient.html">压缩与部署</a></li>
+        <li><a href="14-engineering.html">工程实践</a></li>
+      </ol>
+      <h3 style="margin-top:14px">第五部分 · 应用与资源</h3>
+      <ol>
+        <li><a href="15-applications.html">应用领域</a></li>
+        <li><a href="16-resources.html">学习路线与资源</a></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="progress-card">
+    <div class="row"><span>你的学习进度</span><span id="home-count">0 / 16 章</span></div>
+    <div class="bar"><i id="home-bar"></i></div>
+    <p class="small" style="margin:8px 0 0">进度保存在本机浏览器。换设备不会同步，但可随时从头复习。</p>
+  </div>
+
+  <h2 id="tracks">三条学习路线</h2>
+  <div class="grid3">
+    <div class="card">
+      <span class="no">A</span>
+      <h4>零基础转行 · 4~6 个月</h4>
+      <p>补 Python 与线代 → 第 1~6 章 → 图像分类项目 → 第 7、12 章。
+        重点是每章都跑通代码。</p>
+    </div>
+    <div class="card">
+      <span class="no">B</span>
+      <h4>有编程基础 · 2~3 个月</h4>
+      <p>快速过第 1~2 章，重点第 3~7 章，手写一遍反向传播与多头注意力。</p>
+    </div>
+    <div class="card">
+      <span class="no">C</span>
+      <h4>工程落地 · 1~2 个月</h4>
+      <p>直接读第 4、8、12~14 章，聚焦训练稳定性、微调与推理服务。</p>
+    </div>
+  </div>
+
+  <h2 id="convention">阅读约定</h2>
+  <div class="grid2">
+    <div class="card">
+      <h4>公式</h4>
+      <p>全部用 HTML 排版，不依赖 MathJax，离线也能正确显示。
+        分式、上下标与求和符号均按教材习惯书写，关键符号在公式下方解释。</p>
+    </div>
+    <div class="card">
+      <h4>代码</h4>
+      <p>基于 PyTorch 2.x，每段都可独立运行。右上角有复制按钮，
+        代码块标注语言与用途；涉及外部数据时会说明替代方案。</p>
+    </div>
+    <div class="card">
+      <h4>提示框</h4>
+      <p>蓝色为补充说明，红色为风险与误区。章末统一给出“本章要点”与“常见误区”，
+        便于复习时快速扫读。</p>
+    </div>
+    <div class="card">
+      <h4>进度</h4>
+      <p>侧边栏的勾选状态由浏览器本地存储维护，不上传任何数据。
+        清除浏览器数据会重置进度。</p>
+    </div>
+  </div>
+
+  <h2 id="next">从哪开始</h2>
+  <p>如果你完全没接触过，从 <a href="01-foundations.html">第 1 章 数学基础</a> 开始；
+    如果已经会训练简单模型，直接跳到
+    <a href="07-transformer.html">第 7 章 注意力与 Transformer</a>；
+    如果只想把模型部署上线，先读 <a href="13-efficient.html">第 13 章 压缩与部署</a>。</p>
+
+  <div class="callout tip">
+    <span class="ct">建议</span>
+    <p>不要追求一次读懂。第一遍建立框架，知道每个概念在哪、解决什么问题；
+      第二遍再回头推公式、改代码。深度学习的理解来自反复使用，而不是一次性记忆。</p>
+  </div>
+</section>
+
+    <nav class="pager" aria-label="章节翻页">
+      <span class="empty"></span>
+      <a class="next" href="01-foundations.html"><span class="dir">下一章 →</span><span class="ttl">数学基础</span></a>
+    </nav>
+  </article>
+  <footer class="page-foot">
+    <span>深度学习学习站 · 共 16 章，按顺序阅读效果最佳</span>
+    <span>公式为 HTML 排版，代码基于 PyTorch 2.x</span>
+  </footer>
+</main>
+</div>
+<script src="assets/site.js"></script>
+</body>
+</html>
